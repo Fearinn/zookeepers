@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: Gregory Isabelli & Emmanuel Colin & BoardGameArena
@@ -20,18 +21,23 @@
  */
 
 
-/*
-
-Example:
-
-$this->card_types = array(
-    1 => array( "card_name" => ...,
-                ...
-              )
+$this->resource_types = array(
+  1 => array(
+    "label" => clienttranslate("plant"),
+    "labeltr" => self::_("plant"),
+    "total" => 20,
+    "per_player" => 4
+  ),
+  2 => array(
+    "label" => clienttranslate("meat/fish"),
+    "labeltr" => self::_("meat/fish"),
+    "total" => 20,
+    "per_player" => 4,
+  ),
+  3 => array(
+    "label" => clienttranslate("medical kit"),
+    "labeltr" => self::_("medical kit"),
+    "total" => 15,
+    "per_player" => 3,
+  )
 );
-
-*/
-
-
-
-

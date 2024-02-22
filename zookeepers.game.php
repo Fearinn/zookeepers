@@ -20,7 +20,6 @@
 
 require_once(APP_GAMEMODULE_PATH . 'module/table/table.game.php');
 
-
 class Zookeepers extends Table
 {
     function __construct()
@@ -41,6 +40,9 @@ class Zookeepers extends Table
             //    "my_second_game_variant" => 101,
             //      ...
         ));
+
+        $this->resources = self::getNew("module.common.deck");
+        $this->resources->init("resource");
     }
 
     protected function getGameName()
@@ -72,10 +74,28 @@ class Zookeepers extends Table
             $color = array_shift($default_colors);
             $values[] = "('" . $player_id . "','$color','" . $player['player_canal'] . "','" . addslashes($player['player_name']) . "','" . addslashes($player['player_avatar']) . "')";
         }
-        $sql .= implode(',', $values,);
+        $sql .= implode(',', $values);
         self::DbQuery($sql);
-        self::reattributeColorsBasedOnPreferences($players, $gameinfos['player_colors']);
+        self::reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
         self::reloadPlayersBasicInfos();
+
+        $resources_deck = array();
+        foreach ($this->resource_types as $type => $resource) {
+            $resources_deck[] = array("type" => $resource["label"], "type_arg" => $type, "nbr" => ($resource["total"] - $resource["per_player"] * count($players)));
+        }
+
+        $resources_to_players = array();
+        foreach ($this->resource_types as $type_arg => $resource) {
+            $resources_to_players[] = array("type" => $resource["label"], "type_arg" => $type_arg, "nbr" => $resource["per_player"]);
+        }
+
+        $this->resources->createCards($resources_deck, "deck");
+        $this->resources->shuffle('deck');
+
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $player_id => $player) {
+            $this->resources->createCards($resources_to_players, "hand", $player_id);
+        }
 
         /************ Start the game initialization *****/
 
@@ -89,22 +109,12 @@ class Zookeepers extends Table
 
         // TODO: setup the initial game situation here
 
-
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
 
         /************ End of the game initialization *****/
     }
 
-    /*
-        getAllDatas: 
-        
-        Gather all informations about current game situation (visible by the current player).
-        
-        The method is called each time the game interface is displayed to a player, ie:
-        _ when the game starts
-        _ when a player refreshes the game page (F5)
-    */
     protected function getAllDatas()
     {
         $result = array();
@@ -115,6 +125,8 @@ class Zookeepers extends Table
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
         $result['players'] = self::getCollectionFromDb($sql);
+
+        $players = self::loadPlayersBasicInfos();
 
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
 
@@ -143,11 +155,14 @@ class Zookeepers extends Table
     //////////// Utility functions
     ////////////    
 
-    /*
-        In this space, you can put any utility methods useful for your game logic
-    */
+    function filterByResourceType($resources, $type_arg)
+    {
+        $filtered_resources = array_filter($resources, function ($resource_type) use ($type_arg) {
+            return $resource_type !== $type_arg;
+        }, ARRAY_USE_KEY);
 
-
+        return $filtered_resources;
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
