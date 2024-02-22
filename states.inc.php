@@ -1,4 +1,5 @@
 <?php
+
 /**
  *------
  * BGA framework: Gregory Isabelli & Emmanuel Colin & BoardGameArena
@@ -49,7 +50,7 @@
 
 //    !! It is not a good idea to modify this file when a game is running !!
 
- 
+
 $machinestates = array(
 
     // The initial state. Please do not modify.
@@ -58,43 +59,25 @@ $machinestates = array(
         "description" => "",
         "type" => "manager",
         "action" => "stGameSetup",
-        "transitions" => array( "" => 2 )
+        "transitions" => array("" => 2)
     ),
-    
-    // Note: ID=2 => your first state
 
     2 => array(
-    		"name" => "playerTurn",
-    		"description" => clienttranslate('${actplayer} must play a card or pass'),
-    		"descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
-    		"type" => "activeplayer",
-    		"possibleactions" => array( "playCard", "pass" ),
-    		"transitions" => array( "playCard" => 2, "pass" => 2 )
-    ),
-    
-/*
-    Examples:
-    
-    2 => array(
-        "name" => "nextPlayer",
-        "description" => '',
-        "type" => "game",
-        "action" => "stNextPlayer",
-        "updateGameProgression" => true,   
-        "transitions" => array( "endGame" => 99, "nextPlayer" => 10 )
-    ),
-    
-    10 => array(
         "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} must play a card or pass'),
-        "descriptionmyturn" => clienttranslate('${you} must play a card or pass'),
+        "description" => clienttranslate('${actplayer} can do one of the four main actions and any free actions'),
+        "descriptionmyturn" => clienttranslate('${you} can do one of the four main actions and any free actions'),
         "type" => "activeplayer",
-        "possibleactions" => array( "playCard", "pass" ),
-        "transitions" => array( "playCard" => 2, "pass" => 2 )
-    ), 
+        "possibleactions" => array("saveSpecies", "collectResources", "manageQuarentine", "manageKeepers", "newSpecies", "pass"),
+        "transitions" => array("" => 3, "pass" => 3)
+    ),
 
-*/    
-   
+    3 => array(
+        "name" => "betweenActions",
+        "type" => "game",
+        "action" => "stBetweenActions",
+        "transitions" => array("" => 2, "gameEnd" => 99)
+    ),
+
     // Final state.
     // Please do not modify (and do not overload action/args methods).
     99 => array(
@@ -106,6 +89,3 @@ $machinestates = array(
     )
 
 );
-
-
-
