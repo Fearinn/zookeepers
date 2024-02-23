@@ -28,6 +28,8 @@ define([
       // Here, you can init the global variables of your user interface
       // Example:
       // this.myGlobalValue = 0;
+
+      this.resourceCounters = {};
     },
 
     /*
@@ -54,6 +56,23 @@ define([
           this.format_block("jstpl_player_board", player),
           player_board_div
         );
+
+        const plantCounter = new ebg.counter();
+        plantCounter.create("plant_count_p" + player_id);
+
+        const meatCounter = new ebg.counter();
+        meatCounter.create("meat_count_p" + player_id);
+
+        const kitCounter = new ebg.counter();
+        kitCounter.create("kit_count_p" + player_id);
+
+        this.resourceCounters = {
+          [player_id]: {
+            plant: plantCounter,
+            meat: meatCounter,
+            kit: kitCounter,
+          },
+        };
 
         gamedatas.resourceCounters.forEach((object) => {
           if (object[player_id]) {
@@ -147,9 +166,10 @@ define([
     updateResourceCounters: function (counters, player_id) {
       for (const counter_container_id in counters) {
         const counter_value = counters[counter_container_id];
-        dojo.query(
-          "span#" + counter_container_id + "_count_p" + player_id
-        )[0].innerText = counter_value;
+
+        this.resourceCounters[player_id][counter_container_id].setValue(
+          counter_value
+        );
       }
     },
 
