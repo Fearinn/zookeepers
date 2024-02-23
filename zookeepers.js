@@ -26,8 +26,6 @@ define([
       console.log("zookeepers constructor");
 
       // Here, you can init the global variables of your user interface
-      // Example:
-      // this.myGlobalValue = 0;
 
       this.resourceCounters = {};
     },
@@ -141,21 +139,12 @@ define([
       console.log("onUpdateActionButtons: " + stateName);
 
       if (this.isCurrentPlayerActive()) {
-        switch (
-          stateName
-          /*               
-                 Example:
- 
-                 case 'myGameState':
-                    
-                    // Add 3 action buttons in the action status bar:
-                    
-                    this.addActionButton( 'button_1_id', _('Button 1 label'), 'onMyMethodToCall1' ); 
-                    this.addActionButton( 'button_2_id', _('Button 2 label'), 'onMyMethodToCall2' ); 
-                    this.addActionButton( 'button_3_id', _('Button 3 label'), 'onMyMethodToCall3' ); 
-                    break;
-*/
-        ) {
+        if (stateName === "playerTurn") {
+          this.addActionButton(
+            "collect_resources_btn",
+            _("Collect Resources"),
+            "onCollectResources"
+          );
         }
       }
     },
@@ -167,7 +156,7 @@ define([
       for (const counter_container_id in counters) {
         const counter_value = counters[counter_container_id];
 
-        this.resourceCounters[player_id][counter_container_id].setValue(
+        this.resourceCounters[player_id][counter_container_id].toValue(
           counter_value
         );
       }
@@ -187,39 +176,20 @@ define([
         
         */
 
-    /* Example:
-        
-        onMyMethodToCall1: function( evt )
-        {
-            console.log( 'onMyMethodToCall1' );
-            
-            // Preventing default browser reaction
-            dojo.stopEvent( evt );
-
-            // Check that this action is possible (see "possibleactions" in states.inc.php)
-            if( ! this.checkAction( 'myAction' ) )
-            {   return; }
-
-            this.ajaxcall( "/zookeepers/zookeepers/myAction.html", { 
-                                                                    lock: true, 
-                                                                    myArgument1: arg1, 
-                                                                    myArgument2: arg2,
-                                                                    ...
-                                                                 }, 
-                         this, function( result ) {
-                            
-                            // What to do after the server call if it succeeded
-                            // (most of the time: nothing)
-                            
-                         }, function( is_error) {
-
-                            // What to do after the server call in anyway (success or failure)
-                            // (most of the time: nothing)
-
-                         } );        
-        },        
-        
-        */
+    onCollectResources: function () {
+      const action = "collectResources";
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
 
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
@@ -236,34 +206,15 @@ define([
     setupNotifications: function () {
       console.log("notifications subscriptions setup");
 
-      // TODO: here, associate your game notifications with local methods
-
-      // Example 1: standard notification handling
-      // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-
-      // Example 2: standard notification handling + tell the user interface to wait
-      //            during 3 seconds after calling the method in order to let the players
-      //            see what is happening in the game.
-      // dojo.subscribe( 'cardPlayed', this, "notif_cardPlayed" );
-      // this.notifqueue.setSynchronous( 'cardPlayed', 3000 );
-      //
+      dojo.subscribe("collectResources", this, "notif_collectResources");
     },
 
-    // TODO: from this point and below, you can write your game notifications handling methods
+    notif_collectResources: function (notif) {
+      currentPlayerCounters = notif.args.counters.find((object) => {
+        return notif.args.player_id === Object.keys(object)[0];
+      })[notif.args.player_id];
 
-    /*
-        Example:
-        
-        notif_cardPlayed: function( notif )
-        {
-            console.log( 'notif_cardPlayed' );
-            console.log( notif );
-            
-            // Note: notif.args contains the arguments specified during you "notifyAllPlayers" / "notifyPlayer" PHP call
-            
-            // TODO: play the card in the user interface.
-        },    
-        
-        */
+      this.updateResourceCounters(currentPlayerCounters, notif.args.player_id);
+    },
   });
 });

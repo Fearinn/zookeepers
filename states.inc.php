@@ -71,14 +71,14 @@ $machinestates = array(
             "saveSpecies", "collectResources", "exchangeResources", "getQuarentine", "discardSpecies", "swapKeepers", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
-        "transitions" => array("" => 3, "pass" => 3)
+        "transitions" => array("betweenActions" => 3, "pass" => 3)
     ),
 
     3 => array(
         "name" => "betweenActions",
         "type" => "game",
         "action" => "stBetweenActions",
-        "transitions" => array("" => 2, "gameEnd" => 99)
+        "transitions" => array("nextAction" => 2, "gameEnd" => 99)
     ),
 
     // Final state.
