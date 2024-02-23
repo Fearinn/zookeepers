@@ -64,10 +64,13 @@ $machinestates = array(
 
     2 => array(
         "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} can do one of the four main actions and any free actions'),
-        "descriptionmyturn" => clienttranslate('${you} can do one of the four main actions and any free actions'),
+        "description" => clienttranslate('${actplayer} can do any free actions and one of the four main actions'),
+        "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
         "type" => "activeplayer",
-        "possibleactions" => array("saveSpecies", "collectResources", "manageQuarentine", "manageKeepers", "newSpecies", "pass"),
+        "possibleactions" => array(
+            "saveSpecies", "collectResources", "exchangeResources", "getQuarentine", "discardSpecies", "swapKeepers", "dismissKeeper",
+            "hireKeeper", "zooHelp", "newSpecies", "pass"
+        ),
         "transitions" => array("" => 3, "pass" => 3)
     ),
 
