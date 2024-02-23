@@ -42,31 +42,40 @@
            Consequently, don't hesitate to put as many comments as necessary.
 */
 
-
 /* Note: you must not use any @import directive */
-
 
 /********* You can start writing your CSS below this line: **********/
 
+.zkp_resource {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-/*
-    Example of CSS sprites (a black token and a white token, 20x20px each, embedded in the same "tokens.png" 40x20px image):
+.zkp_resource_icon {
+  display: inline-block;
+  position: relative;
+  background-repeat: no-repeat;
+  background-image: url("img/cubes.png");
+  height: 30px;
+  width: 30px;
+}
 
-    .white_token {
-        background-image: url('img/tokens.png');
-        background-position: 0px 0px;
-    }
-    .black_token {
-        background-image: url('img/tokens.png');
-        background-position: -20px 0px;
-    }
-    .token {
-        width: 20px;
-        height: 20px;
-        background-repeat: none;
-    }
-*/
+.zkp_plant_icon {
+  background-position: -120px 0;
+}
 
+.zkp_meat_icon {
+  background-position: -60px 0;
+}
 
+.zkp_kit_icon {
+  background-position: -150px 0;
+}
 
-
+.zkp_board {
+  clear: both;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+}

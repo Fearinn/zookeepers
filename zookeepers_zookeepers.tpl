@@ -11,15 +11,14 @@
 -->
 
 <script type="text/javascript">
+  // Javascript HTML templates
 
-// Javascript HTML templates
-
-/*
-// Example:
-var jstpl_some_game_item='<div class="my_game_item" id="my_game_item_${MY_ITEM_ID}"></div>';
-
-*/
-
-</script>  
+  var jstpl_player_board =
+    '<div class="zkp_board">\
+    <div class="zkp_resource"><div id="plant_icon_p${id}" class="zkp_resource_icon zkp_plant_icon"></div><span id="plant_count_p${id}">0</span></div>\
+    <div class="zkp_resource"><div id="meat_icon_p${id}" class="zkp_resource_icon zkp_meat_icon"></div><span id="meat_count_p${id}">0</span></div>\
+    <div class="zkp_resource"><div id="kit_icon_p${id}" class="zkp_resource_icon zkp_kit_icon"></div><span id="kit_count_p${id}">0</span></div>\
+</div>';
+</script>
 
 {OVERALL_GAME_FOOTER}

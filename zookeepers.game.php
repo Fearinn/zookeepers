@@ -124,11 +124,10 @@ class Zookeepers extends Table
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
-        $result['players'] = self::getCollectionFromDb($sql);
+        $result["players"] = self::getCollectionFromDb($sql);
+        $result["resourceCounters"] = $this->getResourceCounters();
 
         $players = self::loadPlayersBasicInfos();
-
-        // TODO: Gather all information about current game situation (visible by player $current_player_id).
 
         return $result;
     }
@@ -162,6 +161,28 @@ class Zookeepers extends Table
         }, ARRAY_USE_KEY);
 
         return $filtered_resources;
+    }
+
+    function getResourceCounters()
+    {
+        $players = self::loadPlayersBasicInfos();
+
+        $counters = array();
+
+        foreach ($players as $player_id => $player) {
+            $plants = $this->resources->getCardsOfTypeInLocation("plant", 1, "hand", $player_id);
+            $plants_nbr = count($plants);
+
+            $meat = $this->resources->getCardsOfTypeInLocation("meat/fish", 2, "hand", $player_id);
+            $meat_nbr = count($meat);
+
+            $kits = $this->resources->getCardsOfTypeInLocation("medical kit", 3, "hand", $player_id);
+            $kits_nbr = count($kits);
+
+            $counters[] = array($player_id => array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr));
+        }
+
+        return $counters;
     }
 
     //////////////////////////////////////////////////////////////////////////////
