@@ -146,6 +146,7 @@ define([
             _("Collect Resources"),
             "onCollectResources"
           );
+          this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
         }
       }
     },
@@ -176,6 +177,20 @@ define([
             _ make a call to the game server
         
         */
+    onPass: function () {
+      const action = "pass";
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
 
     onCollectResources: function () {
       const action = "collectResources";

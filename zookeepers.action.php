@@ -37,6 +37,13 @@ class action_zookeepers extends APP_GameAction
     }
   }
 
+  public function pass()
+  {
+    self::setAjaxMode();
+    $this->game->pass();
+    self::ajaxResponse();
+  }
+
   public function collectResources()
   {
     self::setAjaxMode();

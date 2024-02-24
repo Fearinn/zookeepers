@@ -187,6 +187,13 @@ class Zookeepers extends Table
         (note: each method below must match an input method in zookeepers.action.php)
     */
 
+    function pass()
+    {
+        self::checkAction("pass");
+
+        $this->gamestate->nextState("pass");
+    }
+
     function collectResources()
     {
         // Check that this is the player's turn and that it is a "possible action" at this game state (see states.inc.php)
@@ -259,7 +266,7 @@ class Zookeepers extends Table
 
     function stBetweenPlayers()
     {
-        self::setGameStateValue("collectResources", 0);
+        self::setGameStateValue("mainAction", 0);
         self::activeNextPlayer();
         $this->gamestate->nextState("nextPlayer");
     }
