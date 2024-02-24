@@ -65,6 +65,7 @@ define([
         kitCounter.create("kit_count_p" + player_id);
 
         this.resourceCounters = {
+          ...this.resourceCounters,
           [player_id]: {
             plant: plantCounter,
             meat: meatCounter,
@@ -213,6 +214,8 @@ define([
       currentPlayerCounters = notif.args.counters.find((object) => {
         return notif.args.player_id === Object.keys(object)[0];
       })[notif.args.player_id];
+
+      console.log("current", currentPlayerCounters);
 
       this.updateResourceCounters(currentPlayerCounters, notif.args.player_id);
     },
