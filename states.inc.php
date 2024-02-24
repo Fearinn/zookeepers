@@ -71,7 +71,7 @@ $machinestates = array(
             "saveSpecies", "collectResources", "exchangeResources", "getQuarentine", "discardSpecies", "swapKeepers", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
-        "transitions" => array("betweenActions" => 3, "pass" => 3)
+        "transitions" => array("betweenActions" => 3, "pass" => 4)
     ),
 
     3 => array(
@@ -79,6 +79,13 @@ $machinestates = array(
         "type" => "game",
         "action" => "stBetweenActions",
         "transitions" => array("nextAction" => 2, "gameEnd" => 99)
+    ),
+
+    4 => array(
+        "name" => "betweenPlayers",
+        "type" => "game",
+        "action" => "stBetweenPlayers",
+        "transitions" => array("nextPlayer" => 2, "gameEnd" => 99)
     ),
 
     // Final state.
