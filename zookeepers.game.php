@@ -211,6 +211,8 @@ class Zookeepers extends Table
             "counters" => $this->getResourceCounters(),
         ));
 
+        self::setGameStateValue("mainAction", 1);
+
         $this->gamestate->nextState("betweenActions");
     }
 
@@ -255,6 +257,12 @@ class Zookeepers extends Table
         $this->gamestate->nextState("nextAction");
     }
 
+    function stBetweenPlayers()
+    {
+        self::setGameStateValue("collectResources", 0);
+        self::activeNextPlayer();
+        $this->gamestate->nextState("nextPlayer");
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Zombie
