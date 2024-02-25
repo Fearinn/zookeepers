@@ -136,6 +136,10 @@ define([
             _("Collect Resources"),
             "onCollectResources"
           );
+          if (!this.mainAction) {
+            dojo.addClass("collect_resources_btn", "disabled");
+          }
+
           this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
         }
       }
