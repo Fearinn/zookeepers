@@ -79,6 +79,7 @@ $machinestates = array(
         "name" => "betweenActions",
         "type" => "game",
         "action" => "stBetweenActions",
+        "args" => "argBetweenActions",
         "transitions" => array("nextAction" => 2, "gameEnd" => 99)
     ),
 

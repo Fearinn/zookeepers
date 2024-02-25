@@ -257,6 +257,11 @@ class Zookeepers extends Table
 
     function argPlayerTurn()
     {
+        return array();
+    }
+
+    function argBetweenActions()
+    {
         $main_action = self::getGameStateValue("mainAction");
         return array("mainAction" => $main_action);
     }

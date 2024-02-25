@@ -96,8 +96,12 @@ define([
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
 
-      if (stateName === "playerTurn") {
+      if (stateName === "betweenActions") {
         this.mainAction = args.args.mainAction;
+      }
+
+      if (stateName === "betweenPlayers") {
+        this.mainAction = 0;
       }
     },
 
@@ -136,7 +140,7 @@ define([
             _("Collect Resources"),
             "onCollectResources"
           );
-          if (!this.mainAction) {
+          if (this.mainAction) {
             dojo.addClass("collect_resources_btn", "disabled");
           }
 
