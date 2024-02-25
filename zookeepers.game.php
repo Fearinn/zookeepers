@@ -191,6 +191,10 @@ class Zookeepers extends Table
     {
         self::checkAction("pass");
 
+        self::notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
+            "player_name" => self::getActivePlayerName(),
+        ));
+
         $this->gamestate->nextState("pass");
     }
 

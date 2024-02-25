@@ -240,6 +240,7 @@ define([
       console.log("notifications subscriptions setup");
 
       dojo.subscribe("collectResources", this, "notif_collectResources");
+      dojo.subscribe("pass", this, "notif_pass");
     },
 
     notif_collectResources: function (notif) {
@@ -249,5 +250,7 @@ define([
 
       this.updateResourceCounters(currentPlayerCounters, notif.args.player_id);
     },
+
+    notif_pass: function (notif) {},
   });
 });
