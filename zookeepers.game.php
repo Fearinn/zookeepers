@@ -149,9 +149,9 @@ class Zookeepers extends Table
 
     function filterByResourceType($resources, $type_arg)
     {
-        $filtered_resources = array_filter($resources, function ($resource_type) use ($type_arg) {
-            return $resource_type !== $type_arg;
-        }, ARRAY_USE_KEY);
+        $filtered_resources = array_filter($resources, function ($resource) use ($type_arg) {
+            return $resource["type_arg"] == $type_arg;
+        });
 
         return $filtered_resources;
     }
@@ -215,12 +215,30 @@ class Zookeepers extends Table
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
-        self::notifyAllPlayers('collectResources', clienttranslate('${player_name} collects ${collected_nbr} resources'), array(
-            "player_name" => self::getActivePlayerName(),
-            "player_id" => $player_id,
-            "collected_nbr" => $collected_nbr,
-            "counters" => $this->getResourceCounters(),
-        ));
+        $collected_plants = $this->filterByResourceType($collected_resources, 1);
+        $collected_plants_nbr = count($collected_plants);
+
+        $collected_meat = $this->filterByResourceType($collected_resources, 2);
+        $collected_meat_nbr = count($collected_meat);
+
+        $collected_kits = $this->filterByResourceType($collected_resources, 3);
+        $collected_kits_nbr = count($collected_kits);
+
+
+        self::notifyAllPlayers(
+            'collectResources',
+            clienttranslate('${player_name} collects ${collected_nbr} resources. Plants: ${collected_plants_nbr}; 
+            meat/fish: ${collected_meat_nbr}; medical kits: ${collected_kits_nbr}'),
+            array(
+                "player_name" => self::getActivePlayerName(),
+                "player_id" => $player_id,
+                "collected_nbr" => $collected_nbr,
+                "collected_plants_nbr" => $collected_plants_nbr,
+                "collected_meat_nbr" => $collected_meat_nbr,
+                "collected_kits_nbr" => $collected_kits_nbr,
+                "counters" => $this->getResourceCounters(),
+            )
+        );
 
         self::setGameStateValue("mainAction", 1);
 
