@@ -28,6 +28,7 @@ define([
       // Here, you can init the global variables of your user interface
 
       this.resourceCounters = {};
+      this.mainAction = 0;
     },
 
     /*
@@ -95,19 +96,8 @@ define([
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
 
-      switch (stateName) {
-        /* Example:
-            
-            case 'myGameState':
-            
-                // Show some HTML block at this game state
-                dojo.style( 'my_html_block_id', 'display', 'block' );
-                
-                break;
-           */
-
-        case "dummmy":
-          break;
+      if (stateName === "playerTurn") {
+        this.mainAction = args.args.mainAction;
       }
     },
 
@@ -179,7 +169,34 @@ define([
         */
     onPass: function () {
       const action = "pass";
+
       if (this.checkAction(action, true)) {
+        if (!this.mainAction) {
+          this.confirmationDialog(
+            _(
+              "You didn't use any main action yet. Are you sure you want to pass?"
+            ),
+            () => {
+              this.ajaxcall(
+                "/" +
+                  this.game_name +
+                  "/" +
+                  this.game_name +
+                  "/" +
+                  action +
+                  ".html",
+                {
+                  lock: true,
+                },
+                this,
+                function (result) {},
+                function (is_error) {}
+              );
+            }
+          );
+          return;
+        }
+
         this.ajaxcall(
           "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
           {
@@ -229,8 +246,6 @@ define([
       currentPlayerCounters = notif.args.counters.find((object) => {
         return notif.args.player_id === Object.keys(object)[0];
       })[notif.args.player_id];
-
-      console.log("current", currentPlayerCounters);
 
       this.updateResourceCounters(currentPlayerCounters, notif.args.player_id);
     },

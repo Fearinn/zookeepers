@@ -233,22 +233,11 @@ class Zookeepers extends Table
         game state.
     */
 
-    /*
-    
-    Example for game state "MyGameState":
-    
-    function argMyGameState()
+    function argPlayerTurn()
     {
-        // Get some values from the current game situation in database...
-    
-        // return values:
-        return array(
-            'variable1' => $value1,
-            'variable2' => $value2,
-            ...
-        );
-    }    
-    */
+        $main_action = self::getGameStateValue("mainAction");
+        return array("mainAction" => $main_action);
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state actions

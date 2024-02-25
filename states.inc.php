@@ -71,6 +71,7 @@ $machinestates = array(
             "saveSpecies", "collectResources", "exchangeResources", "getQuarentine", "discardSpecies", "swapKeepers", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
+        "args" => "argPlayerTurn",
         "transitions" => array("betweenActions" => 3, "pass" => 4)
     ),
 
