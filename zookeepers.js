@@ -135,13 +135,12 @@ define([
 
       if (this.isCurrentPlayerActive()) {
         if (stateName === "playerTurn") {
-          this.addActionButton(
-            "collect_resources_btn",
-            _("Collect Resources"),
-            "onCollectResources"
-          );
-          if (this.mainAction) {
-            dojo.addClass("collect_resources_btn", "disabled");
+          if (!this.mainAction) {
+            this.addActionButton(
+              "collect_resources_btn",
+              _("Collect Resources"),
+              "onCollectResources"
+            );
           }
 
           this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
