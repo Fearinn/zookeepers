@@ -50,4 +50,26 @@ class action_zookeepers extends APP_GameAction
     $this->game->collectResources();
     self::ajaxResponse();
   }
+
+  public function exchangeResources()
+  {
+    self::setAjaxMode();
+    $this->game->exchangeResources();
+    self::ajaxResponse();
+  }
+
+  public function collectFromExchange()
+  {
+    self::setAjaxMode();
+    $choosen_nbr = self::getArg("choosen_nbr", AT_posint, true);
+    $this->game->collectFromExchange($choosen_nbr);
+    self::ajaxResponse();
+  }
+
+  public function returnFromExchange()
+  {
+    self::setAjaxMode();
+    $this->game->returnFromExchange();
+    self::ajaxResponse();
+  }
 }

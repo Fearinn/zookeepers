@@ -68,11 +68,31 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
         "type" => "activeplayer",
         "possibleactions" => array(
-            "saveSpecies", "collectResources", "exchangeResources", "quarentineSpecies", "discardSpecies", "swapKeepers", "dismissKeeper",
+            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange", "quarentineSpecies", "discardSpecies", "swapKeepers", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
-        "transitions" => array("betweenActions" => 3, "pass" => 4)
+        "transitions" => array("betweenActions" => 3, "pass" => 4, "exchangeCollecting" => 21)
+    ),
+
+    21 => array(
+        "name" => "exchangeCollecting",
+        "description" => clienttranslate('${actplayer} can choose how many resources they want from the conservartion fund'),
+        "descriptionmyturn" => clienttranslate('${you} can choose how many resources you want from the conservartion fund'),
+        "type" => "activeplayer",
+        "args" => "argExchangeCollecting",
+        "possibleactions" => array("collectFromExchange", "cancel"),
+        "transitions" => array("exchangeReturn" => 22, "cancel" => 2)
+    ),
+
+    22 => array(
+        "name" => "exchangeReturn",
+        "description" => clienttranslate('${actplayer} must return ${returned_nbr} resources to the bag'),
+        "descriptionmyturn" => clienttranslate('${you} must return ${returned_nbr} resources to the bag'),
+        "type" => "activeplayer",
+        "args" => "argExchangeReturn",
+        "possibleactions" => array("returnFromExchange"),
+        "transitions" => array("betweenActions" => 3)
     ),
 
     3 => array(

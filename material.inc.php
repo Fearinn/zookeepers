@@ -54,6 +54,8 @@ $this->mainActions = array(
 
 $this->freeActions = array(
   1 => array("name" => "zooHelp", "update_scores" => true),
-  2 => array("name" => "exchangeResources", "update_scores" => false),
-  3 => array("name" => "newSpecies", "update_scores" => false),
+  2 => array("name" => "newSpecies", "update_scores" => false),
+  3 => array("name" => "exchangeResources", "update_scores" => false),
+  4 => array("name" => "collectFromExchange", "update_scores" => false),
+  5 => array("name" => "returnFromExchange", "update_scores" => false),
 );

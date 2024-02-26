@@ -102,6 +102,7 @@ define([
 
       if (stateName === "betweenPlayers") {
         this.mainAction = 0;
+        this.resources_in_hand_nbr = 0;
       }
     },
 
@@ -143,7 +144,24 @@ define([
             );
           }
 
+          this.addActionButton(
+            "exchangeResources_btn",
+            _("Conservation Fund"),
+            "onExchangeResources"
+          );
+
           this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
+        }
+
+        if (stateName === "exchangeCollecting") {
+          this.removeActionButtons();
+          for (let i = 1; i < args.resources_in_hand_nbr; i++) {
+            this.addActionButton(
+              "exchange_resources_option_" + i,
+              i.toString(),
+              () => this.onCollectFromExchange(i)
+            );
+          }
         }
       }
     },
@@ -223,6 +241,37 @@ define([
           "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
           {
             lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onExchangeResources: function () {
+      const action = "exchangeResources";
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onCollectFromExchange: function (choosen_nbr) {
+      const action = "collectFromExchange";
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            choosen_nbr: choosen_nbr,
           },
           this,
           function (result) {},

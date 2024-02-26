@@ -34,6 +34,7 @@ class Zookeepers extends Table
 
         self::initGameStateLabels(array(
             "mainAction" => 10,
+            "returned_exchange_nbr" => 11,
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -95,7 +96,8 @@ class Zookeepers extends Table
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        self::setGameStateInitialValue('mainAction', 0);
+        self::setGameStateInitialValue("mainAction", 0);
+        self::setGameStateInitialValue("returned_exchange_nbr", 0);
 
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -200,7 +202,6 @@ class Zookeepers extends Table
 
     function collectResources()
     {
-        // Check that this is the player's turn and that it is a "possible action" at this game state (see states.inc.php)
         self::checkAction("collectResources");
 
         if (self::getGameStateValue("mainAction")) {
@@ -245,6 +246,56 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
+    function exchangeResources()
+    {
+        self::checkAction("exchangeResources");
+
+        $this->gamestate->nextState("exchangeCollecting");
+    }
+
+    function collectFromExchange($choosen_nbr)
+    {
+        $player_id = self::getActivePlayerId();
+
+        $collected_resources = $this->resources->pickCards($choosen_nbr, "deck", $player_id);
+        $collected_nbr = count($collected_resources);
+
+        $returned_nbr = $collected_nbr * 2;
+        self::setGameStateValue("returned_exchange_nbr", $returned_nbr);
+
+        $collected_plants = $this->filterByResourceType($collected_resources, 1);
+        $collected_plants_nbr = count($collected_plants);
+
+        $collected_meat = $this->filterByResourceType($collected_resources, 2);
+        $collected_meat_nbr = count($collected_meat);
+
+        $collected_kits = $this->filterByResourceType($collected_resources, 3);
+        $collected_kits_nbr = count($collected_kits);
+
+        self::notifyAllPlayers(
+            'collectResources',
+            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plants: ${collected_plants_nbr}; 
+            meat/fish: ${collected_meat_nbr}; medical kits: ${collected_kits_nbr}. They must return ${returned_nbr} resources to the bag'),
+            array(
+                "player_name" => self::getActivePlayerName(),
+                "player_id" => $player_id,
+                "collected_nbr" => $collected_nbr,
+                "collected_plants_nbr" => $collected_plants_nbr,
+                "collected_meat_nbr" => $collected_meat_nbr,
+                "collected_kits_nbr" => $collected_kits_nbr,
+                "returned_nbr" => $returned_nbr,
+                "counters" => $this->getResourceCounters(),
+            )
+        );
+
+        $this->gamestate->nextState("exchangeReturn");
+    }
+
+    function returnFromExchange()
+    {
+        $this->gamestate->nextState("betweenActions");
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state arguments
     ////////////
@@ -260,11 +311,25 @@ class Zookeepers extends Table
         return array();
     }
 
+    function argExchangeCollecting()
+    {
+        $player_id = self::getActivePlayerId();
+        $resources_in_hand_nbr = $this->resources->countCardsInLocation("hand", $player_id);
+        return array("resources_in_hand_nbr" => $resources_in_hand_nbr);
+    }
+
+    function argExchangeReturn()
+    {
+        $returned_nbr = self::getGameStateValue("returned_exchange_nbr");
+        return array("returned_nbr" => $returned_nbr);
+    }
+
     function argBetweenActions()
     {
         $main_action = self::getGameStateValue("mainAction");
         return array("mainAction" => $main_action);
     }
+
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state actions
@@ -283,6 +348,7 @@ class Zookeepers extends Table
     function stBetweenPlayers()
     {
         self::setGameStateValue("mainAction", 0);
+        self::setGameStateValue("returned_exchange_nbr", 0);
         self::activeNextPlayer();
         $this->gamestate->nextState("nextPlayer");
     }
