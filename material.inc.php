@@ -29,14 +29,14 @@ $this->resource_types = array(
     "per_player" => 4
   ),
   2 => array(
-    "label" => clienttranslate("meat/fish"),
-    "labeltr" => self::_("meat/fish"),
+    "label" => clienttranslate("meat"),
+    "labeltr" => self::_("meat"),
     "total" => 20,
     "per_player" => 4,
   ),
   3 => array(
-    "label" => clienttranslate("medical kit"),
-    "labeltr" => self::_("medical kit"),
+    "label" => clienttranslate("kit"),
+    "labeltr" => self::_("kit"),
     "total" => 15,
     "per_player" => 3,
   )

@@ -66,10 +66,19 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function cancelExchange()
+  {
+    self::setAjaxMode();
+    $this->game->cancelExchange();
+    self::ajaxResponse();
+  }
+
   public function returnFromExchange()
   {
     self::setAjaxMode();
-    $this->game->returnFromExchange();
+    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_posint, true);
+    $lastly_returned_type = self::getArg("lastly_returned_type", AT_alphanum, true);
+    $this->game->returnFromExchange($lastly_returned_nbr, $lastly_returned_type);
     self::ajaxResponse();
   }
 }

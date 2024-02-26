@@ -27,8 +27,9 @@ define([
 
       // Here, you can init the global variables of your user interface
 
-      this.resourceCounters = {};
       this.mainAction = 0;
+      this.freeAction = 0;
+      this.resourceCounters = {};
     },
 
     /*
@@ -96,13 +97,20 @@ define([
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
 
+      if (stateName === "exchangeCollecting") {
+        this.freeAction = args.args.freeAction;
+        return;
+      }
+
       if (stateName === "betweenActions") {
         this.mainAction = args.args.mainAction;
+        return;
       }
 
       if (stateName === "betweenPlayers") {
         this.mainAction = 0;
-        this.resources_in_hand_nbr = 0;
+        this.freeAction = 0;
+        return;
       }
     },
 
@@ -136,25 +144,33 @@ define([
 
       if (this.isCurrentPlayerActive()) {
         if (stateName === "playerTurn") {
-          if (!this.mainAction) {
+          this.addActionButton(
+            "collect_resources_btn",
+            _("Collect Resources"),
+            "onCollectResources"
+          );
+
+          if (!args.mainAction && !args.freeAction) {
             this.addActionButton(
-              "collect_resources_btn",
-              _("Collect Resources"),
-              "onCollectResources"
+              "exchangeResources_btn",
+              _("Conservation Fund"),
+              "onExchangeResources"
             );
           }
 
-          this.addActionButton(
-            "exchangeResources_btn",
-            _("Conservation Fund"),
-            "onExchangeResources"
-          );
-
           this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
+          return;
         }
 
         if (stateName === "exchangeCollecting") {
-          this.removeActionButtons();
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelExchange",
+            null,
+            null,
+            "red"
+          );
           for (let i = 1; i < args.resources_in_hand_nbr; i++) {
             this.addActionButton(
               "exchange_resources_option_" + i,
@@ -162,6 +178,39 @@ define([
               () => this.onCollectFromExchange(i)
             );
           }
+          return;
+        }
+
+        if (stateName === "exchangeReturn") {
+          const playerId = this.getActivePlayerId();
+          const activePlayerCounters = this.resourceCounters[playerId];
+          for (const type in activePlayerCounters) {
+            if (activePlayerCounters[type].getValue() > 0) {
+              this.addActionButton(
+                "image_btn_" + type,
+                `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
+                () => {},
+                null,
+                null,
+                "gray"
+              );
+              dojo.addClass("image_btn_" + type, "bgaimagebutton");
+
+              for (
+                let i = 1;
+                i <= activePlayerCounters[type].getValue() &&
+                i <= args.to_return;
+                i++
+              ) {
+                this.addActionButton(
+                  "exchange_resources_option_" + type + "_" + i,
+                  i.toString(),
+                  () => this.onReturnFromExchange(i, type)
+                );
+              }
+            }
+          }
+          return;
         }
       }
     },
@@ -280,6 +329,42 @@ define([
       }
     },
 
+    onCancelExchange: function () {
+      const action = "cancelExchange";
+
+      this.freeAction = 0;
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onReturnFromExchange: function (choosen_nbr, resource_type) {
+      const action = "returnFromExchange";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            lastly_returned_nbr: choosen_nbr,
+            lastly_returned_type: resource_type,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -300,11 +385,11 @@ define([
     },
 
     notif_collectResources: function (notif) {
-      currentPlayerCounters = notif.args.counters.find((object) => {
+      activePlayerCounters = notif.args.counters.find((object) => {
         return notif.args.player_id === Object.keys(object)[0];
       })[notif.args.player_id];
 
-      this.updateResourceCounters(currentPlayerCounters, notif.args.player_id);
+      this.updateResourceCounters(activePlayerCounters, notif.args.player_id);
     },
 
     notif_pass: function (notif) {},

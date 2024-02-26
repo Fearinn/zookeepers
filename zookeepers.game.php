@@ -34,7 +34,9 @@ class Zookeepers extends Table
 
         self::initGameStateLabels(array(
             "mainAction" => 10,
-            "returned_exchange_nbr" => 11,
+            "totalToReturn" => 11,
+            "previouslyReturned" => 12,
+            "freeAction" => 13,
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -97,7 +99,9 @@ class Zookeepers extends Table
 
         // Init global values with their initial values
         self::setGameStateInitialValue("mainAction", 0);
-        self::setGameStateInitialValue("returned_exchange_nbr", 0);
+        self::setGameStateInitialValue("freeAction", 0);
+        self::setGameStateInitialValue("totalToReturn", 0);
+        self::setGameStateInitialValue("previouslyReturned", 0);
 
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -168,10 +172,10 @@ class Zookeepers extends Table
             $plants = $this->resources->getCardsOfTypeInLocation("plant", 1, "hand", $player_id);
             $plants_nbr = count($plants);
 
-            $meat = $this->resources->getCardsOfTypeInLocation("meat/fish", 2, "hand", $player_id);
+            $meat = $this->resources->getCardsOfTypeInLocation("meat", 2, "hand", $player_id);
             $meat_nbr = count($meat);
 
-            $kits = $this->resources->getCardsOfTypeInLocation("medical kit", 3, "hand", $player_id);
+            $kits = $this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $player_id);
             $kits_nbr = count($kits);
 
             $counters[] = array($player_id => array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr));
@@ -255,13 +259,15 @@ class Zookeepers extends Table
 
     function collectFromExchange($choosen_nbr)
     {
+        self::checkAction("collectFromExchange");
+
         $player_id = self::getActivePlayerId();
 
         $collected_resources = $this->resources->pickCards($choosen_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
-        $returned_nbr = $collected_nbr * 2;
-        self::setGameStateValue("returned_exchange_nbr", $returned_nbr);
+        $return_nbr = $collected_nbr * 2;
+        self::setGameStateValue("totalToReturn", $return_nbr);
 
         $collected_plants = $this->filterByResourceType($collected_resources, 1);
         $collected_plants_nbr = count($collected_plants);
@@ -275,7 +281,7 @@ class Zookeepers extends Table
         self::notifyAllPlayers(
             'collectResources',
             clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plants: ${collected_plants_nbr}; 
-            meat/fish: ${collected_meat_nbr}; medical kits: ${collected_kits_nbr}. They must return ${returned_nbr} resources to the bag'),
+            meat/fish: ${collected_meat_nbr}; medical kits: ${collected_kits_nbr}. They must return ${return_nbr} resources to the bag'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
@@ -283,17 +289,57 @@ class Zookeepers extends Table
                 "collected_plants_nbr" => $collected_plants_nbr,
                 "collected_meat_nbr" => $collected_meat_nbr,
                 "collected_kits_nbr" => $collected_kits_nbr,
-                "returned_nbr" => $returned_nbr,
+                "return_nbr" => $return_nbr,
                 "counters" => $this->getResourceCounters(),
             )
         );
+        self::setGameStateValue("freeAction", 3);
 
         $this->gamestate->nextState("exchangeReturn");
     }
 
-    function returnFromExchange()
+    function cancelExchange()
     {
-        $this->gamestate->nextState("betweenActions");
+        self::checkAction("cancelExchange");
+
+        $this->gamestate->nextState("cancel");
+    }
+
+    function returnFromExchange($lastly_returned_nbr, $type)
+    {
+        self::checkAction("returnFromExchange");
+        $player_id = self::getActivePlayerId();
+
+        $resources_in_hand = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
+        $resources_returned = array_slice($resources_in_hand, 0, $lastly_returned_nbr, true);
+        $keys = array_keys($resources_returned);
+
+        $this->resources->moveCards($keys, "deck");
+
+        $previously_returned_nbr = self::getGameStateValue("previouslyReturned");
+        $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
+        self::setGameStateValue("previouslyReturned", $previously_returned_nbr + $lastly_returned_nbr);
+
+        $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
+
+        self::notifyAllPlayers(
+            "collectResources",
+            clienttranslate('${player_name} returns ${returned_nbr} resources of type ${type}'),
+            array(
+                "player_name" => self::getActivePlayerName(),
+                "player_id" => $player_id,
+                "returned_nbr" => $lastly_returned_nbr,
+                "type" => $type,
+                "counters" => $this->getResourceCounters(),
+            )
+        );
+
+        if ($to_return === 0) {
+            $this->gamestate->nextState("betweenActions");
+            return;
+        }
+
+        $this->gamestate->nextState("betweenReturns");
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -308,26 +354,27 @@ class Zookeepers extends Table
 
     function argPlayerTurn()
     {
-        return array();
+        return array("mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"));
     }
 
     function argExchangeCollecting()
     {
         $player_id = self::getActivePlayerId();
+
         $resources_in_hand_nbr = $this->resources->countCardsInLocation("hand", $player_id);
-        return array("resources_in_hand_nbr" => $resources_in_hand_nbr);
+
+        return array("resources_in_hand_nbr" => $resources_in_hand_nbr, "freeAction" => self::getGameStateValue("freeAction"));
     }
 
     function argExchangeReturn()
     {
-        $returned_nbr = self::getGameStateValue("returned_exchange_nbr");
-        return array("returned_nbr" => $returned_nbr);
+        return array("to_return" => self::getGameStateValue("totalToReturn") - self::getGameStateValue("previouslyReturned"));
     }
 
     function argBetweenActions()
     {
-        $main_action = self::getGameStateValue("mainAction");
-        return array("mainAction" => $main_action);
+        $mainAction = self::getGameStateValue("mainAction");
+        return array("mainAction" => $mainAction);
     }
 
 
@@ -340,6 +387,11 @@ class Zookeepers extends Table
         The action method of state X is called everytime the current game state is set to X.
     */
 
+    function stBetweenReturns()
+    {
+        $this->gamestate->nextState("nextReturn");
+    }
+
     function stBetweenActions()
     {
         $this->gamestate->nextState("nextAction");
@@ -348,7 +400,10 @@ class Zookeepers extends Table
     function stBetweenPlayers()
     {
         self::setGameStateValue("mainAction", 0);
-        self::setGameStateValue("returned_exchange_nbr", 0);
+        self::setGameStateValue("totalToReturn", 0);
+        self::setGameStateValue("previouslyReturned", 0);
+        self::setGameStateValue("freeAction", 0);
+
         self::activeNextPlayer();
         $this->gamestate->nextState("nextPlayer");
     }

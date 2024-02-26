@@ -81,18 +81,28 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can choose how many resources you want from the conservartion fund'),
         "type" => "activeplayer",
         "args" => "argExchangeCollecting",
-        "possibleactions" => array("collectFromExchange", "cancel"),
+        "possibleactions" => array("collectFromExchange", "cancelExchange"),
         "transitions" => array("exchangeReturn" => 22, "cancel" => 2)
     ),
 
     22 => array(
         "name" => "exchangeReturn",
-        "description" => clienttranslate('${actplayer} must return ${returned_nbr} resources to the bag'),
-        "descriptionmyturn" => clienttranslate('${you} must return ${returned_nbr} resources to the bag'),
+        "description" => clienttranslate('${actplayer} must return ${to_return} resources to the bag'),
+        "descriptionmyturn" => clienttranslate('${you} must return ${to_return} resources to the bag'),
         "type" => "activeplayer",
         "args" => "argExchangeReturn",
         "possibleactions" => array("returnFromExchange"),
-        "transitions" => array("betweenActions" => 3)
+        "transitions" => array("betweenReturns" => 23, "betweenActions" => 3)
+    ),
+
+    23 => array(
+        "name" => "betweenReturns",
+        "description" => "",
+        "descriptionmyturn" => "",
+        "type" => "activeplayer",
+        "args" => "argExchangeReturn",
+        "action" => "stBetweenReturns",
+        "transitions" => array("nextReturn" => 22, "betweenActions" => 3)
     ),
 
     3 => array(
