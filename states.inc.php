@@ -68,7 +68,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
         "type" => "activeplayer",
         "possibleactions" => array(
-            "saveSpecies", "collectResources", "exchangeResources", "getQuarentine", "discardSpecies", "swapKeepers", "dismissKeeper",
+            "saveSpecies", "collectResources", "exchangeResources", "quarentineSpecies", "discardSpecies", "swapKeepers", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
