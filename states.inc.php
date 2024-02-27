@@ -72,15 +72,15 @@ $machinestates = array(
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
-        "transitions" => array("betweenActions" => 3, "pass" => 4, "exchangeCollecting" => 21)
+        "transitions" => array("betweenActions" => 3, "pass" => 4, "exchangeCollection" => 21)
     ),
 
     21 => array(
-        "name" => "exchangeCollecting",
-        "description" => clienttranslate('${actplayer} can choose how many resources they want from the conservartion fund'),
+        "name" => "exchangeCollection",
+        "description" => clienttranslate('${actplayer} can choose how many resources they wants from the conservartion fund'),
         "descriptionmyturn" => clienttranslate('${you} can choose how many resources you want from the conservartion fund'),
         "type" => "activeplayer",
-        "args" => "argExchangeCollecting",
+        "args" => "argExchangeCollection",
         "possibleactions" => array("collectFromExchange", "cancelExchange"),
         "transitions" => array("exchangeReturn" => 22, "cancel" => 2)
     ),

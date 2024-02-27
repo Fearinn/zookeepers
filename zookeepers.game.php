@@ -253,8 +253,11 @@ class Zookeepers extends Table
     function exchangeResources()
     {
         self::checkAction("exchangeResources");
+        if (self::getGameStateValue("freeAction") || self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("The conservation fund can't be used after any other action"));
+        }
 
-        $this->gamestate->nextState("exchangeCollecting");
+        $this->gamestate->nextState("exchangeCollection");
     }
 
     function collectFromExchange($choosen_nbr)
@@ -301,6 +304,7 @@ class Zookeepers extends Table
     function cancelExchange()
     {
         self::checkAction("cancelExchange");
+        self::setGameStateValue("freeAction", 0);
 
         $this->gamestate->nextState("cancel");
     }
@@ -324,7 +328,7 @@ class Zookeepers extends Table
 
         self::notifyAllPlayers(
             "collectResources",
-            clienttranslate('${player_name} returns ${returned_nbr} resources of type ${type}'),
+            clienttranslate('${player_name} returns ${returned_nbr} resources of ${type}'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
@@ -357,7 +361,7 @@ class Zookeepers extends Table
         return array("mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"));
     }
 
-    function argExchangeCollecting()
+    function argExchangeCollection()
     {
         $player_id = self::getActivePlayerId();
 

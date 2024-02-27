@@ -97,8 +97,87 @@ define([
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
 
-      if (stateName === "exchangeCollecting") {
+      if (stateName === "playerTurn") {
+        this.mainAction = args.args.mainAction;
         this.freeAction = args.args.freeAction;
+
+        if (this.isCurrentPlayerActive()) {
+          if (this.mainAction < 1) {
+            this.addActionButton(
+              "collect_resources_btn",
+              _("Collect Resources"),
+              "onCollectResources"
+            );
+          }
+
+          if (this.mainAction < 1 && this.freeAction < 1) {
+            this.addActionButton(
+              "exchange_resources_btn",
+              _("Conservation Fund"),
+              "onExchangeResources"
+            );
+          }
+
+          this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
+        }
+        return;
+      }
+
+      if (stateName === "exchangeCollection") {
+        this.freeAction = args.args.freeAction;
+
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelExchange",
+            null,
+            null,
+            "red"
+          );
+          for (let i = 1; i < args.args.resources_in_hand_nbr; i++) {
+            this.addActionButton(
+              "exchange_resources_option_" + i,
+              i.toString(),
+              () => this.onCollectFromExchange(i)
+            );
+          }
+          return;
+        }
+      }
+
+      if (stateName === "exchangeReturn") {
+        const playerId = this.getActivePlayerId();
+        const activePlayerCounters = this.resourceCounters[playerId];
+
+        if (this.isCurrentPlayerActive()) {
+          for (const type in activePlayerCounters) {
+            if (activePlayerCounters[type].getValue() > 0) {
+              this.addActionButton(
+                "image_btn_" + type,
+                `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
+                () => {},
+                null,
+                null,
+                "gray"
+              );
+              dojo.addClass("image_btn_" + type, "bgaimagebutton");
+
+              for (
+                let i = 1;
+                i <= activePlayerCounters[type].getValue() &&
+                i <= args.args.to_return;
+                i++
+              ) {
+                this.addActionButton(
+                  "exchange_resources_option_" + type + "_" + i,
+                  i.toString(),
+                  () => this.onReturnFromExchange(i, type)
+                );
+              }
+            }
+          }
+        }
         return;
       }
 
@@ -140,79 +219,8 @@ define([
     //                        action status bar (ie: the HTML links in the status bar).
     //
     onUpdateActionButtons: function (stateName, args) {
-      console.log("onUpdateActionButtons: " + stateName);
-
-      if (this.isCurrentPlayerActive()) {
-        if (stateName === "playerTurn") {
-          this.addActionButton(
-            "collect_resources_btn",
-            _("Collect Resources"),
-            "onCollectResources"
-          );
-
-          if (!args.mainAction && !args.freeAction) {
-            this.addActionButton(
-              "exchangeResources_btn",
-              _("Conservation Fund"),
-              "onExchangeResources"
-            );
-          }
-
-          this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
-          return;
-        }
-
-        if (stateName === "exchangeCollecting") {
-          this.addActionButton(
-            "cancel_btn",
-            "Cancel",
-            "onCancelExchange",
-            null,
-            null,
-            "red"
-          );
-          for (let i = 1; i < args.resources_in_hand_nbr; i++) {
-            this.addActionButton(
-              "exchange_resources_option_" + i,
-              i.toString(),
-              () => this.onCollectFromExchange(i)
-            );
-          }
-          return;
-        }
-
-        if (stateName === "exchangeReturn") {
-          const playerId = this.getActivePlayerId();
-          const activePlayerCounters = this.resourceCounters[playerId];
-          for (const type in activePlayerCounters) {
-            if (activePlayerCounters[type].getValue() > 0) {
-              this.addActionButton(
-                "image_btn_" + type,
-                `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
-                () => {},
-                null,
-                null,
-                "gray"
-              );
-              dojo.addClass("image_btn_" + type, "bgaimagebutton");
-
-              for (
-                let i = 1;
-                i <= activePlayerCounters[type].getValue() &&
-                i <= args.to_return;
-                i++
-              ) {
-                this.addActionButton(
-                  "exchange_resources_option_" + type + "_" + i,
-                  i.toString(),
-                  () => this.onReturnFromExchange(i, type)
-                );
-              }
-            }
-          }
-          return;
-        }
-      }
+      // if (this.isCurrentPlayerActive()) {
+      // }
     },
 
     ///////////////////////////////////////////////////
@@ -245,7 +253,7 @@ define([
       const action = "pass";
 
       if (this.checkAction(action, true)) {
-        if (!this.mainAction) {
+        if (this.mainAction < 1) {
           this.confirmationDialog(
             _(
               "You didn't use any main action yet. Are you sure you want to pass?"
