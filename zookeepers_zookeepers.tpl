@@ -10,6 +10,53 @@
 -------
 -->
 
+<div id="zkp_playmats" class="zkp_playmats">
+  <!-- BEGIN playmatblock -->
+  <div class="zkp_playmat_container whiteblock">
+    <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
+    <div id="zkp_playmat_{PLAYER_ID}" class="zkp_playmat">
+      <div id="zkp_keepers_{PLAYER_ID}">
+        <div id="zkp_keeper_1_{PLAYER_ID}" class="zkp_keeper_1"></div>
+        <div id="zkp_keeper_2_{PLAYER_ID}" class="zkp_keeper_2"></div>
+        <div id="zkp_keeper_3_{PLAYER_ID}" class="zkp_keeper_3"></div>
+        <div id="zkp_keeper_4_{PLAYER_ID}" class="zkp_keeper_4"></div>
+      </div>
+
+      <div id="zkp_quarantines_{PLAYER_ID}" class="zkp_quarantines">
+        <div
+          id="zkp_quarantine_TEM_{PLAYER_ID}"
+          class="zkp_quarantine_TEM"
+        ></div>
+        <div
+          id="zkp_quarantine_SAV_{PLAYER_ID}"
+          class="zkp_quarantine_SAV"
+        ></div>
+        <div
+          id="zkp_quarantine_PRA_{PLAYER_ID}"
+          class="zkp_quarantine_PRA"
+        ></div>
+        <div
+          id="zkp_quarantine_DES_{PLAYER_ID}"
+          class="zkp_quarantine_DES"
+        ></div>
+        <div
+          id="zkp_quarantine_AQU_{PLAYER_ID}"
+          class="zkp_quarantine_AQU"
+        ></div>
+        <div
+          id="zkp_quarantine_TRO_{PLAYER_ID}"
+          class="zkp_quarantine_TRO"
+        ></div>
+        <div
+          id="zkp_quarantine_ALL_{PLAYER_ID}"
+          class="zkp_quarantine_ALL"
+        ></div>
+      </div>
+    </div>
+  </div>
+  <!-- END playmatblock -->
+</div>
+
 <script type="text/javascript">
   // Javascript HTML templates
 

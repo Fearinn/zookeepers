@@ -45,6 +45,9 @@
 /* Note: you must not use any @import directive */
 
 /********* You can start writing your CSS below this line: **********/
+#game_play_area * {
+  box-sizing: border-box;
+}
 
 .zkp_resource {
   display: flex;
@@ -78,6 +81,33 @@
   padding: 4px;
   display: flex;
   gap: 4px;
+}
+
+.zkp_playmats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 500px);
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.zkp_playmat_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0;
+  padding: 8px;
+  width: 500px;
+}
+
+.zkp_playmat {
+  background-image: url("img/playmat.png");
+  background-size: 350px 350px;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  margin: 0 auto;
+  height: 400px;
+  width: 450px;
 }
 
 .bgaimagebutton {
