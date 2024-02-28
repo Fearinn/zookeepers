@@ -389,15 +389,87 @@ define([
       console.log("notifications subscriptions setup");
 
       dojo.subscribe("collectResources", this, "notif_collectResources");
+      dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("pass", this, "notif_pass");
     },
 
     notif_collectResources: function (notif) {
-      activePlayerCounters = notif.args.counters.find((object) => {
-        return notif.args.player_id === Object.keys(object)[0];
-      })[notif.args.player_id];
+      const player_id = notif.args.player_id;
 
-      this.updateResourceCounters(activePlayerCounters, notif.args.player_id);
+      const newCounters = notif.args.counters.find((object) => {
+        return player_id === Object.keys(object)[0];
+      })[player_id];
+
+      const collectedArgs = {
+        plant: notif.args["collected_plant_nbr"],
+        meat: notif.args["collected_meat_nbr"],
+        kit: notif.args["collected_kit_nbr"],
+      };
+
+      let loopIterator = 0;
+
+      for (const type in collectedArgs) {
+        const collected_nbr = collectedArgs[type];
+
+        if (collected_nbr > 0) {
+          for (let i = 1; i <= collected_nbr; i++) {
+            loopIterator++;
+            dojo.place(
+              this.format_block("jstpl_resource_cube", {
+                type: type,
+                nbr: i,
+              }),
+              "zkp_bag_img"
+            );
+
+            this.placeOnObject(`zkp_${type}_cube_${i}`, "zkp_bag_img");
+
+            this.slideToObjectAndDestroy(
+              `zkp_${type}_cube_${i}`,
+              "overall_player_board_" + player_id,
+              500,
+              (loopIterator - 1) * 100
+            );
+          }
+        }
+      }
+      this.updateResourceCounters(newCounters, notif.args.player_id);
+    },
+
+    notif_returnResources: function (notif) {
+      const player_id = notif.args.player_id;
+
+      const newCounters = notif.args.counters.find((object) => {
+        return player_id === Object.keys(object)[0];
+      })[player_id];
+
+      const returned_nbr = notif.args.returned_nbr;
+      const type = notif.args.type;
+
+      if (returned_nbr > 0) {
+        for (let i = 1; i <= returned_nbr; i++) {
+          dojo.place(
+            this.format_block("jstpl_resource_cube", {
+              type: type,
+              nbr: i,
+            }),
+            "overall_player_board_" + player_id
+          );
+
+          this.placeOnObject(
+            `zkp_${type}_cube_${i}`,
+            "overall_player_board_" + player_id
+          );
+
+          this.slideToObjectAndDestroy(
+            `zkp_${type}_cube_${i}`,
+            "zkp_bag_img",
+            500,
+            (i - 1) * 100
+          );
+        }
+      }
+      this.updateResourceCounters(newCounters, notif.args.player_id);
     },
 
     notif_pass: function (notif) {},

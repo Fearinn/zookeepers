@@ -76,6 +76,10 @@
   background-position: -150px 0;
 }
 
+.zkp_resource_cube {
+  position: relative;
+}
+
 .zkp_board {
   clear: both;
   padding: 4px;
@@ -133,6 +137,7 @@
   margin-top: -16px;
   height: 150px;
   width: 150px;
+  z-index: 1;
 }
 
 .zkp_bag_counters {

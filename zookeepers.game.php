@@ -220,27 +220,27 @@ class Zookeepers extends Table
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
-        $collected_plants = $this->filterByResourceType($collected_resources, 1);
-        $collected_plants_nbr = count($collected_plants);
+        $collected_plant = $this->filterByResourceType($collected_resources, 1);
+        $collected_plant_nbr = count($collected_plant);
 
         $collected_meat = $this->filterByResourceType($collected_resources, 2);
         $collected_meat_nbr = count($collected_meat);
 
-        $collected_kits = $this->filterByResourceType($collected_resources, 3);
-        $collected_kits_nbr = count($collected_kits);
+        $collected_kit = $this->filterByResourceType($collected_resources, 3);
+        $collected_kit_nbr = count($collected_kit);
 
 
         self::notifyAllPlayers(
             'collectResources',
-            clienttranslate('${player_name} collects ${collected_nbr} resources. Plants: ${collected_plants_nbr}; 
-            meat/fish: ${collected_meat_nbr}; medical kits: ${collected_kits_nbr}'),
+            clienttranslate('${player_name} collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
+            meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "collected_nbr" => $collected_nbr,
-                "collected_plants_nbr" => $collected_plants_nbr,
+                "collected_plant_nbr" => $collected_plant_nbr,
                 "collected_meat_nbr" => $collected_meat_nbr,
-                "collected_kits_nbr" => $collected_kits_nbr,
+                "collected_kit_nbr" => $collected_kit_nbr,
                 "counters" => $this->getResourceCounters(),
             )
         );
@@ -272,26 +272,26 @@ class Zookeepers extends Table
         $return_nbr = $collected_nbr * 2;
         self::setGameStateValue("totalToReturn", $return_nbr);
 
-        $collected_plants = $this->filterByResourceType($collected_resources, 1);
-        $collected_plants_nbr = count($collected_plants);
+        $collected_plant = $this->filterByResourceType($collected_resources, 1);
+        $collected_plant_nbr = count($collected_plant);
 
         $collected_meat = $this->filterByResourceType($collected_resources, 2);
         $collected_meat_nbr = count($collected_meat);
 
-        $collected_kits = $this->filterByResourceType($collected_resources, 3);
-        $collected_kits_nbr = count($collected_kits);
+        $collected_kit = $this->filterByResourceType($collected_resources, 3);
+        $collected_kit_nbr = count($collected_kit);
 
         self::notifyAllPlayers(
             'collectResources',
-            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plants: ${collected_plants_nbr}; 
-            meat/fish: ${collected_meat_nbr}; medical kits: ${collected_kits_nbr}. They must return ${return_nbr} resources to the bag'),
+            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
+            meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}. They must return ${return_nbr} resources to the bag'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "collected_nbr" => $collected_nbr,
-                "collected_plants_nbr" => $collected_plants_nbr,
+                "collected_plant_nbr" => $collected_plant_nbr,
                 "collected_meat_nbr" => $collected_meat_nbr,
-                "collected_kits_nbr" => $collected_kits_nbr,
+                "collected_kit_nbr" => $collected_kit_nbr,
                 "return_nbr" => $return_nbr,
                 "counters" => $this->getResourceCounters(),
             )
@@ -327,7 +327,7 @@ class Zookeepers extends Table
         $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
 
         self::notifyAllPlayers(
-            "collectResources",
+            "returnResources",
             clienttranslate('${player_name} returns ${returned_nbr} resources of ${type}'),
             array(
                 "player_name" => self::getActivePlayerName(),

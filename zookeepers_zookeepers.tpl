@@ -95,6 +95,9 @@
     <div class="zkp_resource"><div id="meat_icon_p${id}" class="zkp_resource_icon zkp_meat_icon"></div><span id="meat_count_p${id}">0</span></div>\
     <div class="zkp_resource"><div id="kit_icon_p${id}" class="zkp_resource_icon zkp_kit_icon"></div><span id="kit_count_p${id}">0</span></div>\
 </div>';
+
+  var jstpl_resource_cube =
+    '<div id="zkp_${type}_cube_${nbr}" class="zkp_resource_cube zkp_resource_icon zkp_${type}_icon"></div>';
 </script>
 
 {OVERALL_GAME_FOOTER}
