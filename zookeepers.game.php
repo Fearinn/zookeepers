@@ -125,6 +125,8 @@ class Zookeepers extends Table
         $sql = "SELECT player_id id, player_score score FROM player ";
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
+        $result["bagCounters"] = $this->getBagCounters();
+
 
         $players = self::loadPlayersBasicInfos();
 
@@ -184,6 +186,22 @@ class Zookeepers extends Table
         return $counters;
     }
 
+    function getBagCounters()
+    {
+        $plants = $this->resources->getCardsOfTypeInLocation("plant", 1, "deck");
+        $plants_nbr = count($plants);
+
+        $meat = $this->resources->getCardsOfTypeInLocation("meat", 2, "deck");
+        $meat_nbr = count($meat);
+
+        $kits = $this->resources->getCardsOfTypeInLocation("kit", 3, "deck");
+        $kits_nbr = count($kits);
+
+        $counters = array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr);
+
+        return $counters;
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
     //////////// 
@@ -231,7 +249,7 @@ class Zookeepers extends Table
 
 
         self::notifyAllPlayers(
-            'collectResources',
+            "collectResources",
             clienttranslate('${player_name} collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
             meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}'),
             array(
@@ -241,7 +259,8 @@ class Zookeepers extends Table
                 "collected_plant_nbr" => $collected_plant_nbr,
                 "collected_meat_nbr" => $collected_meat_nbr,
                 "collected_kit_nbr" => $collected_kit_nbr,
-                "counters" => $this->getResourceCounters(),
+                "resource_counters" => $this->getResourceCounters(),
+                "bag_counters" => $this->getBagCounters(),
             )
         );
 
@@ -282,7 +301,7 @@ class Zookeepers extends Table
         $collected_kit_nbr = count($collected_kit);
 
         self::notifyAllPlayers(
-            'collectResources',
+            "collectResources",
             clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
             meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}. They must return ${return_nbr} resources to the bag'),
             array(
@@ -293,7 +312,8 @@ class Zookeepers extends Table
                 "collected_meat_nbr" => $collected_meat_nbr,
                 "collected_kit_nbr" => $collected_kit_nbr,
                 "return_nbr" => $return_nbr,
-                "counters" => $this->getResourceCounters(),
+                "resource_counters" => $this->getResourceCounters(),
+                "bag_counters" => $this->getBagCounters(),
             )
         );
         self::setGameStateValue("freeAction", 3);
@@ -334,7 +354,8 @@ class Zookeepers extends Table
                 "player_id" => $player_id,
                 "returned_nbr" => $lastly_returned_nbr,
                 "type" => $type,
-                "counters" => $this->getResourceCounters(),
+                "resource_counters" => $this->getResourceCounters(),
+                "bag_counters" => $this->getBagCounters(),
             )
         );
 
