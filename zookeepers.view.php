@@ -54,6 +54,8 @@ class view_zookeepers_zookeepers extends game_view
             ));
         }
 
+        $this->tpl["BAG OF RESOURCES"] = self::_("Bag of resources");
+
         /*********** Do not change anything below this line  ************/
     }
 }

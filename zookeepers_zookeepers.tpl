@@ -10,6 +10,35 @@
 -------
 -->
 
+<div id="zkp_common_area" class="zkp_common_area">
+  <div id="zkp_bag" class="zkp_bag whiteblock">
+    <h3>{BAG OF RESOURCES}</h3>
+    <div id="zkp_bag_img" class="zkp_bag_img"></div>
+    <div class="zkp_bag_counters">
+      <div id="zkp_bag_plant" class="zkp_resource">
+        <div
+          id="zkp_bag_plant_icon"
+          class="zkp_resource_icon zkp_plant_icon"
+        ></div>
+        <span id="zkp_bag_counter_plant">0</span>
+      </div>
+      <div id="zkp_bag_meat" class="zkp_resource">
+        <div
+          id="zkp_bag_meat_icon"
+          class="zkp_resource_icon zkp_meat_icon"
+        ></div>
+        <span id="zkp_bag_counter_meat">0</span>
+      </div>
+      <div id="zkp_bag_meat" class="zkp_resource">
+        <div id="zkp_bag_kit_icon" class="zkp_resource_icon zkp_kit_icon"></div>
+        <span id="zkp_bag_counter_kit">0</span>
+      </div>
+    </div>
+  </div>
+  <div id="zkp_keeper_deck" class="zkp_keeper_deck"></div>
+  <div id="zkp_species_deck" class="zkp_species_deck"></div>
+</div>
+
 <div id="zkp_playmats" class="zkp_playmats">
   <!-- BEGIN playmatblock -->
   <div class="zkp_playmat_container whiteblock">
