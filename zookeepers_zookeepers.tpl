@@ -35,8 +35,42 @@
       </div>
     </div>
   </div>
-  <div id="zkp_keeper_deck" class="zkp_keeper_deck"></div>
-  <div id="zkp_species_deck" class="zkp_species_deck"></div>
+  <div id="zkp_keeper_decks" class="zkp_keeper_decks">
+    <div
+      id="zkp_keeper_deck_2"
+      class="zkp_keeper_deck zkp_card zkp_keeper_deck_2"
+    ></div>
+    <div
+      id="zkp_keeper_deck_3"
+      class="zkp_keeper_deck zkp_card zkp_keeper_deck_3"
+    ></div>
+    <div
+      id="zkp_keeper_deck_4"
+      class="zkp_keeper_deck zkp_card zkp_keeper_deck_4"
+    ></div>
+    <div
+      id="zkp_keeper_deck_5"
+      class="zkp_keeper_deck zkp_card zkp_keeper_deck_5"
+    ></div>
+  </div>
+  <div id="zkp_species_deck" class="zkp_species_deck zkp_card"></div>
+  <!-- <div id="zkp_species_shop" class="zkp_species_shop whiteblock">
+    <div id="zkp_species_column_1">
+      <div id="zkp_shop_specie_1_1" class="zkp_shop_specie zkp_card"></div>
+      <div id="zkp_shop_specie_1_2" class="zkp_shop_specie zkp_card"></div>
+      <div id="zkp_shop_specie_1_3" class="zkp_visible_specie zkp_card"></div>
+    </div>
+    <div id="zkp_species_column_2">
+      <div id="zkp_shop_specie_2_1" class="zkp_backup_specie zkp_card"></div>
+      <div id="zkp_shop_specie_2_2" class="zkp_backup_specie zkp_card"></div>
+      <div id="zkp_shop_specie_2_3" class="zkp_visible_specie zkp_card"></div>
+    </div>
+    <div id="zkp_species_column_3">
+      <div id="zkp_shop_specie_3_1" class="zkp_shop_specie zkp_card"></div>
+      <div id="zkp_shop_specie_3_2" class="zkp_shop_specie zkp_card"></div>
+      <div id="zkp_shop_specie_3_3" class="zkp_visible_specie zkp_card"></div>
+    </div>
+  </div> -->
 </div>
 
 <div id="zkp_playmats" class="zkp_playmats">

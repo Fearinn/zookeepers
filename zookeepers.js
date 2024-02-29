@@ -51,7 +51,6 @@ define([
       console.log("Starting game setup");
 
       this.isBagEmpty = gamedatas.isBagEmpty;
-      console.log("empty", this.isBagEmpty);
 
       for (const player_id in gamedatas.players) {
         const player = gamedatas.players[player_id];
