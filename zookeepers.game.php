@@ -126,6 +126,7 @@ class Zookeepers extends Table
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
+        $result["isBagEmpty"] = $this->isBagEmpty();
 
 
         $players = self::loadPlayersBasicInfos();
@@ -202,6 +203,11 @@ class Zookeepers extends Table
         return $counters;
     }
 
+    function isBagEmpty()
+    {
+        return $this->resources->countCardInLocation("deck") == 0;
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
     //////////// 
@@ -230,10 +236,14 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("You already used a main action this turn"));
         }
 
+        if ($this->isBagEmpty()) {
+            throw new BgaUserException(self::_("The bag is out of resources"));
+        }
+
         $player_id = self::getActivePlayerId();
 
         // temporary, for tests only
-        $species_nbr = 3;
+        $species_nbr = 30;
 
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
@@ -246,7 +256,6 @@ class Zookeepers extends Table
 
         $collected_kit = $this->filterByResourceType($collected_resources, 3);
         $collected_kit_nbr = count($collected_kit);
-
 
         self::notifyAllPlayers(
             "collectResources",
@@ -272,8 +281,13 @@ class Zookeepers extends Table
     function exchangeResources()
     {
         self::checkAction("exchangeResources");
+
         if (self::getGameStateValue("freeAction") || self::getGameStateValue("mainAction")) {
             throw new BgaUserException(self::_("The conservation fund can't be used after any other action"));
+        }
+
+        if ($this->isBagEmpty()) {
+            throw new BgaUserException(self::_("The bag is out of resources"));
         }
 
         $this->gamestate->nextState("exchangeCollection");
@@ -379,7 +393,10 @@ class Zookeepers extends Table
 
     function argPlayerTurn()
     {
-        return array("mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"));
+        return array(
+            "mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"),
+            "isBagEmpty" => $this->isBagEmpty()
+        );
     }
 
     function argExchangeCollection()

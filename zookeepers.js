@@ -31,6 +31,7 @@ define([
       this.freeAction = 0;
       this.resourceCounters = {};
       this.bagCounters = {};
+      this.isBagEmpty = false;
     },
 
     /*
@@ -48,6 +49,9 @@ define([
 
     setup: function (gamedatas) {
       console.log("Starting game setup");
+
+      this.isBagEmpty = gamedatas.isBagEmpty;
+      console.log("empty", this.isBagEmpty);
 
       for (const player_id in gamedatas.players) {
         const player = gamedatas.players[player_id];
@@ -118,9 +122,10 @@ define([
       if (stateName === "playerTurn") {
         this.mainAction = args.args.mainAction;
         this.freeAction = args.args.freeAction;
+        this.isBagEmpty = args.args.isBagEmpty;
 
         if (this.isCurrentPlayerActive()) {
-          if (this.mainAction < 1) {
+          if (this.mainAction < 1 && !this.isBagEmpty) {
             this.addActionButton(
               "collect_resources_btn",
               _("Collect Resources"),
@@ -128,7 +133,7 @@ define([
             );
           }
 
-          if (this.mainAction < 1 && this.freeAction < 1) {
+          if (this.mainAction < 1 && this.freeAction < 1 && !this.isBagEmpty) {
             this.addActionButton(
               "exchange_resources_btn",
               _("Conservation Fund"),
