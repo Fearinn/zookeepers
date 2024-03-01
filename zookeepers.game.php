@@ -41,6 +41,9 @@ class Zookeepers extends Table
 
         $this->resources = self::getNew("module.common.deck");
         $this->resources->init("resource");
+
+        $this->species = self::getNew("module.common.deck");
+        $this->species->init("species");
     }
 
     protected function getGameName()
@@ -77,6 +80,8 @@ class Zookeepers extends Table
         self::reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
         self::reloadPlayersBasicInfos();
 
+        $players = self::loadPlayersBasicInfos();
+
         $resources_deck = array();
         foreach ($this->resource_types as $type => $resource) {
             $resources_deck[] = array("type" => $resource["label"], "type_arg" => $type, "nbr" => ($resource["total"] - $resource["per_player"] * count($players)));
@@ -90,7 +95,51 @@ class Zookeepers extends Table
         $this->resources->createCards($resources_deck, "deck");
         $this->resources->shuffle('deck');
 
-        $players = self::loadPlayersBasicInfos();
+        $species_deck = array();
+        foreach ($this->species_info as $species_id => $species) {
+            $habitat_string = "";
+            foreach ($species["habitat"] as $habitat) {
+                $habitat_string = $habitat_string . $habitat . ":";
+            };
+
+            $continent_string = "";
+            foreach ($species["continent"] as $continent) {
+                $continent_string = $continent_string . $continent . ":";
+            };
+
+            $cost_map = array("plant" => 0, "meat" => 0, "kit" => 0);
+
+            foreach ($cost_map as $type => $cost_var) {
+                if (in_array($type, $species["cost"], true)) {
+                    $cost_map[$type] = $species["cost"][$type];
+                }
+            }
+
+            $species_deck[] = array(
+                "name" => $species["name"],
+                "scientific_name" => $species["scientific_name"],
+                "type" => $species["class"],
+                "type_arg" => $species["points"],
+                "diet" => $species["diet"],
+                "status" => $species["status"],
+                "habitat" => $habitat_string,
+                "continent" => $continent_string,
+                "plant" => $cost_map["plant"],
+                "meat" => $cost_map["meat"],
+                "kit" => $cost_map["kit"],
+                "nbr" => 1,
+            );
+        }
+
+        $this->species->createCards($species_deck, "deck");
+        $this->species->shuffle("deck");
+
+        for ($i = 1; $i <= 4; $i++) {
+            $this->species->pickCardsForLocation(2, "shop_backup", $i);
+            $this->species->pickCardForLocation("shop_visible", $i);
+        }
+
+
         foreach ($players as $player_id => $player) {
             $this->resources->createCards($resources_to_players, "hand", $player_id);
         }
@@ -243,7 +292,7 @@ class Zookeepers extends Table
         $player_id = self::getActivePlayerId();
 
         // temporary, for tests only
-        $species_nbr = 30;
+        $species_nbr = 3;
 
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
