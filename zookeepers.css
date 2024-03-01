@@ -49,6 +49,18 @@
   box-sizing: border-box;
 }
 
+.zkp_card {
+  border-radius: 12px;
+  box-shadow: 0 0 8px 2px black;
+  height: 165px;
+  width: 120px;
+  background-repeat: no-repeat;
+}
+
+.zkp_empty_card {
+  display: none;
+}
+
 .zkp_resource {
   display: flex;
   align-items: center;
@@ -116,10 +128,11 @@
 
 .zkp_common_area {
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: center;
-  gap: 16px;
   flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
   width: 100%;
 }
 
@@ -138,7 +151,6 @@
   margin-top: -16px;
   height: 150px;
   width: 150px;
-  z-index: 1;
 }
 
 .zkp_bag_counters {
@@ -148,8 +160,8 @@
 }
 
 .zkp_keeper_decks {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 125px);
   gap: 8px;
 }
 
@@ -176,15 +188,23 @@
 .zkp_species_deck {
   background-image: url("img/species_back.png");
   background-size: contain;
-  margin-left: 16px;
 }
 
-.zkp_card {
-  border-radius: 12px;
-  box-shadow: 0 0 8px 2px black;
-  height: 165px;
-  width: 120px;
-  background-repeat: no-repeat;
+.zkp_species_shop {
+  display: grid;
+  grid-template-columns: repeat(4, 120px);
+  gap: 8px;
+}
+
+.zkp_species_column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.zkp_backup_species {
+  background-image: url("img/species_back.png");
+  background-size: contain;
 }
 
 .bgaimagebutton {
