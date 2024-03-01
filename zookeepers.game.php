@@ -107,14 +107,6 @@ class Zookeepers extends Table
                 $continent_string = $continent_string . $continent . ":";
             };
 
-            $cost_map = array("plant" => 0, "meat" => 0, "kit" => 0);
-
-            foreach ($cost_map as $type => $cost_var) {
-                if (in_array($type, $species["cost"], true)) {
-                    $cost_map[$type] = $species["cost"][$type];
-                }
-            }
-
             $species_deck[] = array(
                 "name" => $species["name"],
                 "scientific_name" => $species["scientific_name"],
@@ -124,9 +116,9 @@ class Zookeepers extends Table
                 "status" => $species["status"],
                 "habitat" => $habitat_string,
                 "continent" => $continent_string,
-                "plant" => $cost_map["plant"],
-                "meat" => $cost_map["meat"],
-                "kit" => $cost_map["kit"],
+                "plant" => $species["cost"]["plant"],
+                "meat" => $species["cost"]["meat"],
+                "kit" => $species["cost"]["kit"],
                 "nbr" => 1,
             );
         }
