@@ -140,7 +140,14 @@ define([
             );
           }
 
-          this.addActionButton("pass_btn", _("Pass Turn"), "onPass");
+          this.addActionButton(
+            "pass_btn",
+            _("Pass Turn"),
+            "onPass",
+            null,
+            null,
+            "red"
+          );
         }
         return;
       }
@@ -283,7 +290,7 @@ define([
         if (this.mainAction < 1) {
           this.confirmationDialog(
             _(
-              "You didn't use any main action yet. Are you sure you want to pass?"
+              "You haven't use any main action yet. Are you sure you want to pass?"
             ),
             () => {
               this.ajaxcall(
