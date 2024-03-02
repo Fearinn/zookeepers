@@ -96,7 +96,9 @@ class Zookeepers extends Table
         $this->resources->shuffle('deck');
 
         $species_deck = array();
-        foreach ($this->species_info as $species_id => $species) {
+        $species_info = $this->species_info;
+        ksort($species_info);
+        foreach ($species_info as $species_id => $species) {
             $habitat_string = "";
             foreach ($species["habitat"] as $habitat) {
                 $habitat_string = $habitat_string . $habitat . ":";
@@ -108,17 +110,8 @@ class Zookeepers extends Table
             };
 
             $species_deck[] = array(
-                "name" => $species["name"],
-                "scientific_name" => $species["scientific_name"],
-                "type" => $species["class"],
+                "type" => $species["name"],
                 "type_arg" => $species["points"],
-                "diet" => $species["diet"],
-                "status" => $species["status"],
-                "habitat" => $habitat_string,
-                "continent" => $continent_string,
-                "plant" => $species["cost"]["plant"],
-                "meat" => $species["cost"]["meat"],
-                "kit" => $species["cost"]["kit"],
                 "nbr" => 1,
             );
         }
@@ -127,10 +120,9 @@ class Zookeepers extends Table
         $this->species->shuffle("deck");
 
         for ($i = 1; $i <= 4; $i++) {
-            $this->species->pickCardsForLocation(2, "shop_backup", $i);
-            $this->species->pickCardForLocation("shop_visible", $i);
+            $this->species->pickCardsForLocation(2, "deck", "shop_backup", $i);
+            $this->species->pickCardForLocation("deck", "shop_visible", $i);
         }
-
 
         foreach ($players as $player_id => $player) {
             $this->resources->createCards($resources_to_players, "hand", $player_id);
@@ -168,6 +160,7 @@ class Zookeepers extends Table
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
+        $result["visible_species"] = $this->getVisibleSpecies();
 
 
         $players = self::loadPlayersBasicInfos();
@@ -247,6 +240,17 @@ class Zookeepers extends Table
     function isBagEmpty()
     {
         return $this->resources->countCardInLocation("deck") == 0;
+    }
+
+    function getVisibleSpecies()
+    {
+        $visible_species = array();
+        for ($i = 1; $i <= 4; $i++) {
+            $species = $this->species->getCardsInLocation("shop_visible", $i);
+            $visible_species[$i] = array_shift($species);
+        }
+
+        return $visible_species;
     }
 
     //////////////////////////////////////////////////////////////////////////////
