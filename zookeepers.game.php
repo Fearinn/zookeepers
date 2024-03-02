@@ -481,6 +481,8 @@ class Zookeepers extends Table
 
     function stBetweenActions()
     {
+        $player_id = self::getActivePlayerId();
+        $this->giveExtraTime($player_id);
         $this->gamestate->nextState("nextAction");
     }
 
@@ -490,6 +492,9 @@ class Zookeepers extends Table
         self::setGameStateValue("totalToReturn", 0);
         self::setGameStateValue("previouslyReturned", 0);
         self::setGameStateValue("freeAction", 0);
+
+        $player_id = self::getActivePlayerId();
+        $this->giveExtraTime($player_id);
 
         self::activeNextPlayer();
         $this->gamestate->nextState("nextPlayer");
