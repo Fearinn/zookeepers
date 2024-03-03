@@ -20,18 +20,23 @@ define([
   "dojo/_base/declare",
   "ebg/core/gamegui",
   "ebg/counter",
+  "ebg/stock",
 ], function (dojo, declare) {
   return declare("bgagame.zookeepers", ebg.core.gamegui, {
     constructor: function () {
       console.log("zookeepers constructor");
 
       // Here, you can init the global variables of your user interface
+      this.cardWidth = 120;
+      this.cardHeight = 165;
 
       this.mainAction = 0;
       this.freeAction = 0;
       this.resourceCounters = {};
       this.bagCounters = {};
       this.isBagEmpty = false;
+      this.allSpecies = {};
+      this.visibleSpecies = {};
     },
 
     /*
@@ -101,6 +106,45 @@ define([
         };
 
         this.updateBagCounters(gamedatas.bagCounters);
+
+        this.allSpecies = gamedatas.allSpecies;
+        this.visibleSpecies = gamedatas.visibleSpecies;
+
+        console.log("visible", this.visibleSpecies);
+
+        for (let column = 1; column <= 4; column++) {
+          this["visibleShop_" + column] = new ebg.stock();
+          this["visibleShop_" + column].create(
+            this,
+            $("zkp_visible_species_" + column),
+            this.cardWidth,
+            this.cardHeight
+          );
+
+          this["visibleShop_" + column].extraClasses =
+            "zkp_visible_species zkp_card";
+
+          this["visibleShop_" + column].image_items_per_row = 10;
+
+          for (const species_id in this.allSpecies) {
+            this["visibleShop_" + column].addItemType(
+              species_id,
+              species_id,
+              g_gamethemeurl + "img/species.png",
+              species_id - 1
+            );
+          }
+        }
+
+        for (const column in this.visibleSpecies) {
+          $species_id = this.visibleSpecies[column].type_arg;
+
+          this["visibleShop_" + column].addToStockWithId(
+            $species_id,
+            $species_id,
+            "zkp_species_deck"
+          );
+        }
       }
 
       // Setup game notifications to handle (see "setupNotifications" method below)

@@ -97,21 +97,13 @@ class Zookeepers extends Table
 
         $species_deck = array();
         $species_info = $this->species_info;
-        ksort($species_info);
+
+        ksort($species_info, 1);
+
         foreach ($species_info as $species_id => $species) {
-            $habitat_string = "";
-            foreach ($species["habitat"] as $habitat) {
-                $habitat_string = $habitat_string . $habitat . ":";
-            };
-
-            $continent_string = "";
-            foreach ($species["continent"] as $continent) {
-                $continent_string = $continent_string . $continent . ":";
-            };
-
             $species_deck[] = array(
                 "type" => $species["name"],
-                "type_arg" => $species["points"],
+                "type_arg" => $species_id,
                 "nbr" => 1,
             );
         }
@@ -156,11 +148,14 @@ class Zookeepers extends Table
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
+        $species_info = $this->species_info;
+
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
-        $result["visible_species"] = $this->getVisibleSpecies();
+        $result["allSpecies"] = $species_info;
+        $result["visibleSpecies"] = $this->getVisibleSpecies();
 
 
         $players = self::loadPlayersBasicInfos();

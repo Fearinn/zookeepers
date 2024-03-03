@@ -54,7 +54,6 @@
   box-shadow: 0 0 8px 2px black;
   height: 165px;
   width: 120px;
-  background-repeat: no-repeat;
 }
 
 .zkp_empty_card {
@@ -191,25 +190,32 @@
 }
 
 .zkp_species_shop {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.zkp_backup_shop {
   display: grid;
   grid-template-columns: repeat(4, 120px);
   gap: 8px;
 }
 
-.zkp_species_column {
+.zkp_backup_column {
   display: flex;
   flex-direction: column;
+  gap: 8px;
+}
+
+.zkp_visible_shop {
+  display: grid;
+  grid-template-columns: repeat(4, 120px);
   gap: 8px;
 }
 
 .zkp_backup_species {
   background-image: url("img/species_back.png");
   background-size: contain;
-}
-
-.zkp_visible_species {
-  background-image: url("img/species.png");
-  background-position: -1px -1px;
 }
 
 .bgaimagebutton {

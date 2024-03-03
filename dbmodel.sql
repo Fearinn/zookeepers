@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `species` (
     `plant` int(11) NOT NULL,
     `meat` int(11) NOT NULL,
     `kit` int(11) NOT NULL,
+    `points` int(11) NOT NULL,
     PRIMARY KEY (`card_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8 AUTO_INCREMENT = 1;
 -- Example 2: add a custom field to the standard "player" table
