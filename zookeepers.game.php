@@ -42,6 +42,9 @@ class Zookeepers extends Table
         $this->resources = self::getNew("module.common.deck");
         $this->resources->init("resource");
 
+        $this->keepers = self::getNew("module.common.deck");
+        $this->keepers->init("keeper");
+
         $this->species = self::getNew("module.common.deck");
         $this->species->init("species");
     }
@@ -94,6 +97,23 @@ class Zookeepers extends Table
 
         $this->resources->createCards($resources_deck, "deck");
         $this->resources->shuffle('deck');
+
+        $keepers_deck_1 = array();
+        $keepers_info = $this->keepers_info;
+        ksort($keepers_info);
+
+        // tests only
+        $keepers_names_1 = array("Maria", "Mario", "Penélope", "Aiko", "Paul");
+        foreach ($keepers_names_1 as $index => $name) {
+            $keepers_deck_1[] = array("type" => $name, "type_arg" => $index, "nbr" => 1);
+        }
+
+        $this->keepers->createCards($keepers_deck_1, "deck:1");
+        $this->keepers->shuffle("deck:1");
+
+        foreach ($players as $player_id => $player) {
+            $this->keepers->pickCardForLocation("deck:1", "board", $player_id);
+        }
 
         $species_deck = array();
         $species_info = $this->species_info;
@@ -154,6 +174,7 @@ class Zookeepers extends Table
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
+        $result["keepersOnBoards"] = $this->getKeepersOnBoards();
         $result["allSpecies"] = $species_info;
         $result["visibleSpecies"] = $this->getVisibleSpecies();
 
@@ -235,6 +256,22 @@ class Zookeepers extends Table
     function isBagEmpty()
     {
         return $this->resources->countCardInLocation("deck") == 0;
+    }
+
+    function getKeepersOnBoards()
+    {
+        $players = self::loadPlayersBasicInfos();
+
+        $keepers = array();
+        foreach ($players as $player_id => $player) {
+            for ($i = 1; $i <= 5; $i++) {
+                $keepers[$player_id][] =
+                    $this->keepers->getCardsInLocation("deck:" . strval($i), $player_id);
+            }
+        }
+
+        self::warn(json_encode($keepers));
+        return $keepers;
     }
 
     function getVisibleSpecies()
