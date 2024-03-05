@@ -1340,7 +1340,7 @@ $this->keepers = array(
 $this->mainActions = array(
   1 => array("name" => "collectResources", "update_scores" => false),
   2 => array("name" => "saveSpecies", "update_scores" => true),
-  3 => array("name" => "quarentineSpecies", "update_scores" => true),
+  3 => array("name" => "quarantineSpecies", "update_scores" => true),
   4 => array("name" => "discardSpecies", "update_scores" => true),
   5 => array("name" => "swapKeepers", "update_scores" => true),
   6 => array("name" => "discardKeeper", "update_scores" => true),

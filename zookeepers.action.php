@@ -51,6 +51,22 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function hireKeeper()
+  {
+    self::setAjaxMode();
+    $this->game->hireKeeper();
+    self::ajaxResponse();
+  }
+
+  public function selectKeeperPile()
+  {
+    self::setAjaxMode();
+    $pile = self::getArg("pile", AT_posint, true);
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->selectKeeperPile($pile, $board_position);
+    self::ajaxResponse();
+  }
+
   public function exchangeResources()
   {
     self::setAjaxMode();

@@ -68,11 +68,11 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
         "type" => "activeplayer",
         "possibleactions" => array(
-            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange", "quarentineSpecies", "discardSpecies", "swapKeepers", "dismissKeeper",
+            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange", "quarantineSpecies", "discardSpecies", "swapKeepers", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
-        "transitions" => array("betweenActions" => 3, "pass" => 4, "exchangeCollection" => 21)
+        "transitions" => array("betweenActions" => 3, "pass" => 4, "exchangeCollection" => 21, "selectKeeperPile" => 24)
     ),
 
     21 => array(
@@ -100,9 +100,18 @@ $machinestates = array(
         "description" => "",
         "descriptionmyturn" => "",
         "type" => "activeplayer",
-        "args" => "argExchangeReturn",
         "action" => "stBetweenReturns",
         "transitions" => array("nextReturn" => 22, "betweenActions" => 3)
+    ),
+
+    24 => array(
+        "name" => "selectKeeperPile",
+        "description" => clienttranslate('${actplayer} can select a pile of keepers'),
+        "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers'),
+        "type" => "activeplayer",
+        "args" => "argSelectKeeperPile",
+        "possibleactions" => array("selectKeeperPile"),
+        "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 
     3 => array(

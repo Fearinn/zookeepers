@@ -158,32 +158,32 @@
   gap: 4px;
 }
 
-.zkp_keeper_decks {
+.zkp_keeper_piles {
   display: grid;
   grid-template-columns: repeat(2, 125px);
   gap: 8px;
 }
 
-.zkp_keeper_deck {
+.zkp_keeper_pile {
   background-image: url("img/keepers_backs.png");
 }
 
-.zkp_keeper_deck_1 {
+.zkp_keeper_pile_1 {
   background-position: -126px -171px;
 }
-.zkp_keeper_deck_2 {
+.zkp_keeper_pile_2 {
   background-position: -126px -3px;
 }
 
-.zkp_keeper_deck_3 {
+.zkp_keeper_pile_3 {
   background-position: -3px -171px;
 }
 
-.zkp_keeper_deck_4 {
+.zkp_keeper_pile_4 {
   background-position: -3px -3px;
 }
 
-.zkp_keeper_deck_5 {
+.zkp_keeper_pile_5 {
   background-position: -249px -3px;
 }
 

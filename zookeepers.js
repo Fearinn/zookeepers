@@ -113,8 +113,6 @@ define([
         this.allKeepers = gamedatas.allKeepers;
         this.keepersOnBoards = gamedatas.keepersOnBoards;
 
-        console.log(this.keepersOnBoards);
-
         for (const player_id in gamedatas.players) {
           for (let position = 1; position <= 4; position++) {
             const stockKey = `board_${position}_${player_id}`;
@@ -145,13 +143,14 @@ define([
               for (const key in addedKeeperObj) {
                 const addedKeeper = addedKeeperObj[key];
                 const completeInfo = this.allKeepers[addedKeeper.type_arg];
+
                 const points = completeInfo.points;
 
                 if (addedKeeper.type_arg) {
                   this[stockKey].addToStockWithId(
                     addedKeeper.type_arg,
                     addedKeeper.type_arg,
-                    `zkp_keeper_deck_${points}`
+                    `zkp_keeper_pile:${points}`
                   );
                 }
               }
@@ -227,6 +226,14 @@ define([
             );
           }
 
+          if (this.mainAction < 1) {
+            this.addActionButton(
+              "hire_keeper_button",
+              _("Hire Keeper"),
+              "onHireKeeper"
+            );
+          }
+
           if (this.mainAction < 1 && this.freeAction < 1 && !this.isBagEmpty) {
             this.addActionButton(
               "exchange_resources_btn",
@@ -245,6 +252,35 @@ define([
           );
         }
         return;
+      }
+
+      if (stateName === "selectKeeperPile") {
+        this.keepersOnBoards = args.args.keepers_on_boards;
+
+        if (this.isCurrentPlayerActive()) {
+          const playerId = this.getActivePlayerId();
+
+          console.log(this.keepersOnBoards[playerId]);
+
+          let openBoardPosition = 0;
+
+          for (const position in this.keepersOnBoards[playerId]) {
+            if (Array.isArray(this.keepersOnBoards[playerId][position])) {
+              openBoardPosition = position;
+              console.log("isArray", openBoardPosition);
+              break;
+            }
+          }
+
+          if (openBoardPosition > 0) {
+            dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+              const pile = event.target.id.split(":")[1];
+              this.onSelectKeeperPile(parseInt(pile), openBoardPosition);
+            });
+          } else {
+            this.showMoveUnauthorized();
+          }
+        }
       }
 
       if (stateName === "exchangeCollection") {
@@ -435,6 +471,39 @@ define([
       }
     },
 
+    onHireKeeper: function () {
+      const action = "hireKeeper";
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onSelectKeeperPile: function (pile, board_position) {
+      const action = "selectKeeperPile";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            pile: pile,
+            board_position: board_position,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
     onExchangeResources: function () {
       const action = "exchangeResources";
       if (this.checkAction(action, true)) {
@@ -517,9 +586,25 @@ define([
     setupNotifications: function () {
       console.log("notifications subscriptions setup");
 
+      dojo.subscribe("hireKeeper", this, "notif_hireKeeper");
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("pass", this, "notif_pass");
+    },
+
+    notif_hireKeeper: function (notif) {
+      const player_id = notif.args.player_id;
+
+      const keeper_id = notif.args.keeper_id;
+      const position = notif.args.board_position;
+      console.log("argsPosition", position);
+      const stockKey = `board_${position}_${player_id}`;
+
+      this[stockKey].addToStockWithId(
+        keeper_id,
+        keeper_id,
+        `zkp_keeper_pile:${notif.args.pile}`
+      );
     },
 
     notif_collectResources: function (notif) {
