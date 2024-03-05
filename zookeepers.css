@@ -100,7 +100,7 @@
 
 .zkp_playmats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 500px);
+  grid-template-columns: repeat(auto-fit, 666.7px);
   justify-content: center;
   gap: 8px;
   width: 100%;
@@ -112,17 +112,17 @@
   justify-content: space-between;
   margin: 0;
   padding: 8px;
-  width: 500px;
+  width: 666.7px;
 }
 
 .zkp_playmat {
   background-image: url("img/playmat.png");
-  background-size: 350px 350px;
+  background-size: 467px 467px;
   background-position: bottom;
   background-repeat: no-repeat;
   margin: 0 auto;
-  height: 400px;
-  width: 450px;
+  height: 533px;
+  width: 600px;
 }
 
 .zkp_common_area {
@@ -168,6 +168,9 @@
   background-image: url("img/keepers_backs.png");
 }
 
+.zkp_keeper_deck_1 {
+  background-position: -126px -171px;
+}
 .zkp_keeper_deck_2 {
   background-position: -126px -3px;
 }
@@ -216,6 +219,15 @@
 .zkp_backup_species {
   background-image: url("img/species_back.png");
   background-size: contain;
+}
+
+.zkp_keepers {
+  position: relative;
+  top: 127px;
+  left: 170px;
+  display: grid;
+  grid-template-columns: repeat(2, 120px);
+  gap: 16px;
 }
 
 .bgaimagebutton {

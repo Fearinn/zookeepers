@@ -102,17 +102,17 @@ class Zookeepers extends Table
         $keepers_info = $this->keepers_info;
         ksort($keepers_info);
 
-        // tests only
-        $keepers_names_1 = array("Maria", "Mario", "Penélope", "Aiko", "Paul");
-        foreach ($keepers_names_1 as $index => $name) {
-            $keepers_deck_1[] = array("type" => $name, "type_arg" => $index, "nbr" => 1);
+        // mocked data, tests only
+        $keepers_1 = array(14 => "Penélope", 17 => "Maria", 18 => "Mario", 19 => "Paul", 27 => "Aiko",);
+        foreach ($keepers_1 as $keeper_id => $name) {
+            $keepers_deck_1[] = array("type" => $name, "type_arg" => $keeper_id, "nbr" => 1);
         }
 
         $this->keepers->createCards($keepers_deck_1, "deck:1");
         $this->keepers->shuffle("deck:1");
 
         foreach ($players as $player_id => $player) {
-            $this->keepers->pickCardForLocation("deck:1", "board", $player_id);
+            $this->keepers->pickCardForLocation("deck:1", "board:1", $player_id);
         }
 
         $species_deck = array();
@@ -169,11 +169,13 @@ class Zookeepers extends Table
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
         $species_info = $this->species_info;
+        $keepers_info = $this->keepers_info;
 
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
+        $result["allKeepers"] = $keepers_info;
         $result["keepersOnBoards"] = $this->getKeepersOnBoards();
         $result["allSpecies"] = $species_info;
         $result["visibleSpecies"] = $this->getVisibleSpecies();
@@ -264,9 +266,9 @@ class Zookeepers extends Table
 
         $keepers = array();
         foreach ($players as $player_id => $player) {
-            for ($i = 1; $i <= 5; $i++) {
-                $keepers[$player_id][] =
-                    $this->keepers->getCardsInLocation("deck:" . strval($i), $player_id);
+            for ($i = 1; $i <= 4; $i++) {
+                $keepers[$player_id][$i] =
+                    $this->keepers->getCardsInLocation("board:" . strval($i), $player_id);
             }
         }
 

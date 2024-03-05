@@ -35,8 +35,11 @@
       </div>
     </div>
   </div>
-  <div id="zkp_species_deck" class="zkp_species_deck zkp_card"></div>
   <div id="zkp_keeper_decks" class="zkp_keeper_decks">
+    <div
+      id="zkp_keeper_deck_1"
+      class="zkp_keeper_deck zkp_card zkp_keeper_deck_1"
+    ></div>
     <div
       id="zkp_keeper_deck_2"
       class="zkp_keeper_deck zkp_card zkp_keeper_deck_2"
@@ -53,6 +56,7 @@
       id="zkp_keeper_deck_5"
       class="zkp_keeper_deck zkp_card zkp_keeper_deck_5"
     ></div>
+    <div id="zkp_species_deck" class="zkp_species_deck zkp_card"></div>
   </div>
   <div id="zkp_species_shop" class="zkp_species_shop">
     <div id="zkp_backup_shop" class="zkp_backup_shop">
@@ -111,7 +115,7 @@
   <div class="zkp_playmat_container whiteblock">
     <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
     <div id="zkp_playmat_{PLAYER_ID}" class="zkp_playmat">
-      <div id="zkp_keepers_{PLAYER_ID}">
+      <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
         <div id="zkp_keeper_1_{PLAYER_ID}" class="zkp_keeper_1"></div>
         <div id="zkp_keeper_2_{PLAYER_ID}" class="zkp_keeper_2"></div>
         <div id="zkp_keeper_3_{PLAYER_ID}" class="zkp_keeper_3"></div>

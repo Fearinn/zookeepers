@@ -35,6 +35,8 @@ define([
       this.resourceCounters = {};
       this.bagCounters = {};
       this.isBagEmpty = false;
+      this.allKeepers = {};
+      this.keepersOnBoards = {};
       this.allSpecies = {};
       this.visibleSpecies = {};
     },
@@ -107,10 +109,59 @@ define([
 
         this.updateBagCounters(gamedatas.bagCounters);
 
+        // keepers
+        this.allKeepers = gamedatas.allKeepers;
+        this.keepersOnBoards = gamedatas.keepersOnBoards;
+
+        console.log(this.keepersOnBoards);
+
+        for (const player_id in gamedatas.players) {
+          for (let position = 1; position <= 4; position++) {
+            const stockKey = `board_${position}_${player_id}`;
+            this[stockKey] = new ebg.stock();
+            this[stockKey].create(
+              this,
+              $(`zkp_keeper_${position}_${player_id}`),
+              this.cardWidth,
+              this.cardHeight
+            );
+
+            this[stockKey].extraClasses = "zkp_card";
+            this[stockKey].image_items_per_row = 7;
+
+            for (const keeper_id in this.allKeepers) {
+              this[stockKey].addItemType(
+                keeper_id,
+                1000,
+                // wrong imame, tests only
+                g_gamethemeurl + "img/keepers.png",
+                keeper_id - 1
+              );
+            }
+
+            const addedKeeperObj = this.keepersOnBoards[player_id][position];
+
+            if (addedKeeperObj) {
+              for (const key in addedKeeperObj) {
+                const addedKeeper = addedKeeperObj[key];
+                const completeInfo = this.allKeepers[addedKeeper.type_arg];
+                const points = completeInfo.points;
+
+                if (addedKeeper.type_arg) {
+                  this[stockKey].addToStockWithId(
+                    addedKeeper.type_arg,
+                    addedKeeper.type_arg,
+                    `zkp_keeper_deck_${points}`
+                  );
+                }
+              }
+            }
+          }
+        }
+
+        // species
         this.allSpecies = gamedatas.allSpecies;
         this.visibleSpecies = gamedatas.visibleSpecies;
-
-        console.log("visible", this.visibleSpecies);
 
         for (let column = 1; column <= 4; column++) {
           this["visibleShop_" + column] = new ebg.stock();
@@ -137,11 +188,11 @@ define([
         }
 
         for (const column in this.visibleSpecies) {
-          $species_id = this.visibleSpecies[column].type_arg;
+          const species_id = this.visibleSpecies[column].type_arg;
 
           this["visibleShop_" + column].addToStockWithId(
-            $species_id,
-            $species_id,
+            species_id,
+            species_id,
             "zkp_species_deck"
           );
         }
@@ -334,7 +385,7 @@ define([
         if (this.mainAction < 1) {
           this.confirmationDialog(
             _(
-              "You haven't use any main action yet. Are you sure you want to pass?"
+              "You haven't used any main action yet. Are you sure you want to pass?"
             ),
             () => {
               this.ajaxcall(
