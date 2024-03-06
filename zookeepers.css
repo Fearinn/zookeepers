@@ -56,10 +56,6 @@
   width: 120px;
 }
 
-.zkp_empty_card {
-  display: none;
-}
-
 .zkp_resource {
   display: flex;
   align-items: center;
@@ -228,6 +224,11 @@
   display: grid;
   grid-template-columns: repeat(2, 120px);
   gap: 16px;
+}
+
+.zkp_empty_pile {
+  background: rgba(255, 0, 0, 0.3);
+  box-shadow: none;
 }
 
 .bgaimagebutton {

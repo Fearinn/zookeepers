@@ -110,7 +110,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers'),
         "type" => "activeplayer",
         "args" => "argSelectKeeperPile",
-        "possibleactions" => array("selectKeeperPile"),
+        "possibleactions" => array("selectKeeperPile", "cancelHireKeeper"),
         "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 

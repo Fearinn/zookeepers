@@ -269,6 +269,28 @@ define([
         return;
       }
 
+      if (stateName === "selectKeeperPile") {
+        if (this.isCurrentPlayerActive()) {
+          dojo.query(".zkp_keeper_pile").forEach((element) => {
+            if (!dojo.hasClass(element, "zkp_empty_pile")) {
+              dojo.setStyle(element, {
+                border: "3px solid green",
+                cursor: "pointer",
+              });
+            }
+          });
+
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelHireKeeper",
+            null,
+            null,
+            "red"
+          );
+        }
+      }
+
       if (stateName === "exchangeCollection") {
         this.freeAction = args.args.freeAction;
 
@@ -345,6 +367,13 @@ define([
     //
     onLeavingState: function (stateName) {
       console.log("Leaving state: " + stateName);
+
+      if (stateName === "selectKeeperPile") {
+        dojo.query(".zkp_keeper_pile").style({
+          border: "none",
+          cursor: "initial",
+        });
+      }
     },
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -461,21 +490,8 @@ define([
     onSelectKeeperPile: function (event) {
       const action = "selectKeeperPile";
 
-      const playerId = this.getCurrentPlayerId();
-
       const pile = event.target.id.split(":")[1];
       dojo.stopEvent(event);
-
-      let boardPosition = 0;
-
-      for (const position in this.keepersOnBoards[playerId]) {
-        const keepersInPosition = this.keepersOnBoards[playerId][position];
-
-        if (Array.isArray(keepersInPosition) && keepersInPosition.length < 1) {
-          boardPosition = position;
-          break;
-        }
-      }
 
       if (this.checkAction(action, true)) {
         this.ajaxcall(
@@ -483,7 +499,22 @@ define([
           {
             lock: true,
             pile: parseInt(pile),
-            board_position: boardPosition,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onCancelHireKeeper: function () {
+      const action = "cancelHireKeeper";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
           },
           this,
           function (result) {},

@@ -62,8 +62,14 @@ class action_zookeepers extends APP_GameAction
   {
     self::setAjaxMode();
     $pile = self::getArg("pile", AT_posint, true);
-    $board_position = self::getArg("board_position", AT_posint, true);
-    $this->game->selectKeeperPile($pile, $board_position);
+    $this->game->selectKeeperPile($pile);
+    self::ajaxResponse();
+  }
+
+  public function cancelHireKeeper()
+  {
+    self::setAjaxMode();
+    $this->game->cancelHireKeeper();
     self::ajaxResponse();
   }
 

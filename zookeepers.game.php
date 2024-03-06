@@ -98,22 +98,26 @@ class Zookeepers extends Table
         $this->resources->createCards($resources_deck, "deck");
         $this->resources->shuffle('deck');
 
-        $keepers_deck_1 = array();
         $keepers_info = $this->keepers_info;
         ksort($keepers_info);
 
-        // mocked data, tests only
-        $keepers_1 = array(14 => "Penélope", 17 => "Maria", 18 => "Mario", 19 => "Paul", 20 => "Aiko",);
-        foreach ($keepers_1 as $keeper_id => $name) {
-            $keepers_deck_1[] = array("type" => $name, "type_arg" => $keeper_id, "nbr" => 3);
-        }
+        // temporary data, tests only
+        for ($i = 1; $i <= 5; $i++) {
+            $pile = array();
 
-        $this->keepers->createCards($keepers_deck_1, "deck:1");
-        $this->keepers->shuffle("deck:1");
+            foreach ($this->filterByPoints($keepers_info, $i) as $keeper_id => $keeper) {
+                $pile[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
+            }
+
+            $this->keepers->createCards($pile, "deck:" . strval($i));
+            $this->keepers->shuffle("deck:" . strval($i));
+        }
 
         foreach ($players as $player_id => $player) {
             $this->keepers->pickCardForLocation("deck:1", "board:1", $player_id);
         }
+
+        $this->keepers->moveAllCardsInLocation("deck:1", "box");
 
         $species_deck = array();
         $species_info = $this->species_info;
@@ -214,6 +218,15 @@ class Zookeepers extends Table
         });
 
         return $filtered_resources;
+    }
+
+    function filterByPoints($items, $points)
+    {
+        $filtered_items = array_filter($items, function ($item) use ($points) {
+            return $item["points"] == $points;
+        });
+
+        return $filtered_items;
     }
 
     function getResourceCounters()
@@ -328,21 +341,34 @@ class Zookeepers extends Table
         $this->gamestate->nextState("selectKeeperPile");
     }
 
-    function selectKeeperPile($pile, $board_position)
+    function selectKeeperPile($pile)
     {
         self::checkAction("selectKeeperPile");
 
         $player_id = self::getActivePlayerId();
 
-        $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
+        $board_position = 0;
 
-        if ($keeper == null) {
+        for ($position = 1; $position <= 4; $position++) {
+            if ($this->keepers->countCardsInLocation("board:" . strval($position), $player_id) < 1) {
+                $board_position = $position;
+                break;
+            }
+        }
+
+        if ($board_position === 0) {
+            throw new BgaUserException(self::_("You can't have more than 4 keepers in play"));
+        }
+
+        $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . strval($board_position), $player_id);
+
+        if ($keeper === null) {
             throw new BgaUserException(self::_("The selected pile is out of cards"));
         }
 
         self::notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name}. Position ${board_position}'),
+            clienttranslate('${player_name} hires ${keeper_name}'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -356,6 +382,14 @@ class Zookeepers extends Table
         self::setGameStateValue("mainAction", 7);
 
         $this->gamestate->nextState("betweenActions");
+    }
+
+    function cancelHireKeeper()
+    {
+        self::checkAction("cancelHireKeeper");
+        self::setGameStateValue("mainAction", 0);
+
+        $this->gamestate->nextState("cancel");
     }
 
     function collectResources()
@@ -574,8 +608,6 @@ class Zookeepers extends Table
 
     function stBetweenActions()
     {
-        $player_id = self::getActivePlayerId();
-        $this->giveExtraTime($player_id);
         $this->gamestate->nextState("nextAction");
     }
 

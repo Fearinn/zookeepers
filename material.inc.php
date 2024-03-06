@@ -20,6 +20,23 @@
  *
  */
 
+$this->mainActions = array(
+  1 => array("name" => "collectResources", "update_scores" => false),
+  2 => array("name" => "saveSpecies", "update_scores" => true),
+  3 => array("name" => "quarantineSpecies", "update_scores" => true),
+  4 => array("name" => "discardSpecies", "update_scores" => true),
+  5 => array("name" => "swapKeepers", "update_scores" => true),
+  6 => array("name" => "discardKeeper", "update_scores" => true),
+  7 => array("name" => "hireKeeper", "update_scores" => false),
+);
+
+$this->freeActions = array(
+  1 => array("name" => "zooHelp", "update_scores" => true),
+  2 => array("name" => "newSpecies", "update_scores" => false),
+  3 => array("name" => "exchangeResources", "update_scores" => false),
+  4 => array("name" => "collectFromExchange", "update_scores" => false),
+  5 => array("name" => "returnFromExchange", "update_scores" => false),
+);
 
 $this->resource_types = array(
   1 => array(
@@ -172,6 +189,31 @@ $this->keepers_info = array(
     "points" => 3,
     "class" => array("bird"),
     "operator" => "single"
+  ),
+  21 => array(
+    "name" => "Maria",
+    "points" => 1,
+    "operator" => "any"
+  ),
+  22 => array(
+    "name" => "Mario",
+    "points" => 1,
+    "operator" => "any"
+  ),
+  23 => array(
+    "name" => "Penélope",
+    "points" => 1,
+    "operator" => "any"
+  ),
+  24 => array(
+    "name" => "Paul",
+    "points" => 1,
+    "operator" => "any"
+  ),
+  25 => array(
+    "name" => "Aiko",
+    "points" => 1,
+    "operator" => "any"
   ),
 );
 
@@ -1329,28 +1371,4 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-);
-
-$this->keepers = array(
-  1 => array("name" => "Adaeze", "points" => 2, "continent" => array("AS"), "operator" => "single"),
-  2 => array("name" => "Afonso", "points" => 5, "class" => array("mammal"), "diet" => array("herbivore"), "operator" => "and"),
-  3 => array("name" => "Ayaan", "points" => 3, "continent" => array("EU", "OC"), "operator" => "or")
-);
-
-$this->mainActions = array(
-  1 => array("name" => "collectResources", "update_scores" => false),
-  2 => array("name" => "saveSpecies", "update_scores" => true),
-  3 => array("name" => "quarantineSpecies", "update_scores" => true),
-  4 => array("name" => "discardSpecies", "update_scores" => true),
-  5 => array("name" => "swapKeepers", "update_scores" => true),
-  6 => array("name" => "discardKeeper", "update_scores" => true),
-  7 => array("name" => "hireKeeper", "update_scores" => false),
-);
-
-$this->freeActions = array(
-  1 => array("name" => "zooHelp", "update_scores" => true),
-  2 => array("name" => "newSpecies", "update_scores" => false),
-  3 => array("name" => "exchangeResources", "update_scores" => false),
-  4 => array("name" => "collectFromExchange", "update_scores" => false),
-  5 => array("name" => "returnFromExchange", "update_scores" => false),
 );

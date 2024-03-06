@@ -38,7 +38,7 @@
   <div id="zkp_keeper_piles" class="zkp_keeper_piles">
     <div
       id="zkp_keeper_pile:1"
-      class="zkp_keeper_pile zkp_card zkp_keeper_pile_1"
+      class="zkp_keeper_pile zkp_keeper_pile_1 zkp_card zkp_empty_pile"
     ></div>
     <div
       id="zkp_keeper_pile:2"
