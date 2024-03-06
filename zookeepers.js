@@ -37,6 +37,7 @@ define([
       this.isBagEmpty = false;
       this.allKeepers = {};
       this.keepersOnBoards = {};
+      this.openBoardPosition = 0;
       this.allSpecies = {};
       this.visibleSpecies = {};
     },
@@ -158,6 +159,10 @@ define([
           }
         }
 
+        dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+          this.onSelectKeeperPile(event);
+        });
+
         // species
         this.allSpecies = gamedatas.allSpecies;
         this.visibleSpecies = gamedatas.visibleSpecies;
@@ -217,20 +222,30 @@ define([
         this.freeAction = args.args.freeAction;
         this.isBagEmpty = args.args.isBagEmpty;
 
+        this.keepersOnBoards = args.args.keepers_on_boards;
+
+        const playerId = this.getActivePlayerId();
+
+        for (position in this.keepersOnBoards[playerId]) {
+          if (Array.isArray(this.keepersOnBoards[playerId][position])) {
+            this.openBoardPosition = position;
+          }
+        }
+
         if (this.isCurrentPlayerActive()) {
+          if (this.mainAction < 1 && this.openBoardPosition > 0) {
+            this.addActionButton(
+              "hire_keeper_button",
+              _("Hire Keeper"),
+              "onHireKeeper"
+            );
+          }
+
           if (this.mainAction < 1 && !this.isBagEmpty) {
             this.addActionButton(
               "collect_resources_btn",
               _("Collect Resources"),
               "onCollectResources"
-            );
-          }
-
-          if (this.mainAction < 1) {
-            this.addActionButton(
-              "hire_keeper_button",
-              _("Hire Keeper"),
-              "onHireKeeper"
             );
           }
 
@@ -252,35 +267,6 @@ define([
           );
         }
         return;
-      }
-
-      if (stateName === "selectKeeperPile") {
-        this.keepersOnBoards = args.args.keepers_on_boards;
-
-        if (this.isCurrentPlayerActive()) {
-          const playerId = this.getActivePlayerId();
-
-          console.log(this.keepersOnBoards[playerId]);
-
-          let openBoardPosition = 0;
-
-          for (const position in this.keepersOnBoards[playerId]) {
-            if (Array.isArray(this.keepersOnBoards[playerId][position])) {
-              openBoardPosition = position;
-              console.log("isArray", openBoardPosition);
-              break;
-            }
-          }
-
-          if (openBoardPosition > 0) {
-            dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-              const pile = event.target.id.split(":")[1];
-              this.onSelectKeeperPile(parseInt(pile), openBoardPosition);
-            });
-          } else {
-            this.showMoveUnauthorized();
-          }
-        }
       }
 
       if (stateName === "exchangeCollection") {
@@ -349,6 +335,7 @@ define([
       if (stateName === "betweenPlayers") {
         this.mainAction = 0;
         this.freeAction = 0;
+        this.openBoardPosition = 0;
         return;
       }
     },
@@ -358,21 +345,6 @@ define([
     //
     onLeavingState: function (stateName) {
       console.log("Leaving state: " + stateName);
-
-      switch (stateName) {
-        /* Example:
-            
-            case 'myGameState':
-            
-                // Hide the HTML block we are displaying only during this game state
-                dojo.style( 'my_html_block_id', 'display', 'none' );
-                
-                break;
-           */
-
-        case "dummmy":
-          break;
-      }
     },
 
     // onUpdateActionButtons: in this method you can manage "action buttons" that are displayed in the
@@ -486,16 +458,32 @@ define([
       }
     },
 
-    onSelectKeeperPile: function (pile, board_position) {
+    onSelectKeeperPile: function (event) {
       const action = "selectKeeperPile";
+
+      const playerId = this.getCurrentPlayerId();
+
+      const pile = event.target.id.split(":")[1];
+      dojo.stopEvent(event);
+
+      let boardPosition = 0;
+
+      for (const position in this.keepersOnBoards[playerId]) {
+        const keepersInPosition = this.keepersOnBoards[playerId][position];
+
+        if (Array.isArray(keepersInPosition) && keepersInPosition.length < 1) {
+          boardPosition = position;
+          break;
+        }
+      }
 
       if (this.checkAction(action, true)) {
         this.ajaxcall(
           "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
           {
             lock: true,
-            pile: pile,
-            board_position: board_position,
+            pile: parseInt(pile),
+            board_position: boardPosition,
           },
           this,
           function (result) {},
@@ -597,7 +585,6 @@ define([
 
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
-      console.log("argsPosition", position);
       const stockKey = `board_${position}_${player_id}`;
 
       this[stockKey].addToStockWithId(

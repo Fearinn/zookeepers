@@ -105,7 +105,7 @@ class Zookeepers extends Table
         // mocked data, tests only
         $keepers_1 = array(14 => "Penélope", 17 => "Maria", 18 => "Mario", 19 => "Paul", 20 => "Aiko",);
         foreach ($keepers_1 as $keeper_id => $name) {
-            $keepers_deck_1[] = array("type" => $name, "type_arg" => $keeper_id, "nbr" => 1);
+            $keepers_deck_1[] = array("type" => $name, "type_arg" => $keeper_id, "nbr" => 3);
         }
 
         $this->keepers->createCards($keepers_deck_1, "deck:1");
@@ -313,6 +313,18 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("You already used a main action this turn"));
         }
 
+        $player_id = self::getActivePlayerId();
+
+        $keepers_on_board_nbr = 0;
+
+        for ($i = 1; $i <= 4; $i++) {
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . strval($i), $player_id);
+        }
+
+        if ($keepers_on_board_nbr >= 4) {
+            throw new BgaUserException("You can't have more than 4 keepers in play");
+        }
+
         $this->gamestate->nextState("selectKeeperPile");
     }
 
@@ -328,11 +340,9 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("The selected pile is out of cards"));
         }
 
-        $keepers_on_boards = $this->getKeepersOnBoards();
-
         self::notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name}'),
+            clienttranslate('${player_name} hires ${keeper_name}. Position ${board_position}'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -340,7 +350,6 @@ class Zookeepers extends Table
                 "keeper_id" => $keeper["type_arg"],
                 "pile" => $pile,
                 "board_position" => $board_position,
-                "keepers_on_boards" => $keepers_on_boards
             )
         );
 
@@ -516,13 +525,14 @@ class Zookeepers extends Table
     {
         return array(
             "mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"),
-            "isBagEmpty" => $this->isBagEmpty()
+            "isBagEmpty" => $this->isBagEmpty(),
+            "keepers_on_boards" => $this->getKeepersOnBoards()
         );
     }
 
     function argSelectKeeperPile()
     {
-        return array("keepers_on_boards" => $this->getKeepersOnBoards());
+        return array();
     }
 
     function argExchangeCollection()
@@ -542,7 +552,9 @@ class Zookeepers extends Table
     function argBetweenActions()
     {
         $mainAction = self::getGameStateValue("mainAction");
-        return array("mainAction" => $mainAction);
+        $keepers_on_boards = $this->getKeepersOnBoards();
+
+        return array("mainAction" => $mainAction, "keepers_on_boards" => $keepers_on_boards);
     }
 
 
