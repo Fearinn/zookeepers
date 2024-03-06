@@ -106,8 +106,8 @@ $machinestates = array(
 
     24 => array(
         "name" => "selectKeeperPile",
-        "description" => clienttranslate('${actplayer} can select a pile of keepers'),
-        "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers'),
+        "description" => clienttranslate('${actplayer} can select a pile of keepers to hire from'),
+        "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
         "args" => "argSelectKeeperPile",
         "possibleactions" => array("selectKeeperPile", "cancelHireKeeper"),

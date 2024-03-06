@@ -36,6 +36,7 @@ define([
       this.bagCounters = {};
       this.isBagEmpty = false;
       this.allKeepers = {};
+      this.pileCounters = {};
       this.keepersOnBoards = {};
       this.openBoardPosition = 0;
       this.allSpecies = {};
@@ -156,6 +157,24 @@ define([
                 }
               }
             }
+          }
+        }
+
+        this.pileCounters = gamedatas.pileCounters;
+
+        for (pile in this.pileCounters) {
+          const element = `zkp_keeper_pile:${pile}`;
+          const className = "zkp_empty_pile";
+
+          if (
+            this.pileCounters[pile] < 1 &&
+            !dojo.hasClass(element, className)
+          ) {
+            dojo.addClass(element, className);
+          }
+
+          if (this.pileCounters > 0 && dojo.hasClass(element, className)) {
+            dojo.removeClass(element, className);
           }
         }
 
@@ -612,8 +631,9 @@ define([
     },
 
     notif_hireKeeper: function (notif) {
-      const player_id = notif.args.player_id;
+      this.pileCounters = notif.args.pile_counters;
 
+      const player_id = notif.args.player_id;
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
       const stockKey = `board_${position}_${player_id}`;
@@ -623,6 +643,15 @@ define([
         keeper_id,
         `zkp_keeper_pile:${notif.args.pile}`
       );
+
+      for (pile in this.pileCounters) {
+        const element = `zkp_keeper_pile:${pile}`;
+        const className = "zkp_empty_pile";
+
+        if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
+          dojo.addClass(element, className);
+        }
+      }
     },
 
     notif_collectResources: function (notif) {

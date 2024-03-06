@@ -180,6 +180,7 @@ class Zookeepers extends Table
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
         $result["allKeepers"] = $keepers_info;
+        $result["pileCounters"] = $this->getPileCounters();
         $result["keepersOnBoards"] = $this->getKeepersOnBoards();
         $result["allSpecies"] = $species_info;
         $result["visibleSpecies"] = $this->getVisibleSpecies();
@@ -227,6 +228,17 @@ class Zookeepers extends Table
         });
 
         return $filtered_items;
+    }
+
+    function getPileCounters()
+    {
+        $counters = array();
+
+        for ($pile = 1; $pile <= 5; $pile++) {
+            $counters[$pile] = $this->keepers->countCardsInLocation("deck:" . strval($pile));
+        }
+
+        return $counters;
     }
 
     function getResourceCounters()
@@ -366,9 +378,11 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("The selected pile is out of cards"));
         }
 
+        $pile_counters = $this->getPileCounters();
+
         self::notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name}'),
+            clienttranslate('${player_name} hires ${keeper_name}. Keepers left in the pile: ${left_in_pile}'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -376,6 +390,8 @@ class Zookeepers extends Table
                 "keeper_id" => $keeper["type_arg"],
                 "pile" => $pile,
                 "board_position" => $board_position,
+                "pile_counters" => $pile_counters,
+                "left_in_pile" => $pile_counters[$pile]
             )
         );
 
@@ -586,12 +602,9 @@ class Zookeepers extends Table
     function argBetweenActions()
     {
         $mainAction = self::getGameStateValue("mainAction");
-        $keepers_on_boards = $this->getKeepersOnBoards();
 
-        return array("mainAction" => $mainAction, "keepers_on_boards" => $keepers_on_boards);
+        return array("mainAction" => $mainAction);
     }
-
-
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state actions
     ////////////
