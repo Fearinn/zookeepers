@@ -29,6 +29,13 @@ define([
       // Here, you can init the global variables of your user interface
       this.cardWidth = 120;
       this.cardHeight = 165;
+      this.topsPositions = {
+        1: "-126px -171px",
+        2: "-126px -3px",
+        3: "-3px -171px",
+        4: "-3px -3px",
+        5: "-249px -3px",
+      };
 
       this.mainAction = 0;
       this.freeAction = 0;
@@ -37,6 +44,7 @@ define([
       this.isBagEmpty = false;
       this.allKeepers = {};
       this.pileCounters = {};
+      this.pilesTops = {};
       this.keepersOnBoards = {};
       this.openBoardPosition = 0;
       this.allSpecies = {};
@@ -125,6 +133,7 @@ define([
               this.cardWidth,
               this.cardHeight
             );
+            this[stockKey].setSelectionMode(0);
 
             this[stockKey].extraClasses = "zkp_card";
             this[stockKey].image_items_per_row = 7;
@@ -144,15 +153,13 @@ define([
             if (addedKeeperObj) {
               for (const key in addedKeeperObj) {
                 const addedKeeper = addedKeeperObj[key];
-                const completeInfo = this.allKeepers[addedKeeper.type_arg];
+                const pile = addedKeeper.pile;
 
-                const points = completeInfo.points;
-
-                if (addedKeeper.type_arg) {
+                if (addedKeeper.card_type_arg) {
                   this[stockKey].addToStockWithId(
-                    addedKeeper.type_arg,
-                    addedKeeper.type_arg,
-                    `zkp_keeper_pile:${points}`
+                    addedKeeper.card_type_arg,
+                    addedKeeper.card_type_arg,
+                    `zkp_keeper_pile:${pile}`
                   );
                 }
               }
@@ -161,10 +168,14 @@ define([
         }
 
         this.pileCounters = gamedatas.pileCounters;
+        this.pilesTops = gamedatas.pilesTops;
 
         for (pile in this.pileCounters) {
           const element = `zkp_keeper_pile:${pile}`;
           const className = "zkp_empty_pile";
+          const top = this.pilesTops[pile];
+
+          dojo.style(element, "backgroundPosition", this.topsPositions[top]);
 
           if (
             this.pileCounters[pile] < 1 &&
@@ -669,6 +680,7 @@ define([
 
     notif_hireKeeper: function (notif) {
       this.pileCounters = notif.args.pile_counters;
+      this.pilesTops = notif.args.piles_tops;
 
       const player_id = notif.args.player_id;
       const keeper_id = notif.args.keeper_id;
@@ -684,6 +696,9 @@ define([
       for (pile in this.pileCounters) {
         const element = `zkp_keeper_pile:${pile}`;
         const className = "zkp_empty_pile";
+
+        const top = this.pilesTops[pile];
+        dojo.style(element, "backgroundPosition", this.topsPositions[top]);
 
         if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
           dojo.addClass(element, className);

@@ -164,7 +164,7 @@
   background-image: url("img/keepers_backs.png");
 }
 
-.zkp_keeper_pile_1 {
+/* .zkp_keeper_pile_1 {
   background-position: -126px -171px;
 }
 .zkp_keeper_pile_2 {
@@ -181,7 +181,7 @@
 
 .zkp_keeper_pile_5 {
   background-position: -249px -3px;
-}
+} */
 
 .zkp_species_deck {
   background-image: url("img/species_back.png");

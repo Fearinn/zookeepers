@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS `keeper` (
     `card_type_arg` int(11) NOT NULL,
     `card_location` varchar(16) NOT NULL,
     `card_location_arg` int(11) NOT NULL,
+    `pile` int(11) NOT NULL,
     PRIMARY KEY (`card_id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8 AUTO_INCREMENT = 1;
 CREATE TABLE IF NOT EXISTS `species` (

@@ -102,22 +102,31 @@ class Zookeepers extends Table
         ksort($keepers_info);
 
         // temporary data, tests only
-        for ($i = 1; $i <= 5; $i++) {
-            $pile = array();
+        $starting_keepers = array();
 
-            foreach ($this->filterByPoints($keepers_info, $i) as $keeper_id => $keeper) {
-                $pile[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
-            }
-
-            $this->keepers->createCards($pile, "deck:" . strval($i));
-            $this->keepers->shuffle("deck:" . strval($i));
+        foreach ($this->filterByPoints($keepers_info, 1) as $keeper_id => $keeper) {
+            $starting_keepers[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
         }
-
+        $this->keepers->createCards($starting_keepers, "deck");
+        $this->keepers->shuffle("deck");
         foreach ($players as $player_id => $player) {
-            $this->keepers->pickCardForLocation("deck:1", "board:1", $player_id);
+            self::DbQuery("UPDATE keeper SET pile=1 WHERE card_location='deck'");
+            $this->keepers->pickCardForLocation("deck", "board:1", $player_id);
         }
 
-        $this->keepers->moveAllCardsInLocation("deck:1", "box");
+        $this->keepers->moveAllCardsInLocation("deck", "box");
+
+        $other_keepers = array();
+        foreach ($this->filterByPoints($keepers_info, 1, true) as $keeper_id => $keeper) {
+            $other_keepers[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
+        }
+        $this->keepers->createCards($other_keepers, "deck");
+        $this->keepers->shuffle("deck");
+        for ($pile = 1; $pile <= 4; $pile++) {
+            $location = "deck:" . strval($pile);
+            $this->keepers->pickCardsForLocation(5, "deck", $location);
+            self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
+        }
 
         $species_deck = array();
         $species_info = $this->species_info;
@@ -181,6 +190,7 @@ class Zookeepers extends Table
         $result["isBagEmpty"] = $this->isBagEmpty();
         $result["allKeepers"] = $keepers_info;
         $result["pileCounters"] = $this->getPileCounters();
+        $result["pilesTops"] = $this->getPilesTops();
         $result["keepersOnBoards"] = $this->getKeepersOnBoards();
         $result["allSpecies"] = $species_info;
         $result["visibleSpecies"] = $this->getVisibleSpecies();
@@ -221,20 +231,43 @@ class Zookeepers extends Table
         return $filtered_resources;
     }
 
-    function filterByPoints($items, $points)
+    function filterByPoints($items, $points, $exclusive = false)
     {
-        $filtered_items = array_filter($items, function ($item) use ($points) {
+        $filtered_items = array_filter($items, function ($item) use ($points, $exclusive) {
+            if ($exclusive) {
+                return $item["points"] !== $points;
+            }
+
             return $item["points"] == $points;
         });
 
         return $filtered_items;
     }
 
+    function getPilesTops()
+    {
+        $tops = array();
+
+        for ($pile = 1; $pile <= 4; $pile++) {
+            $cardsInPile = $this->keepers->getCardsInLocation("deck:" . strval($pile));
+            $topCard = array_shift($cardsInPile);
+
+            if ($topCard) {
+                $keeper_info = $this->keepers_info[$topCard["type_arg"]];
+                $tops[$pile] = $keeper_info["points"];
+            } else {
+                $top[$pile] = null;
+            }
+        }
+
+        return $tops;
+    }
+
     function getPileCounters()
     {
         $counters = array();
 
-        for ($pile = 1; $pile <= 5; $pile++) {
+        for ($pile = 1; $pile <= 4; $pile++) {
             $counters[$pile] = $this->keepers->countCardsInLocation("deck:" . strval($pile));
         }
 
@@ -291,8 +324,9 @@ class Zookeepers extends Table
         $keepers = array();
         foreach ($players as $player_id => $player) {
             for ($i = 1; $i <= 4; $i++) {
-                $keepers[$player_id][$i] =
-                    $this->keepers->getCardsInLocation("board:" . strval($i), $player_id);
+                $location = "board:" . strval($i);
+                $sql = "SELECT pile, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
+                $keepers[$player_id][$i] = self::getCollectionFromDb($sql);
             }
         }
 
@@ -377,20 +411,25 @@ class Zookeepers extends Table
         if ($keeper === null) {
             throw new BgaUserException(self::_("The selected pile is out of cards"));
         }
+        $keeper_id = $keeper["id"];
 
         $pile_counters = $this->getPileCounters();
 
+        $sql = "UPDATE keeper SET pile=$pile WHERE card_id=$keeper_id";
+        self::DbQuery($sql);
+
         self::notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name}. Keepers left in the pile: ${left_in_pile}'),
+            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. Keepers left in the pile: ${left_in_pile}'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
                 "keeper_name" => $keeper["type"],
                 "keeper_id" => $keeper["type_arg"],
-                "pile" => $pile,
                 "board_position" => $board_position,
+                "pile" => $pile,
                 "pile_counters" => $pile_counters,
+                "piles_tops" => $this->getPilesTops(),
                 "left_in_pile" => $pile_counters[$pile]
             )
         );

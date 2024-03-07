@@ -36,28 +36,12 @@
     </div>
   </div>
   <div id="zkp_keeper_piles" class="zkp_keeper_piles">
-    <div
-      id="zkp_keeper_pile:1"
-      class="zkp_keeper_pile zkp_keeper_pile_1 zkp_card zkp_empty_pile"
-    ></div>
-    <div
-      id="zkp_keeper_pile:2"
-      class="zkp_keeper_pile zkp_card zkp_keeper_pile_2"
-    ></div>
-    <div
-      id="zkp_keeper_pile:3"
-      class="zkp_keeper_pile zkp_card zkp_keeper_pile_3"
-    ></div>
-    <div
-      id="zkp_keeper_pile:4"
-      class="zkp_keeper_pile zkp_card zkp_keeper_pile_4"
-    ></div>
-    <div
-      id="zkp_keeper_pile:5"
-      class="zkp_keeper_pile zkp_card zkp_keeper_pile_5"
-    ></div>
-    <div id="zkp_species_deck" class="zkp_species_deck zkp_card"></div>
+    <div id="zkp_keeper_pile:1" class="zkp_keeper_pile zkp_card"></div>
+    <div id="zkp_keeper_pile:2" class="zkp_keeper_pile zkp_card"></div>
+    <div id="zkp_keeper_pile:3" class="zkp_keeper_pile zkp_card"></div>
+    <div id="zkp_keeper_pile:4" class="zkp_keeper_pile zkp_card"></div>
   </div>
+  <div id="zkp_species_deck" class="zkp_species_deck zkp_card"></div>
   <div id="zkp_species_shop" class="zkp_species_shop">
     <div id="zkp_backup_shop" class="zkp_backup_shop">
       <div id="zkp_backup_column_1" class="zkp_backup_column">
