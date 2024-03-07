@@ -66,10 +66,17 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
-  public function cancelHireKeeper()
+  public function dismissKeeper()
   {
     self::setAjaxMode();
-    $this->game->cancelHireKeeper();
+    $this->game->dismissKeeper();
+    self::ajaxResponse();
+  }
+
+  public function cancelMngKeepers()
+  {
+    self::setAjaxMode();
+    $this->game->cancelMngKeepers();
     self::ajaxResponse();
   }
 

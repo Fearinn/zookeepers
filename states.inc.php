@@ -72,7 +72,10 @@ $machinestates = array(
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
-        "transitions" => array("betweenActions" => 3, "pass" => 4, "exchangeCollection" => 21, "selectKeeperPile" => 24)
+        "transitions" => array(
+            "betweenActions" => 3, "pass" => 4,
+            "exchangeCollection" => 21, "selectKeeperPile" => 24, "selectKeeperToDismiss" => 25
+        )
     ),
 
     21 => array(
@@ -109,8 +112,16 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} can select a pile of keepers to hire from'),
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
-        "args" => "argSelectKeeperPile",
-        "possibleactions" => array("selectKeeperPile", "cancelHireKeeper"),
+        "possibleactions" => array("selectKeeperPile", "cancelMngKeepers"),
+        "transitions" => array("betweenActions" => 3, "cancel" => 2)
+    ),
+
+    25 => array(
+        "name" => "selectKeeperToDismiss",
+        "description" => clienttranslate('${actplayer} can select a keeper to dismiss'),
+        "descriptionmyturn" => clienttranslate('${you} can select a keeper to dismiss'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectKeeperToDismiss", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 

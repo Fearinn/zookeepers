@@ -252,28 +252,37 @@ define([
         }
 
         if (this.isCurrentPlayerActive()) {
-          if (this.mainAction < 1 && this.openBoardPosition > 0) {
-            this.addActionButton(
-              "hire_keeper_button",
-              _("Hire Keeper"),
-              "onHireKeeper"
-            );
-          }
+          if (this.mainAction < 1) {
+            if (this.openBoardPosition > 0) {
+              this.addActionButton(
+                "hire_keeper_btn",
+                _("Hire Keeper"),
+                "onHireKeeper"
+              );
+            }
 
-          if (this.mainAction < 1 && !this.isBagEmpty) {
-            this.addActionButton(
-              "collect_resources_btn",
-              _("Collect Resources"),
-              "onCollectResources"
-            );
-          }
+            if (this.openBoardPosition > 1)
+              this.addActionButton(
+                "dismiss_keeper_btn",
+                _("Dismiss Keeper"),
+                "onDismissKeeper"
+              );
 
-          if (this.mainAction < 1 && this.freeAction < 1 && !this.isBagEmpty) {
-            this.addActionButton(
-              "exchange_resources_btn",
-              _("Conservation Fund"),
-              "onExchangeResources"
-            );
+            if (!this.isBagEmpty) {
+              this.addActionButton(
+                "collect_resources_btn",
+                _("Collect Resources"),
+                "onCollectResources"
+              );
+            }
+
+            if (this.freeAction < 1 && !this.isBagEmpty) {
+              this.addActionButton(
+                "exchange_resources_btn",
+                _("Conservation Fund"),
+                "onExchangeResources"
+              );
+            }
           }
 
           this.addActionButton(
@@ -302,7 +311,19 @@ define([
           this.addActionButton(
             "cancel_btn",
             "Cancel",
-            "onCancelHireKeeper",
+            "onCancelMngKeepers",
+            null,
+            null,
+            "red"
+          );
+        }
+      }
+      if (stateName === "selectKeeperToDismiss") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngKeepers",
             null,
             null,
             "red"
@@ -526,8 +547,24 @@ define([
       }
     },
 
-    onCancelHireKeeper: function () {
-      const action = "cancelHireKeeper";
+    onDismissKeeper: function () {
+      const action = "dismissKeeper";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onCancelMngKeepers: function () {
+      const action = "cancelMngKeepers";
 
       if (this.checkAction(action, true)) {
         this.ajaxcall(

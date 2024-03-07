@@ -400,9 +400,32 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
-    function cancelHireKeeper()
+    function dismissKeeper()
     {
-        self::checkAction("cancelHireKeeper");
+        self::checkAction("dismissKeeper");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $keepers_on_board_nbr = 0;
+
+        for ($i = 1; $i <= 4; $i++) {
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . strval($i), $player_id);
+        }
+
+        if ($keepers_on_board_nbr === 0) {
+            throw new BgaUserException("You don't have any keeper to dismiss");
+        }
+
+        $this->gamestate->nextState("selectKeeperToDismiss");
+    }
+
+    function cancelMngKeepers()
+    {
+        self::checkAction("cancelMngKeepers");
         self::setGameStateValue("mainAction", 0);
 
         $this->gamestate->nextState("cancel");
@@ -578,11 +601,6 @@ class Zookeepers extends Table
             "isBagEmpty" => $this->isBagEmpty(),
             "keepers_on_boards" => $this->getKeepersOnBoards()
         );
-    }
-
-    function argSelectKeeperPile()
-    {
-        return array();
     }
 
     function argExchangeCollection()
