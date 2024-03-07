@@ -459,7 +459,52 @@ class Zookeepers extends Table
             throw new BgaUserException("You don't have any keeper to dismiss");
         }
 
-        $this->gamestate->nextState("selectKeeperToDismiss");
+        $this->gamestate->nextState("selectDismissedKeeper");
+    }
+
+    function selectDismissedKeeper($board_position)
+    {
+        self::checkAction("selectDismissedKeeper");
+
+        if ($board_position < 0 || $board_position > 4) {
+            throw new BgaUserException(self::_("You can't have more than 4 keepers in play"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $pile = 0;
+
+        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $keeper_info) {
+            $pile = $keeper_info["pile"];
+        }
+
+        if ($pile === 0) {
+            throw new BgaUserException(self::_("This keeper isn't hired by you"));
+        }
+
+        $keeper =  $this->keepers->pickCardForLocation("board:" . strval($board_position), "deck:" . $pile, $player_id);
+
+        $pile_counters = $this->getPileCounters();
+
+        self::notifyAllPlayers(
+            "dismissKeeper",
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
+            array(
+                "player_id" => self::getActivePlayerId(),
+                "player_name" => self::getActivePlayerName(),
+                "keeper_name" => $keeper["type"],
+                "keeper_id" => $keeper["type_arg"],
+                "board_position" => $board_position,
+                "pile" => $pile,
+                "pile_counters" => $pile_counters,
+                "piles_tops" => $this->getPilesTops(),
+                "left_in_pile" => $pile_counters[$pile]
+            )
+        );
+
+        self::setGameStateValue("mainAction", 7);
+
+        $this->gamestate->nextState("betweenActions");
     }
 
     function cancelMngKeepers()

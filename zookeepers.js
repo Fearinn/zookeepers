@@ -101,67 +101,75 @@ define([
             this.updateResourceCounters(object[player_id], player_id);
           }
         });
+      }
 
-        const plantBagCounter = new ebg.counter();
-        plantBagCounter.create("zkp_bag_counter_plant");
+      const plantBagCounter = new ebg.counter();
+      plantBagCounter.create("zkp_bag_counter_plant");
 
-        const meatBagCounter = new ebg.counter();
-        meatBagCounter.create("zkp_bag_counter_meat");
+      const meatBagCounter = new ebg.counter();
+      meatBagCounter.create("zkp_bag_counter_meat");
 
-        const kitBagCounter = new ebg.counter();
-        kitBagCounter.create("zkp_bag_counter_kit");
+      const kitBagCounter = new ebg.counter();
+      kitBagCounter.create("zkp_bag_counter_kit");
 
-        this.bagCounters = {
-          plant: plantBagCounter,
-          meat: meatBagCounter,
-          kit: kitBagCounter,
-        };
+      this.bagCounters = {
+        plant: plantBagCounter,
+        meat: meatBagCounter,
+        kit: kitBagCounter,
+      };
 
-        this.updateBagCounters(gamedatas.bagCounters);
+      this.updateBagCounters(gamedatas.bagCounters);
 
-        // keepers
-        this.allKeepers = gamedatas.allKeepers;
-        this.keepersOnBoards = gamedatas.keepersOnBoards;
+      // keepers
+      this.allKeepers = gamedatas.allKeepers;
+      this.keepersOnBoards = gamedatas.keepersOnBoards;
 
-        for (const player_id in gamedatas.players) {
-          for (let position = 1; position <= 4; position++) {
-            const stockKey = `board_${position}_${player_id}`;
-            this[stockKey] = new ebg.stock();
-            this[stockKey].create(
-              this,
-              $(`zkp_keeper_${position}_${player_id}`),
-              this.cardWidth,
-              this.cardHeight
+      for (const player_id in gamedatas.players) {
+        for (let position = 1; position <= 4; position++) {
+          const stockKey = `board_${player_id}:${position}`;
+          this[stockKey] = new ebg.stock();
+          this[stockKey].create(
+            this,
+            $(`zkp_keeper_${player_id}:${position}`),
+            this.cardWidth,
+            this.cardHeight
+          );
+          this[stockKey].setSelectionMode(0);
+
+          this[
+            stockKey
+          ].extraClasses = `zkp_card zkp_hired_keeper-${player_id}`;
+          dojo
+            .query(`.zkp_hired_keeper-${player_id}`)
+            .connect("onclick", this, (event) => {
+              this.onSelectDismissedKeeper(event);
+            });
+
+          this[stockKey].image_items_per_row = 7;
+
+          for (const keeper_id in this.allKeepers) {
+            this[stockKey].addItemType(
+              keeper_id,
+              1000,
+              // wrong image, tests only
+              g_gamethemeurl + "img/keepers.png",
+              keeper_id - 1
             );
-            this[stockKey].setSelectionMode(0);
+          }
 
-            this[stockKey].extraClasses = "zkp_card";
-            this[stockKey].image_items_per_row = 7;
+          const addedKeeperObj = this.keepersOnBoards[player_id][position];
 
-            for (const keeper_id in this.allKeepers) {
-              this[stockKey].addItemType(
-                keeper_id,
-                1000,
-                // wrong imame, tests only
-                g_gamethemeurl + "img/keepers.png",
-                keeper_id - 1
-              );
-            }
+          if (addedKeeperObj) {
+            for (const key in addedKeeperObj) {
+              const addedKeeper = addedKeeperObj[key];
+              const pile = addedKeeper.pile;
 
-            const addedKeeperObj = this.keepersOnBoards[player_id][position];
-
-            if (addedKeeperObj) {
-              for (const key in addedKeeperObj) {
-                const addedKeeper = addedKeeperObj[key];
-                const pile = addedKeeper.pile;
-
-                if (addedKeeper.card_type_arg) {
-                  this[stockKey].addToStockWithId(
-                    addedKeeper.card_type_arg,
-                    addedKeeper.card_type_arg,
-                    `zkp_keeper_pile:${pile}`
-                  );
-                }
+              if (addedKeeper.card_type_arg) {
+                this[stockKey].addToStockWithId(
+                  addedKeeper.card_type_arg,
+                  addedKeeper.card_type_arg,
+                  `zkp_keeper_pile:${pile}`
+                );
               }
             }
           }
@@ -246,6 +254,7 @@ define([
     //
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
+      const playerId = this.getActivePlayerId();
 
       if (stateName === "playerTurn") {
         this.mainAction = args.args.mainAction;
@@ -253,8 +262,6 @@ define([
         this.isBagEmpty = args.args.isBagEmpty;
 
         this.keepersOnBoards = args.args.keepers_on_boards;
-
-        const playerId = this.getActivePlayerId();
 
         for (position in this.keepersOnBoards[playerId]) {
           if (Array.isArray(this.keepersOnBoards[playerId][position])) {
@@ -329,7 +336,7 @@ define([
           );
         }
       }
-      if (stateName === "selectKeeperToDismiss") {
+      if (stateName === "selectDismissedKeeper") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
             "cancel_btn",
@@ -339,6 +346,13 @@ define([
             null,
             "red"
           );
+
+          const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
+
+          query.removeClass("stockitem_unselectable");
+          query.style({
+            border: "3px solid green",
+          });
         }
       }
 
@@ -574,6 +588,25 @@ define([
       }
     },
 
+    onSelectDismissedKeeper: function (event) {
+      const action = "selectDismissedKeeper";
+
+      const position = event.target.id.split(":")[1].split("_")[0];
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            board_position: position,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
     onCancelMngKeepers: function () {
       const action = "cancelMngKeepers";
 
@@ -673,6 +706,7 @@ define([
       console.log("notifications subscriptions setup");
 
       dojo.subscribe("hireKeeper", this, "notif_hireKeeper");
+      dojo.subscribe("dismissKeeper", this, "notif_dismissKeeper");
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("pass", this, "notif_pass");
@@ -685,13 +719,41 @@ define([
       const player_id = notif.args.player_id;
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
-      const stockKey = `board_${position}_${player_id}`;
+      const stockKey = `board_${player_id}:${position}`;
 
       this[stockKey].addToStockWithId(
         keeper_id,
         keeper_id,
         `zkp_keeper_pile:${notif.args.pile}`
       );
+
+      for (pile in this.pileCounters) {
+        const element = `zkp_keeper_pile:${pile}`;
+        const className = "zkp_empty_pile";
+
+        const top = this.pilesTops[pile];
+        dojo.style(element, "backgroundPosition", this.topsPositions[top]);
+
+        if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
+          dojo.addClass(element, className);
+        }
+      }
+    },
+
+    notif_dismissKeeper: function (notif) {
+      this.pileCounters = notif.args.pile_counters;
+      this.pilesTops = notif.args.piles_tops;
+
+      const player_id = notif.args.player_id;
+      const keeper_id = notif.args.keeper_id;
+      const position = notif.args.board_position;
+      const stockKey = `board_${player_id}:${position}`;
+
+      // this[stockKey].addToStockWithId(
+      //   keeper_id,
+      //   keeper_id,
+      //   `zkp_keeper_pile:${notif.args.pile}`
+      // );
 
       for (pile in this.pileCounters) {
         const element = `zkp_keeper_pile:${pile}`;

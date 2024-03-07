@@ -100,10 +100,10 @@
     <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
     <div id="zkp_playmat_{PLAYER_ID}" class="zkp_playmat">
       <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
-        <div id="zkp_keeper_1_{PLAYER_ID}" class="zkp_keeper_1"></div>
-        <div id="zkp_keeper_2_{PLAYER_ID}" class="zkp_keeper_2"></div>
-        <div id="zkp_keeper_3_{PLAYER_ID}" class="zkp_keeper_3"></div>
-        <div id="zkp_keeper_4_{PLAYER_ID}" class="zkp_keeper_4"></div>
+        <div id="zkp_keeper_{PLAYER_ID}:1" class="zkp_keeper"></div>
+        <div id="zkp_keeper_{PLAYER_ID}:2" class="zkp_keeper"></div>
+        <div id="zkp_keeper_{PLAYER_ID}:3" class="zkp_keeper"></div>
+        <div id="zkp_keeper_{PLAYER_ID}:4" class="zkp_keeper"></div>
       </div>
 
       <div id="zkp_quarantines_{PLAYER_ID}" class="zkp_quarantines">

@@ -73,6 +73,14 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function selectDismissedKeeper()
+  {
+    self::setAjaxMode();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->selectDismissedKeeper($board_position);
+    self::ajaxResponse();
+  }
+
   public function cancelMngKeepers()
   {
     self::setAjaxMode();

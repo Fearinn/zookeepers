@@ -74,7 +74,7 @@ $machinestates = array(
         "args" => "argPlayerTurn",
         "transitions" => array(
             "betweenActions" => 3, "pass" => 4,
-            "exchangeCollection" => 21, "selectKeeperPile" => 24, "selectKeeperToDismiss" => 25
+            "exchangeCollection" => 21, "selectKeeperPile" => 24, "selectDismissedKeeper" => 25
         )
     ),
 
@@ -117,11 +117,11 @@ $machinestates = array(
     ),
 
     25 => array(
-        "name" => "selectKeeperToDismiss",
+        "name" => "selectDismissedKeeper",
         "description" => clienttranslate('${actplayer} can select a keeper to dismiss'),
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to dismiss'),
         "type" => "activeplayer",
-        "possibleactions" => array("selectKeeperToDismiss", "cancelMngKeepers"),
+        "possibleactions" => array("selectDismissedKeeper", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 
