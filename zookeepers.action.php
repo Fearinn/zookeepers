@@ -81,6 +81,14 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function selectDismissedPile()
+  {
+    self::setAjaxMode();
+    $pile = self::getArg("pile", AT_posint, true);
+    $this->game->selectDismissedPile($pile);
+    self::ajaxResponse();
+  }
+
   public function cancelMngKeepers()
   {
     self::setAjaxMode();

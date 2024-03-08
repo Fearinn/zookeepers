@@ -37,6 +37,7 @@ class Zookeepers extends Table
             "totalToReturn" => 11,
             "previouslyReturned" => 12,
             "freeAction" => 13,
+            "boardPosition" => 14,
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -110,7 +111,7 @@ class Zookeepers extends Table
         $this->keepers->createCards($starting_keepers, "deck");
         $this->keepers->shuffle("deck");
         foreach ($players as $player_id => $player) {
-            self::DbQuery("UPDATE keeper SET pile=1 WHERE card_location='deck'");
+            self::DbQuery("UPDATE keeper SET pile=0 WHERE card_location='deck'");
             $this->keepers->pickCardForLocation("deck", "board:1", $player_id);
         }
 
@@ -160,6 +161,7 @@ class Zookeepers extends Table
         self::setGameStateInitialValue("freeAction", 0);
         self::setGameStateInitialValue("totalToReturn", 0);
         self::setGameStateInitialValue("previouslyReturned", 0);
+        self::setGameStateInitialValue("boardPosition", 0);
 
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -249,8 +251,10 @@ class Zookeepers extends Table
         $tops = array();
 
         for ($pile = 1; $pile <= 4; $pile++) {
-            $cardsInPile = $this->keepers->getCardsInLocation("deck:" . strval($pile));
-            $topCard = array_shift($cardsInPile);
+            $cards_in_location = $this->keepers->getCardsInLocation("deck:" . strval($pile));
+            self::warn(json_encode($cards_in_location));
+
+            $topCard = $this->keepers->getCardOnTop("deck:" . strval($pile));
 
             if ($topCard) {
                 $keeper_info = $this->keepers_info[$topCard["type_arg"]];
@@ -325,7 +329,7 @@ class Zookeepers extends Table
         foreach ($players as $player_id => $player) {
             for ($i = 1; $i <= 4; $i++) {
                 $location = "board:" . strval($i);
-                $sql = "SELECT pile, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
+                $sql = "SELECT pile, card_id, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
                 $keepers[$player_id][$i] = self::getCollectionFromDb($sql);
             }
         }
@@ -434,7 +438,7 @@ class Zookeepers extends Table
             )
         );
 
-        self::setGameStateValue("mainAction", 7);
+        self::setGameStateValue("mainAction", 5);
 
         $this->gamestate->nextState("betweenActions");
     }
@@ -466,23 +470,38 @@ class Zookeepers extends Table
     {
         self::checkAction("selectDismissedKeeper");
 
-        if ($board_position < 0 || $board_position > 4) {
-            throw new BgaUserException(self::_("You can't have more than 4 keepers in play"));
+        if ($board_position < 1 || $board_position > 4) {
+            throw new BgaUserException(self::_("Invalid board position"));
         }
 
         $player_id = self::getActivePlayerId();
 
         $pile = 0;
 
-        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $keeper_info) {
-            $pile = $keeper_info["pile"];
+        $keepers_info = $this->keepers_info;
+        $card = null;
+
+        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+            $pile = $card["pile"];
+            $keeper_points = $keepers_info[$card["card_type_arg"]]["points"];
+            $keeper = $card;
         }
 
-        if ($pile === 0) {
-            throw new BgaUserException(self::_("This keeper isn't hired by you"));
+        if ($pile == 0 && $keeper_points === 1) {
+            self::setGameStateValue("boardPosition", $board_position);
+            $this->gamestate->nextState("selectDismissedPile");
+            return;
         }
 
-        $keeper =  $this->keepers->pickCardForLocation("board:" . strval($board_position), "deck:" . $pile, $player_id);
+        if ($pile == 0) {
+            throw new BgaUserException("This keeper isn't hired by you");
+        }
+
+        if ($pile < 0 || $pile > 4) {
+            throw new BgaUserException("Invalid keeper pile");
+        }
+
+        $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
 
         $pile_counters = $this->getPileCounters();
 
@@ -492,8 +511,8 @@ class Zookeepers extends Table
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
-                "keeper_name" => $keeper["type"],
-                "keeper_id" => $keeper["type_arg"],
+                "keeper_name" => $keeper["card_type"],
+                "keeper_id" => $keeper["card_type_arg"],
                 "board_position" => $board_position,
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
@@ -502,7 +521,59 @@ class Zookeepers extends Table
             )
         );
 
-        self::setGameStateValue("mainAction", 7);
+        self::setGameStateValue("boardPosition", $board_position);
+        self::setGameStateValue("mainAction", 6);
+
+        $this->gamestate->nextState("betweenActions");
+    }
+
+    function selectDismissedPile($pile)
+    {
+        self::checkAction("selectDismissedPile");
+
+        $board_position = self::getGameStateValue("boardPosition");
+
+        if ($board_position < 1 || $board_position > 4) {
+            throw new BgaUserException(self::_("Invalid board position"));
+        }
+
+        if ($pile < 1 || $board_position > 4) {
+            throw new BgaUserException(self::_("Invalid keeper pile"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $keeper = null;
+
+        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+            $keeper = $card;
+        }
+
+        if ($keeper === null) {
+            throw new BgaUserException("Keeper not found");
+        }
+
+        $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
+
+        $pile_counters = $this->getPileCounters();
+
+        self::notifyAllPlayers(
+            "dismissKeeper",
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
+            array(
+                "player_id" => self::getActivePlayerId(),
+                "player_name" => self::getActivePlayerName(),
+                "keeper_name" => $keeper["card_type"],
+                "keeper_id" => $keeper["card_type_arg"],
+                "board_position" => $board_position,
+                "pile" => $pile,
+                "pile_counters" => $pile_counters,
+                "piles_tops" => $this->getPilesTops(),
+                "left_in_pile" => $pile_counters[$pile]
+            )
+        );
+
+        self::setGameStateValue("mainAction", 6);
 
         $this->gamestate->nextState("betweenActions");
     }
@@ -510,6 +581,8 @@ class Zookeepers extends Table
     function cancelMngKeepers()
     {
         self::checkAction("cancelMngKeepers");
+
+        self::setGameStateValue("boardPosition", 0);
         self::setGameStateValue("mainAction", 0);
 
         $this->gamestate->nextState("cancel");
@@ -723,14 +796,15 @@ class Zookeepers extends Table
 
     function stBetweenActions()
     {
+        self::setGameStateValue("boardPosition", 0);
         $this->gamestate->nextState("nextAction");
     }
 
     function stBetweenPlayers()
     {
-        self::setGameStateValue("mainAction", 0);
         self::setGameStateValue("totalToReturn", 0);
         self::setGameStateValue("previouslyReturned", 0);
+        self::setGameStateValue("mainAction", 0);
         self::setGameStateValue("freeAction", 0);
 
         $player_id = self::getActivePlayerId();

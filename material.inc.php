@@ -25,9 +25,9 @@ $this->mainActions = array(
   2 => array("name" => "saveSpecies", "update_scores" => true),
   3 => array("name" => "quarantineSpecies", "update_scores" => true),
   4 => array("name" => "discardSpecies", "update_scores" => true),
-  5 => array("name" => "swapKeepers", "update_scores" => true),
-  6 => array("name" => "discardKeeper", "update_scores" => true),
-  7 => array("name" => "hireKeeper", "update_scores" => false),
+  5 => array("name" => "hireKeeper", "update_scores" => false),
+  6 => array("name" => "dismissKeeper", "update_scores" => true),
+  7 => array("name" => "replaceKeeper", "update_scores" => true),
 );
 
 $this->freeActions = array(

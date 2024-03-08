@@ -68,7 +68,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
         "type" => "activeplayer",
         "possibleactions" => array(
-            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange", "quarantineSpecies", "discardSpecies", "swapKeepers", "dismissKeeper",
+            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange", "quarantineSpecies", "discardSpecies", "replaceKeeper", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
@@ -122,6 +122,15 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to dismiss'),
         "type" => "activeplayer",
         "possibleactions" => array("selectDismissedKeeper", "cancelMngKeepers"),
+        "transitions" => array("selectDismissedPile" => 26, "betweenActions" => 3, "cancel" => 2)
+    ),
+
+    26 => array(
+        "name" => "selectDismissedPile",
+        "description" => clienttranslate('${actplayer} can select a pile to send the dismissed keeper to'),
+        "descriptionmyturn" => clienttranslate('${you} can select a pile to send the dismissed keeper to'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectDismissedPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 
