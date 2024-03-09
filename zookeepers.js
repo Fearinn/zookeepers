@@ -46,7 +46,6 @@ define([
       this.pileCounters = {};
       this.pilesTops = {};
       this.keepersOnBoards = {};
-      this.openBoardPosition = 0;
       this.allSpecies = {};
       this.visibleSpecies = {};
     },
@@ -122,7 +121,11 @@ define([
 
       // keepers
       this.allKeepers = gamedatas.allKeepers;
-      this.keepersOnBoards = gamedatas.keepersOnBoards;
+      this.keepersOnBoards = this.formatKeepersOnBoards(
+        gamedatas.keepersOnBoards
+      );
+
+      console.log("boards", this.keepersOnBoards);
 
       for (const player_id in gamedatas.players) {
         for (let position = 1; position <= 4; position++) {
@@ -140,12 +143,6 @@ define([
             stockKey
           ].extraClasses = `zkp_card zkp_hired_keeper-${player_id}`;
 
-          dojo
-            .query(`.zkp_hired_keeper-${player_id}`)
-            .connect("onclick", this, (event) => {
-              this.onSelectDismissedKeeper(event);
-            });
-
           this[stockKey].image_items_per_row = 7;
 
           for (const keeper_id in this.allKeepers) {
@@ -158,27 +155,21 @@ define([
             );
           }
 
-          const addedKeeperObj = this.keepersOnBoards[player_id][position];
+          const addedKeeper = this.keepersOnBoards[player_id][position];
 
-          if (addedKeeperObj) {
-            for (const key in addedKeeperObj) {
-              const addedKeeper = addedKeeperObj[key];
-              const pile = addedKeeper.pile;
-
-              if (addedKeeper.card_type_arg) {
-                if (pile > 0) {
-                  this[stockKey].addToStockWithId(
-                    addedKeeper.card_type_arg,
-                    addedKeeper.card_type_arg,
-                    `zkp_keeper_pile:${pile}`
-                  );
-                } else {
-                  this[stockKey].addToStockWithId(
-                    addedKeeper.card_type_arg,
-                    addedKeeper.card_type_arg
-                  );
-                }
-              }
+          if (addedKeeper && addedKeeper.card_type_arg) {
+            const pile = addedKeeper.pile;
+            if (pile > 0) {
+              this[stockKey].addToStockWithId(
+                addedKeeper.card_type_arg,
+                addedKeeper.card_type_arg,
+                `zkp_keeper_pile:${pile}`
+              );
+            } else {
+              this[stockKey].addToStockWithId(
+                addedKeeper.card_type_arg,
+                addedKeeper.card_type_arg
+              );
             }
           }
         }
@@ -273,17 +264,32 @@ define([
         this.freeAction = args.args.freeAction;
         this.isBagEmpty = args.args.isBagEmpty;
 
-        this.keepersOnBoards = args.args.keepers_on_boards;
+        this.keepersOnBoards = this.formatKeepersOnBoards(
+          args.args.keepers_on_boards
+        );
 
-        for (position in this.keepersOnBoards[playerId]) {
-          if (Array.isArray(this.keepersOnBoards[playerId][position])) {
-            this.openBoardPosition = position;
+        let openBoardPosition = 0;
+        let boardEmpty = true;
+
+        for (const position in this.keepersOnBoards[playerId]) {
+          const keeperOnPosition = this.keepersOnBoards[playerId][position];
+          if (!keeperOnPosition) {
+            openBoardPosition = position;
+            break;
+          }
+        }
+
+        for (const position in this.keepersOnBoards[playerId]) {
+          const keeperOnPosition = this.keepersOnBoards[playerId][position];
+          if (keeperOnPosition && keeperOnPosition.card_type_arg) {
+            boardEmpty = false;
+            break;
           }
         }
 
         if (this.isCurrentPlayerActive()) {
           if (this.mainAction < 1) {
-            if (this.openBoardPosition > 0) {
+            if (openBoardPosition > 0) {
               this.addActionButton(
                 "hire_keeper_btn",
                 _("Hire Keeper"),
@@ -291,12 +297,13 @@ define([
               );
             }
 
-            if (this.openBoardPosition > 1)
+            if (!boardEmpty) {
               this.addActionButton(
                 "dismiss_keeper_btn",
                 _("Dismiss Keeper"),
                 "onDismissKeeper"
               );
+            }
 
             if (!this.isBagEmpty) {
               this.addActionButton(
@@ -361,9 +368,14 @@ define([
 
           const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
 
+          query.connect("onclick", this, (event) => {
+            this.onSelectDismissedKeeper(event);
+          });
+
           query.removeClass("stockitem_unselectable");
           query.style({
             border: "3px solid green",
+            cursor: "pointer"
           });
         }
       }
@@ -452,7 +464,6 @@ define([
       if (stateName === "betweenPlayers") {
         this.mainAction = 0;
         this.freeAction = 0;
-        this.openBoardPosition = 0;
         return;
       }
     },
@@ -510,6 +521,26 @@ define([
         const newValue = counters[type];
         this.bagCounters[type].toValue(newValue);
       }
+    },
+
+    formatKeepersOnBoards: function (keepersOnBoards) {
+      for (const playerId in keepersOnBoards) {
+        for (const position in keepersOnBoards[playerId]) {
+          const keeperOnPosition = keepersOnBoards[playerId][position];
+
+          if (Array.isArray(keeperOnPosition)) {
+            if (keeperOnPosition.length < 1) {
+              keepersOnBoards[playerId][position] = null;
+            } else {
+              keepersOnBoards[playerId][position] = keeperOnPosition[0];
+            }
+          } else if (!keeperOnPosition.card_id) {
+            for (const keeper in keeperOnPosition)
+              keepersOnBoards[playerId][position] = keeperOnPosition[keeper];
+          }
+        }
+      }
+      return keepersOnBoards;
     },
 
     ///////////////////////////////////////////////////
@@ -791,7 +822,7 @@ define([
         `zkp_keeper_pile:${notif.args.pile}`
       );
 
-      for (pile in this.pileCounters) {
+      for (const pile in this.pileCounters) {
         const element = `zkp_keeper_pile:${pile}`;
         const className = "zkp_empty_pile";
 
@@ -811,25 +842,34 @@ define([
       const player_id = notif.args.player_id;
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
+      const pile = notif.args.pile;
+
       const stockKey = `board_${player_id}:${position}`;
+      const pileElement = `zkp_keeper_pile:${pile}`;
+      const className = "zkp_empty_pile";
+      const container = `zkp_keeper_${player_id}:${position}`;
+      const item = `${container}_item_${keeper_id}`;
 
-      // this[stockKey].addToStockWithId(
-      //   keeper_id,
-      //   keeper_id,
-      //   `zkp_keeper_pile:${notif.args.pile}`
-      // );
+      dojo.place(this.format_block("jstpl_dismissed_keeper"), container);
 
-      for (pile in this.pileCounters) {
-        const element = `zkp_keeper_pile:${pile}`;
-        const className = "zkp_empty_pile";
+      this.placeOnObject("zkp_dismissed_keeper", item);
 
+      const animation = this.slideToObject("zkp_dismissed_keeper", pileElement);
+
+      dojo.connect(animation, "onEnd", () => {
+        this[stockKey].removeFromStockById(keeper_id, pileElement);
         const top = this.pilesTops[pile];
-        dojo.style(element, "backgroundPosition", this.topsPositions[top]);
+        dojo.style(pileElement, "backgroundPosition", this.topsPositions[top]);
 
-        if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
-          dojo.addClass(element, className);
+        if (
+          this.pileCounters[pile] > 0 &&
+          dojo.hasClass(pileElement, className)
+        ) {
+          dojo.removeClass(pileElement, className);
         }
-      }
+      });
+
+      animation.play();
     },
 
     notif_collectResources: function (notif) {

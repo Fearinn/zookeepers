@@ -334,6 +334,8 @@ class Zookeepers extends Table
             }
         }
 
+        self::warn(json_encode($keepers));
+
         return $keepers;
     }
 
@@ -479,12 +481,16 @@ class Zookeepers extends Table
         $pile = 0;
 
         $keepers_info = $this->keepers_info;
-        $card = null;
+        $keeper = null;
 
         foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
             $pile = $card["pile"];
             $keeper_points = $keepers_info[$card["card_type_arg"]]["points"];
             $keeper = $card;
+        }
+
+        if ($keeper === null) {
+            throw new BgaUserException("Keeper not found");
         }
 
         if ($pile == 0 && $keeper_points === 1) {
@@ -501,13 +507,14 @@ class Zookeepers extends Table
             throw new BgaUserException("Invalid keeper pile");
         }
 
+        $keeper_id = $keeper["card_id"];
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
 
         $pile_counters = $this->getPileCounters();
 
         self::notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -520,6 +527,8 @@ class Zookeepers extends Table
                 "left_in_pile" => $pile_counters[$pile]
             )
         );
+
+        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
 
         self::setGameStateValue("boardPosition", $board_position);
         self::setGameStateValue("mainAction", 6);
@@ -553,6 +562,8 @@ class Zookeepers extends Table
             throw new BgaUserException("Keeper not found");
         }
 
+        $keeper_id = $keeper["card_id"];
+
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
 
         $pile_counters = $this->getPileCounters();
@@ -572,6 +583,8 @@ class Zookeepers extends Table
                 "left_in_pile" => $pile_counters[$pile]
             )
         );
+
+        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
 
         self::setGameStateValue("mainAction", 6);
 
