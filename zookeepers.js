@@ -125,8 +125,6 @@ define([
         gamedatas.keepersOnBoards
       );
 
-      console.log("boards", this.keepersOnBoards);
-
       for (const player_id in gamedatas.players) {
         for (let position = 1; position <= 4; position++) {
           const stockKey = `board_${player_id}:${position}`;

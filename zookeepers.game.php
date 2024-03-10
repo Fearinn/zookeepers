@@ -97,7 +97,7 @@ class Zookeepers extends Table
         }
 
         $this->resources->createCards($resources_deck, "deck");
-        $this->resources->shuffle('deck');
+        $this->resources->shuffle("deck");
 
         $keepers_info = $this->keepers_info;
         ksort($keepers_info);
@@ -127,6 +127,7 @@ class Zookeepers extends Table
             $location = "deck:" . strval($pile);
             $this->keepers->pickCardsForLocation(5, "deck", $location);
             self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
+            $this->keepers->shuffle($location);
         }
 
         $species_deck = array();
@@ -251,9 +252,6 @@ class Zookeepers extends Table
         $tops = array();
 
         for ($pile = 1; $pile <= 4; $pile++) {
-            $cards_in_location = $this->keepers->getCardsInLocation("deck:" . strval($pile));
-            self::warn(json_encode($cards_in_location));
-
             $topCard = $this->keepers->getCardOnTop("deck:" . strval($pile));
 
             if ($topCard) {
@@ -333,8 +331,6 @@ class Zookeepers extends Table
                 $keepers[$player_id][$i] = self::getCollectionFromDb($sql);
             }
         }
-
-        self::warn(json_encode($keepers));
 
         return $keepers;
     }
@@ -426,7 +422,7 @@ class Zookeepers extends Table
 
         self::notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. Keepers left in the pile: ${left_in_pile}'),
+            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. Keepers left in the deck: ${left_in_pile}'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -564,7 +560,7 @@ class Zookeepers extends Table
 
         $keeper_id = $keeper["card_id"];
 
-        $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
+        $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "pile:" . $pile, false);
 
         $pile_counters = $this->getPileCounters();
 
