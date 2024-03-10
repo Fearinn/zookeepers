@@ -74,7 +74,7 @@ $machinestates = array(
         "args" => "argPlayerTurn",
         "transitions" => array(
             "betweenActions" => 3, "pass" => 4,
-            "exchangeCollection" => 21, "selectKeeperPile" => 24, "selectDismissedKeeper" => 25
+            "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedKeeper" => 25, "selectReplacedKeeper" => 27,
         )
     ),
 
@@ -108,11 +108,11 @@ $machinestates = array(
     ),
 
     24 => array(
-        "name" => "selectKeeperPile",
+        "name" => "selectHiredPile",
         "description" => clienttranslate('${actplayer} can select a pile of keepers to hire from'),
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
-        "possibleactions" => array("selectKeeperPile", "cancelMngKeepers"),
+        "possibleactions" => array("selectHiredPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 
@@ -131,6 +131,24 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile to send the dismissed keeper to'),
         "type" => "activeplayer",
         "possibleactions" => array("selectDismissedPile", "cancelMngKeepers"),
+        "transitions" => array("betweenActions" => 3, "cancel" => 2)
+    ),
+
+    27 => array(
+        "name" => "selectReplacedKeeper",
+        "description" => clienttranslate('${actplayer} you can select a keeper to replace'),
+        "descriptionmyturn" => clienttranslate('${you} can select a keeper to replace'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectReplacedKeeper", "cancelMngKeepers"),
+        "transitions" => array("selectReplacedPile" => 28, "cancel" => 2)
+    ),
+
+    28 => array(
+        "name" => "selectReplacedPile",
+        "description" => clienttranslate('${actplayer} you can select a pile of keepers to hire from'),
+        "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectReplacedPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 3, "cancel" => 2)
     ),
 

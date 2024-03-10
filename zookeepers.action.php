@@ -58,11 +58,11 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
-  public function selectKeeperPile()
+  public function selectHiredPile()
   {
     self::setAjaxMode();
     $pile = self::getArg("pile", AT_posint, true);
-    $this->game->selectKeeperPile($pile);
+    $this->game->selectHiredPile($pile);
     self::ajaxResponse();
   }
 
@@ -86,6 +86,29 @@ class action_zookeepers extends APP_GameAction
     self::setAjaxMode();
     $pile = self::getArg("pile", AT_posint, true);
     $this->game->selectDismissedPile($pile);
+    self::ajaxResponse();
+  }
+
+  public function replaceKeeper()
+  {
+    self::setAjaxMode();
+    $this->game->replaceKeeper();
+    self::ajaxResponse();
+  }
+
+  public function selectReplacedKeeper()
+  {
+    self::setAjaxMode();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->selectReplacedKeeper($board_position);
+    self::ajaxResponse();
+  }
+
+  public function selectReplacedPile()
+  {
+    self::setAjaxMode();
+    $pile = self::getArg("pile", AT_posint, true);
+    $this->game->selectReplacedPile($pile);
     self::ajaxResponse();
   }
 

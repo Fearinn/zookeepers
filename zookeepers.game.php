@@ -386,12 +386,12 @@ class Zookeepers extends Table
             throw new BgaUserException("You can't have more than 4 keepers in play");
         }
 
-        $this->gamestate->nextState("selectKeeperPile");
+        $this->gamestate->nextState("selectHiredPile");
     }
 
-    function selectKeeperPile($pile)
+    function selectHiredPile($pile)
     {
-        self::checkAction("selectKeeperPile");
+        self::checkAction("selectHiredPile");
 
         $player_id = self::getActivePlayerId();
 
@@ -587,10 +587,120 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
+    function replaceKeeper()
+    {
+        self::checkAction("replaceKeeper");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $keepers_on_board_nbr = 0;
+
+        for ($position = 1; $position <= 4; $position++) {
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . strval($position), $player_id);
+        }
+
+        if ($keepers_on_board_nbr === 0) {
+            throw new BgaUserException("You don't have any keeper to replace");
+        }
+
+        $this->gamestate->nextState("selectReplacedKeeper");
+    }
+
+    function selectReplacedKeeper($board_position)
+    {
+        self::checkAction("selectReplacedKeeper");
+
+        if ($board_position < 1 || $board_position > 4) {
+            throw new BgaUserException(self::_("Invalid board position"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $keeper = null;
+
+        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+            $keeper = $card;
+        }
+
+        if ($keeper === null) {
+            throw new BgaUserException("Keeper not found");
+        }
+
+        self::setGameStateValue("boardPosition", $board_position);
+
+        $this->gamestate->nextState("selectReplacedPile");
+    }
+
+    function selectReplacedPile($pile)
+    {
+        self::checkAction("selectReplacedPile");
+
+        $player_id = self::getActivePlayerId();
+
+        $board_position = self::getGameStateValue("boardPosition");
+
+        $replaced_keeper = null;
+
+        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+            $replaced_keeper = $card;
+        }
+
+        if ($replaced_keeper === null) {
+            throw new BgaUserException("Keeper not found");
+        }
+
+        $hired_keeper = $this->keepers->pickCardForLocation("deck:" . strval($pile), "board:" . strval($board_position), $player_id);
+
+        if ($hired_keeper === null) {
+            throw new BgaUserException(self::_("The selected pile is out of cards"));
+        }
+
+        $replaced_keeper_id = $replaced_keeper["card_id"];
+
+        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_keeper_id");
+        $this->keepers->insertCardOnExtremePosition($replaced_keeper_id, "deck:" . strval($pile), false);
+
+        self::notifyAllPlayers(
+            "hireKeeper",
+            "",
+            array(
+                "player_id" => self::getActivePlayerId(),
+                "keeper_id" => $hired_keeper["type_arg"],
+                "board_position" => $board_position,
+                "pile" => $pile,
+                "pile_counters" => $this->getPileCounters(),
+                "piles_tops" => $this->getPilesTops(),
+            )
+        );
+
+        self::notifyAllPlayers(
+            "dismissKeeper",
+            clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}, from pile ${pile}'),
+            array(
+                "player_id" => self::getActivePlayerId(),
+                "player_name" => self::getActivePlayerName(),
+                "replaced_keeper_name" => $replaced_keeper["card_type"],
+                "hired_keeper_name" => $hired_keeper["type"],
+                "keeper_id" => $replaced_keeper["card_type_arg"],
+                "board_position" => $board_position,
+                "pile" => $pile,
+                "pile_counters" => $this->getPileCounters(),
+                "piles_tops" => $this->getPilesTops(),
+            )
+        );
+
+        self::setGameStateValue("mainAction", 7);
+
+        $this->gamestate->nextState("betweenActions");
+    }
+
     function cancelMngKeepers()
     {
         self::checkAction("cancelMngKeepers");
-
         self::setGameStateValue("boardPosition", 0);
         self::setGameStateValue("mainAction", 0);
 

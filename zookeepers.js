@@ -202,6 +202,10 @@ define([
           this.onSelectDismissedPile(event);
         });
 
+        dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+          this.onSelectReplacedPile(event);
+        });
+
         // species
         this.allSpecies = gamedatas.allSpecies;
         this.visibleSpecies = gamedatas.visibleSpecies;
@@ -297,6 +301,12 @@ define([
 
             if (!boardEmpty) {
               this.addActionButton(
+                "replace_keeper_btn",
+                _("Replace Keeper"),
+                "onReplaceKeeper"
+              );
+
+              this.addActionButton(
                 "dismiss_keeper_btn",
                 _("Dismiss Keeper"),
                 "onDismissKeeper"
@@ -332,7 +342,7 @@ define([
         return;
       }
 
-      if (stateName === "selectKeeperPile") {
+      if (stateName === "selectHiredPile") {
         if (this.isCurrentPlayerActive()) {
           dojo.query(".zkp_keeper_pile").forEach((element) => {
             if (!dojo.hasClass(element, "zkp_empty_pile")) {
@@ -373,12 +383,55 @@ define([
           query.removeClass("stockitem_unselectable");
           query.style({
             border: "3px solid green",
-            cursor: "pointer"
+            cursor: "pointer",
           });
         }
       }
 
       if (stateName === "selectDismissedPile") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngKeepers",
+            null,
+            null,
+            "red"
+          );
+
+          dojo.query(`.zkp_keeper_pile`).style({
+            border: "3px solid green",
+            cursor: "pointer",
+          });
+        }
+      }
+
+      if (stateName === "selectReplacedKeeper") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngKeepers",
+            null,
+            null,
+            "red"
+          );
+
+          const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
+
+          query.connect("onclick", this, (event) => {
+            this.onSelectReplacedKeeper(event);
+          });
+
+          query.removeClass("stockitem_unselectable");
+          query.style({
+            border: "3px solid green",
+            cursor: "pointer",
+          });
+        }
+      }
+
+      if (stateName === "selectReplacedPile") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
             "cancel_btn",
@@ -472,7 +525,7 @@ define([
     onLeavingState: function (stateName) {
       console.log("Leaving state: " + stateName);
 
-      if (stateName === "selectKeeperPile") {
+      if (stateName === "selectHiredPile") {
         dojo.query(".zkp_keeper_pile").style({
           border: "none",
           cursor: "initial",
@@ -488,6 +541,21 @@ define([
       }
 
       if (stateName === "selectDismissedPile") {
+        dojo.query(".zkp_keeper_pile").style({
+          border: "none",
+          cursor: "initial",
+        });
+      }
+
+      if (stateName === "selectReplacedKeeper") {
+        const playerId = this.getActivePlayerId();
+        dojo.query(`.zkp_hired_keeper-${playerId}`).style({
+          border: "none",
+          cursor: "initial",
+        });
+      }
+
+      if (stateName === "selectReplacedPile") {
         dojo.query(".zkp_keeper_pile").style({
           border: "none",
           cursor: "initial",
@@ -627,7 +695,7 @@ define([
     },
 
     onSelectKeeperPile: function (event) {
-      const action = "selectKeeperPile";
+      const action = "selectHiredPile";
 
       const pile = event.target.id.split(":")[1];
       dojo.stopEvent(event);
@@ -683,6 +751,60 @@ define([
 
     onSelectDismissedPile: function (event) {
       const action = "selectDismissedPile";
+
+      const pile = event.target.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            pile: pile,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onReplaceKeeper() {
+      const action = "replaceKeeper";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onSelectReplacedKeeper: function (event) {
+      const action = "selectReplacedKeeper";
+
+      const position = event.target.id.split(":")[1].split("_")[0];
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            board_position: position,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onSelectReplacedPile: function (event) {
+      const action = "selectReplacedPile";
 
       const pile = event.target.id.split(":")[1];
 
