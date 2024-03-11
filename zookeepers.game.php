@@ -359,10 +359,6 @@ class Zookeepers extends Table
     {
         self::checkAction("pass");
 
-        self::notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
-            "player_name" => self::getActivePlayerName(),
-        ));
-
         $this->gamestate->nextState("pass");
     }
 
@@ -832,6 +828,7 @@ class Zookeepers extends Table
         $keys = array_keys($resources_returned);
 
         $this->resources->moveCards($keys, "deck");
+        $this->resources->shuffle("deck");
 
         $previously_returned_nbr = self::getGameStateValue("previouslyReturned");
         $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
@@ -857,7 +854,46 @@ class Zookeepers extends Table
             return;
         }
 
-        $this->gamestate->nextState("betweenReturns");
+        $this->gamestate->nextState("betweenExchangeReturns");
+    }
+
+    function returnExcess($lastly_returned_nbr, $type)
+    {
+        self::checkAction("returnExcess");
+        $player_id = self::getActivePlayerId();
+
+        $resources_in_hand = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
+        $resources_returned = array_slice($resources_in_hand, 0, $lastly_returned_nbr, true);
+        $keys = array_keys($resources_returned);
+
+        $this->resources->moveCards($keys, "deck");
+        $this->resources->shuffle("deck");
+
+        $previously_returned_nbr = self::getGameStateValue("previouslyReturned");
+        $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
+        self::setGameStateValue("previouslyReturned", $previously_returned_nbr + $lastly_returned_nbr);
+
+        $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
+
+        self::notifyAllPlayers(
+            "returnResources",
+            clienttranslate('${player_name} returns ${returned_nbr} resources of ${type} as excess'),
+            array(
+                "player_name" => self::getActivePlayerName(),
+                "player_id" => $player_id,
+                "returned_nbr" => $lastly_returned_nbr,
+                "type" => $type,
+                "resource_counters" => $this->getResourceCounters(),
+                "bag_counters" => $this->getBagCounters(),
+            )
+        );
+
+        if ($to_return === 0) {
+            $this->gamestate->nextState("betweenPlayers");
+            return;
+        }
+
+        $this->gamestate->nextState("betweenExcessReturns");
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -893,6 +929,11 @@ class Zookeepers extends Table
         return array("to_return" => self::getGameStateValue("totalToReturn") - self::getGameStateValue("previouslyReturned"));
     }
 
+    function argReturnExcess()
+    {
+        return array("to_return" => self::getGameStateValue("totalToReturn") - self::getGameStateValue("previouslyReturned"));
+    }
+
     function argBetweenActions()
     {
         $mainAction = self::getGameStateValue("mainAction");
@@ -908,14 +949,22 @@ class Zookeepers extends Table
         The action method of state X is called everytime the current game state is set to X.
     */
 
-    function stBetweenReturns()
+    function stBetweenExchangeReturns()
+    {
+        $this->gamestate->nextState("nextReturn");
+    }
+
+    function stBetweenExcessReturns()
     {
         $this->gamestate->nextState("nextReturn");
     }
 
     function stBetweenActions()
     {
+        self::setGameStateValue("totalToReturn", 0);
+        self::setGameStateValue("previouslyReturned", 0);
         self::setGameStateValue("boardPosition", 0);
+
         $this->gamestate->nextState("nextAction");
     }
 
@@ -926,11 +975,62 @@ class Zookeepers extends Table
         self::setGameStateValue("mainAction", 0);
         self::setGameStateValue("freeAction", 0);
 
-        $player_id = self::getActivePlayerId();
-        $this->giveExtraTime($player_id);
+        $current_player_id = self::getActivePlayerId();
+
+        $resources_nbr = $this->resources->countCardsInLocation("hand", $current_player_id);
+        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $current_player_id));
+
+        if ($resources_nbr > 12 || $kit_nbr > 5) {
+            $this->gamestate->nextState("excessResources");
+            return;
+        }
+
+        self::notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
+            "player_name" => self::getActivePlayerName(),
+        ));
 
         self::activeNextPlayer();
+        $next_player_id = self::getActivePlayerId();
+        $this->giveExtraTime($next_player_id);
+
         $this->gamestate->nextState("nextPlayer");
+    }
+
+    function stExcessResources()
+    {
+        $player_id = self::getActivePlayerId();
+        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $player_id));
+
+        if ($kit_nbr > 5) {
+            $returned_nbr = $kit_nbr - 5;
+            $kits = $this->resources->getCardsInLocation("hand", $player_id);
+            $returned_kits = array_slice($kits, 0, $returned_nbr, true);
+            $keys = array_keys($returned_kits);
+            $this->resources->moveCards($keys, "deck");
+            $this->resources->shuffle("deck");
+
+            self::notifyAllPlayers(
+                "returnResources",
+                clienttranslate('${player_name} returns ${returned_nbr} of kits as excess'),
+                array(
+                    "player_name" => $this->getActivePlayerName(),
+                    "player_id" => $player_id,
+                    "returned_nbr" => $returned_nbr,
+                    "type" => "kit",
+                    "resource_counters" => $this->getResourceCounters(),
+                )
+            );
+        }
+
+        $resources_nbr = $this->resources->countCardsInLocation("hand", $player_id);
+
+        if ($resources_nbr > 12) {
+            self::setGameStateValue("totalToReturn", $resources_nbr - 12);
+            $this->gamestate->nextState("returnExcess");
+            return;
+        }
+
+        $this->gamestate->nextState("betweenPlayers");
     }
 
     //////////////////////////////////////////////////////////////////////////////

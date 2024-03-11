@@ -149,4 +149,13 @@ class action_zookeepers extends APP_GameAction
     $this->game->returnFromExchange($lastly_returned_nbr, $lastly_returned_type);
     self::ajaxResponse();
   }
+
+  public function returnExcess()
+  {
+    self::setAjaxMode();
+    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_posint, true);
+    $lastly_returned_type = self::getArg("lastly_returned_type", AT_alphanum, true);
+    $this->game->returnExcess($lastly_returned_nbr, $lastly_returned_type);
+    self::ajaxResponse();
+  }
 }

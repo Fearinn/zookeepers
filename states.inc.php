@@ -95,15 +95,15 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argExchangeReturn",
         "possibleactions" => array("returnFromExchange"),
-        "transitions" => array("betweenReturns" => 23, "betweenActions" => 3)
+        "transitions" => array("betweenExchangeReturns" => 23, "betweenActions" => 3)
     ),
 
     23 => array(
-        "name" => "betweenReturns",
+        "name" => "betweenExchangeReturns",
         "description" => "",
         "descriptionmyturn" => "",
         "type" => "activeplayer",
-        "action" => "stBetweenReturns",
+        "action" => "stBetweenExchangeReturns",
         "transitions" => array("nextReturn" => 22, "betweenActions" => 3)
     ),
 
@@ -154,6 +154,8 @@ $machinestates = array(
 
     3 => array(
         "name" => "betweenActions",
+        "description" => "",
+        "descriptionmyturn" => "",
         "type" => "game",
         "action" => "stBetweenActions",
         "args" => "argBetweenActions",
@@ -162,9 +164,37 @@ $machinestates = array(
 
     4 => array(
         "name" => "betweenPlayers",
+        "description" => "",
+        "descriptionmyturn" => "",
         "type" => "game",
         "action" => "stBetweenPlayers",
-        "transitions" => array("nextPlayer" => 2, "gameEnd" => 99)
+        "transitions" => array("nextPlayer" => 2, "excessResources" => 41, "gameEnd" => 99)
+    ),
+
+    41 => array(
+        "name" => "excessResources",
+        "description" => "",
+        "descriptionmyturn" => "",
+        "type" => "game",
+        "action" => "stExcessResources",
+        "transitions" => array("betweenPlayers" => 4, "returnExcess" => 42)
+    ),
+
+    42 => array(
+        "name" => "returnExcess",
+        "description" => clienttranslate('${actplayer} exceeded the limit of resources and must return ${to_return} to the bag'),
+        "descriptionmyturn" => clienttranslate('${you} exceeded the limit of resources and must return  ${to_return} to the bag'),
+        "type" => "activeplayer",
+        "args" => "argReturnExcess",
+        "possibleactions" => array("returnExcess"),
+        "transitions" => array("betweenExcessReturns" => 43, "betweenPlayers" => 4)
+    ),
+
+    43 => array(
+        "name" => "betweenExcessReturns",
+        "type" => "game",
+        "action" => "stBetweenExcessReturns",
+        "transitions" => array("nextReturn" => 42)
     ),
 
     // Final state.

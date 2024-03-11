@@ -507,6 +507,41 @@ define([
         return;
       }
 
+      if (stateName === "returnExcess") {
+        const playerId = this.getActivePlayerId();
+        const activePlayerCounters = this.resourceCounters[playerId];
+
+        if (this.isCurrentPlayerActive()) {
+          for (const type in activePlayerCounters) {
+            if (activePlayerCounters[type].getValue() > 0) {
+              this.addActionButton(
+                "image_btn_" + type,
+                `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
+                () => {},
+                null,
+                null,
+                "gray"
+              );
+              dojo.addClass("image_btn_" + type, "bgaimagebutton");
+
+              for (
+                let i = 1;
+                i <= activePlayerCounters[type].getValue() &&
+                i <= args.args.to_return;
+                i++
+              ) {
+                this.addActionButton(
+                  "exchange_resources_option_" + type + "_" + i,
+                  i.toString(),
+                  () => this.onReturnExcess(i, type)
+                );
+              }
+            }
+          }
+        }
+        return;
+      }
+
       if (stateName === "betweenActions") {
         this.mainAction = args.args.mainAction;
         return;
@@ -889,6 +924,24 @@ define([
 
     onReturnFromExchange: function (choosen_nbr, resource_type) {
       const action = "returnFromExchange";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            lastly_returned_nbr: choosen_nbr,
+            lastly_returned_type: resource_type,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onReturnExcess: function (choosen_nbr, resource_type) {
+      const action = "returnExcess";
 
       if (this.checkAction(action, true)) {
         this.ajaxcall(
