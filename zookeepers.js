@@ -48,6 +48,7 @@ define([
       this.keepersOnBoards = {};
       this.allSpecies = {};
       this.visibleSpecies = {};
+      this.savableSpecies = {};
     },
 
     /*
@@ -208,23 +209,28 @@ define([
         // species
         this.allSpecies = gamedatas.allSpecies;
         this.visibleSpecies = gamedatas.visibleSpecies;
+        this.savableSpecies = this.formatSavableSpecies(
+          gamedatas.savableSpecies
+        );
+
+        console.log(this.savableSpecies);
 
         for (let column = 1; column <= 4; column++) {
-          this["visibleShop_" + column] = new ebg.stock();
-          this["visibleShop_" + column].create(
+          const stockKey = `visibleShop_${column}`;
+          this[stockKey] = new ebg.stock();
+          this[stockKey].create(
             this,
             $("zkp_visible_species_" + column),
             this.cardWidth,
             this.cardHeight
           );
 
-          this["visibleShop_" + column].extraClasses =
-            "zkp_visible_species zkp_card";
-
-          this["visibleShop_" + column].image_items_per_row = 10;
+          this[stockKey].setSelectionMode(0);
+          this[stockKey].extraClasses = "zkp_visible_species zkp_card";
+          this[stockKey].image_items_per_row = 10;
 
           for (const species_id in this.allSpecies) {
-            this["visibleShop_" + column].addItemType(
+            this[stockKey].addItemType(
               species_id,
               species_id,
               g_gamethemeurl + "img/species.png",
@@ -234,15 +240,20 @@ define([
         }
 
         for (const column in this.visibleSpecies) {
+          const stockKey = `visibleShop_${column}`;
           const species_id = this.visibleSpecies[column].type_arg;
 
-          this["visibleShop_" + column].addToStockWithId(
+          this[stockKey].addToStockWithId(
             species_id,
             species_id,
             "zkp_species_deck"
           );
         }
       }
+
+      // dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
+      //   this.onSelectSavedSpecies(event);
+      // });
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
@@ -290,6 +301,14 @@ define([
 
         if (this.isCurrentPlayerActive()) {
           if (this.mainAction < 1) {
+            if (this.savableSpecies) {
+              this.addActionButton(
+                "save_species_btn",
+                _("Save Species"),
+                "onSaveSpecies"
+              );
+            }
+
             if (openBoardPosition > 0) {
               this.addActionButton(
                 "hire_keeper_btn",
@@ -643,6 +662,14 @@ define([
       return keepersOnBoards;
     },
 
+    formatSavableSpecies: function (savableSpecies) {
+      const species = savableSpecies;
+      if (Array.isArray(savableSpecies)) {
+        return null;
+      }
+      return species;
+    },
+
     ///////////////////////////////////////////////////
     //// Player's action
 
@@ -949,6 +976,22 @@ define([
             lock: true,
             lastly_returned_nbr: choosen_nbr,
             lastly_returned_type: resource_type,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onSaveSpecies: function () {
+      const action = "saveSpecies";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
           },
           this,
           function (result) {},

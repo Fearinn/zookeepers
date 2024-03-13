@@ -86,10 +86,10 @@
       </div>
     </div>
     <div id="zkp_visible_shop" class="zkp_visible_shop">
-      <div id="zkp_visible_species_1"></div>
-      <div id="zkp_visible_species_2"></div>
-      <div id="zkp_visible_species_3"></div>
-      <div id="zkp_visible_species_4"></div>
+      <div id="zkp_visible_species_1" class="zkp_visible_species"></div>
+      <div id="zkp_visible_species_2" class="zkp_visible_species"></div>
+      <div id="zkp_visible_species_3" class="zkp_visible_species"></div>
+      <div id="zkp_visible_species_4" class="zkp_visible_species"></div>
     </div>
   </div>
 </div>

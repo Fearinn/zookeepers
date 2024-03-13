@@ -73,7 +73,7 @@ $machinestates = array(
         ),
         "args" => "argPlayerTurn",
         "transitions" => array(
-            "betweenActions" => 3, "pass" => 4,
+            "betweenActions" => 7, "pass" => 8,
             "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedKeeper" => 25, "selectReplacedKeeper" => 27,
         )
     ),
@@ -95,7 +95,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argExchangeReturn",
         "possibleactions" => array("returnFromExchange"),
-        "transitions" => array("betweenExchangeReturns" => 23, "betweenActions" => 3)
+        "transitions" => array("betweenExchangeReturns" => 23, "betweenActions" => 7)
     ),
 
     23 => array(
@@ -104,7 +104,7 @@ $machinestates = array(
         "descriptionmyturn" => "",
         "type" => "activeplayer",
         "action" => "stBetweenExchangeReturns",
-        "transitions" => array("nextReturn" => 22, "betweenActions" => 3)
+        "transitions" => array("nextReturn" => 22, "betweenActions" => 7)
     ),
 
     24 => array(
@@ -113,7 +113,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
         "possibleactions" => array("selectHiredPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 3, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2)
     ),
 
     25 => array(
@@ -122,7 +122,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to dismiss'),
         "type" => "activeplayer",
         "possibleactions" => array("selectDismissedKeeper", "cancelMngKeepers"),
-        "transitions" => array("selectDismissedPile" => 26, "betweenActions" => 3, "cancel" => 2)
+        "transitions" => array("selectDismissedPile" => 26, "betweenActions" => 7, "cancel" => 2)
     ),
 
     26 => array(
@@ -131,7 +131,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile to send the dismissed keeper to'),
         "type" => "activeplayer",
         "possibleactions" => array("selectDismissedPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 3, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2)
     ),
 
     27 => array(
@@ -149,10 +149,28 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
         "possibleactions" => array("selectReplacedPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 3, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2)
     ),
 
-    3 => array(
+    29 => array(
+        "name" => "selectSavedSpecies",
+        "description" => clienttranslate('${actplayer} can select a species to save'),
+        "descriptionmyturn" => clienttranslate('${you} can select a species to save'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectSavedSpecies"),
+        "transitions" => array("selectSavedKeeper" => 30, "cancel" => 2)
+    ),
+
+    30 => array(
+        "name" => "selectSavedKeeper",
+        "description" => clienttranslate('${actplayer} can select a keeper to keep the species'),
+        "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectSavedKeeper"),
+        "transitions" => array("betweenActions" => 7, "cancel" => 2)
+    ),
+
+    7 => array(
         "name" => "betweenActions",
         "description" => "",
         "descriptionmyturn" => "",
@@ -162,39 +180,39 @@ $machinestates = array(
         "transitions" => array("nextAction" => 2, "gameEnd" => 99)
     ),
 
-    4 => array(
+    8 => array(
         "name" => "betweenPlayers",
         "description" => "",
         "descriptionmyturn" => "",
         "type" => "game",
         "action" => "stBetweenPlayers",
-        "transitions" => array("nextPlayer" => 2, "excessResources" => 41, "gameEnd" => 99)
+        "transitions" => array("nextPlayer" => 2, "excessResources" => 81, "gameEnd" => 99)
     ),
 
-    41 => array(
+    81 => array(
         "name" => "excessResources",
         "description" => "",
         "descriptionmyturn" => "",
         "type" => "game",
         "action" => "stExcessResources",
-        "transitions" => array("betweenPlayers" => 4, "returnExcess" => 42)
+        "transitions" => array("betweenPlayers" => 8, "returnExcess" => 82)
     ),
 
-    42 => array(
+    82 => array(
         "name" => "returnExcess",
         "description" => clienttranslate('${actplayer} exceeded the limit of resources and must return ${to_return} to the bag'),
         "descriptionmyturn" => clienttranslate('${you} exceeded the limit of resources and must return  ${to_return} to the bag'),
         "type" => "activeplayer",
         "args" => "argReturnExcess",
         "possibleactions" => array("returnExcess"),
-        "transitions" => array("betweenExcessReturns" => 43, "betweenPlayers" => 4)
+        "transitions" => array("betweenExcessReturns" => 83, "betweenPlayers" => 8)
     ),
 
-    43 => array(
+    83 => array(
         "name" => "betweenExcessReturns",
         "type" => "game",
         "action" => "stBetweenExcessReturns",
-        "transitions" => array("nextReturn" => 42)
+        "transitions" => array("nextReturn" => 82)
     ),
 
     // Final state.

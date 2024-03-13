@@ -96,6 +96,10 @@ class Zookeepers extends Table
             $resources_to_players[] = array("type" => $resource["label"], "type_arg" => $type_arg, "nbr" => $resource["per_player"]);
         }
 
+        foreach ($players as $player_id => $player) {
+            $this->resources->createCards($resources_to_players, "hand", $player_id);
+        }
+
         $this->resources->createCards($resources_deck, "deck");
         $this->resources->shuffle("deck");
 
@@ -151,10 +155,6 @@ class Zookeepers extends Table
             $this->species->pickCardForLocation("deck", "shop_visible", $i);
         }
 
-        foreach ($players as $player_id => $player) {
-            $this->resources->createCards($resources_to_players, "hand", $player_id);
-        }
-
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
@@ -197,6 +197,7 @@ class Zookeepers extends Table
         $result["keepersOnBoards"] = $this->getKeepersOnBoards();
         $result["allSpecies"] = $species_info;
         $result["visibleSpecies"] = $this->getVisibleSpecies();
+        $result["savableSpecies"] = $this->getSavableSpecies();
 
         $players = self::loadPlayersBasicInfos();
 
@@ -344,6 +345,73 @@ class Zookeepers extends Table
         }
 
         return $visible_species;
+    }
+
+    function getSavableSpecies()
+    {
+        $savable_species = array();
+        $player_id = self::getActivePlayerId();
+        $resource_counters = $this->getResourceCounters()[$player_id];
+
+        foreach ($this->species->getCardsInLocation("shop_visible") as $species_card_id => $species_card) {
+            $species_id = $species_card["type_arg"];
+            $species_info = $this->species_info[$species_id];
+            $cost = $species_info["cost"];
+            $can_pay_cost = true;
+            $can_assign = false;
+
+            foreach ($resource_counters as $type => $counter) {
+                $type_cost = $cost[$type];
+                if ($type_cost > 0 && $counter < $type_cost) {
+                    $can_pay_cost = false;
+                    break;
+                };
+            }
+
+            $keepers_in_play = array();
+
+            for ($i = 1; $i <= 4; $i++) {
+                $keepers_in_play += $this->getKeepersOnBoards()[$player_id][$i];
+            }
+
+            foreach ($keepers_in_play as $keeper_card) {
+                $keeper_id = $keeper_card["card_type_arg"];
+                $keeper_info = $this->keepers_info[$keeper_id];
+                $operator = $keeper_info["operator"];
+                $info_keys = array_keys($keeper_info);
+
+                if ($operator === "any") {
+                    $can_assign = true;
+                    break;
+                }
+
+                if ($operator === "single") {
+                    foreach ($species_info as $key => $value) {
+                        if (
+                            $key !== "points"
+                            && in_array($key, $info_keys, true)
+                        ) {
+                            $info_value = $keeper_info[$key];
+                            if (is_array($info_value) && count(array_intersect($info_value, $value)) > 0) {
+                                $can_assign = true;
+                                break;
+                            }
+
+                            if (!is_array($info_value) && $value == $info_value) {
+                                $can_assign = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if ($can_pay_cost && $can_assign) {
+                $savable_species[$species_card_id] = $species_card;
+            }
+        }
+
+        return $savable_species;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -894,6 +962,45 @@ class Zookeepers extends Table
         }
 
         $this->gamestate->nextState("betweenExcessReturns");
+    }
+
+    function saveSpecies()
+    {
+        self::checkAction("saveSpecies");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $can_save = count($this->getSavableSpecies());
+
+        if (!$can_save) {
+            throw new BgaUserException(self::_("You can't save any of the available species"));
+        } else {
+            throw new BgaUserException("You can save at least one species");
+        }
+
+        $this->gamestate->nextState("selectSavedKeeper");
+    }
+
+    function selectSavedSpecies($species_id, $shop_position)
+    {
+        $resource_counters = $this->getResourceCounters();
+
+        $species_info = $this->species_info[$species_id];
+
+        $cost = $species_info["cost"];
+
+        foreach ($resource_counters as $type => $counter) {
+            $type_cost = $cost[$type];
+            if ($type_cost > 0 && $counter < $type_cost) {
+                throw new BgaUserException("You don't have enough resources to save this species");
+            };
+        }
+    }
+
+    function selectSavedKeeper()
+    {
     }
 
     //////////////////////////////////////////////////////////////////////////////

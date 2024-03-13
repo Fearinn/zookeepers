@@ -158,4 +158,25 @@ class action_zookeepers extends APP_GameAction
     $this->game->returnExcess($lastly_returned_nbr, $lastly_returned_type);
     self::ajaxResponse();
   }
+
+  public function saveSpecies()
+  {
+    self::setAjaxMode();
+    $this->game->saveSpecies();
+    self::ajaxResponse();
+  }
+
+  public function selectSavedSpecies()
+  {
+    self::setAjaxMode();
+    $this->game->selectSavedSpecies();
+    self::ajaxResponse();
+  }
+
+  public function selectSavedKeeper()
+  {
+    self::setAjaxMode();
+    $this->game->selectSavedKeeper();
+    self::ajaxResponse();
+  }
 }
