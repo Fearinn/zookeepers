@@ -292,7 +292,7 @@ class Zookeepers extends Table
             $kits = $this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $player_id);
             $kits_nbr = count($kits);
 
-            $counters[] = array($player_id => array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr));
+            $counters[$player_id] = array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr);
         }
 
         return $counters;

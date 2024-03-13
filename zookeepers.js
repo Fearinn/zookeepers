@@ -95,11 +95,10 @@ define([
           },
         };
 
-        gamedatas.resourceCounters.forEach((object) => {
-          if (object[player_id]) {
-            this.updateResourceCounters(object[player_id], player_id);
-          }
-        });
+        this.updateResourceCounters(
+          gamedatas.resourceCounters[player_id],
+          player_id
+        );
       }
 
       const plantBagCounter = new ebg.counter();
@@ -1048,11 +1047,8 @@ define([
     notif_collectResources: function (notif) {
       const player_id = notif.args.player_id;
 
-      const newResourceCounters = notif.args.resource_counters.find(
-        (object) => {
-          return player_id === Object.keys(object)[0];
-        }
-      )[player_id];
+      const newResourceCounters = notif.args.resource_counters[player_id];
+      console.log(newResourceCounters);
 
       const collectedArgs = {
         plant: notif.args["collected_plant_nbr"],
@@ -1087,18 +1083,14 @@ define([
           }
         }
       }
-      this.updateResourceCounters(newResourceCounters, notif.args.player_id);
-      this.updateBagCounters(notif.args.bag_counters, notif.args.player_id);
+      this.updateResourceCounters(newResourceCounters, player_id);
+      this.updateBagCounters(notif.args.bag_counters, player_id);
     },
 
     notif_returnResources: function (notif) {
       const player_id = notif.args.player_id;
 
-      const newResourcesCounter = notif.args.resource_counters.find(
-        (object) => {
-          return player_id === Object.keys(object)[0];
-        }
-      )[player_id];
+      const newResourcesCounter = notif.args.resource_counters[player_id];
 
       const returned_nbr = notif.args.returned_nbr;
       const type = notif.args.type;
