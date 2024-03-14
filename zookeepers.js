@@ -693,6 +693,20 @@ define([
     ///////////////////////////////////////////////////
     //// Utility methods
 
+    sendAjaxCall: function (action, args = {}) {
+      args.lock = true;
+
+      if (this.checkAction(action)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          args,
+          this,
+          (result) => {},
+          (isError) => {}
+        );
+      }
+    },
+
     updateResourceCounters: function (counters, playerId) {
       for (const type in counters) {
         const newValue = counters[type];
@@ -759,65 +773,27 @@ define([
               "You haven't used any main action yet. Are you sure you want to pass?"
             ),
             () => {
-              this.ajaxcall(
-                "/" +
-                  this.game_name +
-                  "/" +
-                  this.game_name +
-                  "/" +
-                  action +
-                  ".html",
-                {
-                  lock: true,
-                },
-                this,
-                function (result) {},
-                function (is_error) {}
-              );
+              this.sendAjaxCall(action);
             }
           );
           return;
         }
 
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
     onCollectResources: function () {
       const action = "collectResources";
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
     onHireKeeper: function () {
       const action = "hireKeeper";
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
@@ -828,16 +804,7 @@ define([
       dojo.stopEvent(event);
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            pile: parseInt(pile),
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { pile: parseInt(pile) });
       }
     },
 
@@ -845,15 +812,7 @@ define([
       const action = "dismissKeeper";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
@@ -863,16 +822,7 @@ define([
       const position = event.target.id.split(":")[1].split("_")[0];
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            board_position: position,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
@@ -882,16 +832,7 @@ define([
       const pile = event.target.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            pile: pile,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { pile: parseInt(pile) });
       }
     },
 
@@ -899,15 +840,7 @@ define([
       const action = "replaceKeeper";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
@@ -917,16 +850,7 @@ define([
       const position = event.target.id.split(":")[1].split("_")[0];
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            board_position: position,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
@@ -936,16 +860,7 @@ define([
       const pile = event.target.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            pile: pile,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { pile: parseInt(pile) });
       }
     },
 
@@ -953,46 +868,21 @@ define([
       const action = "cancelMngKeepers";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
     onExchangeResources: function () {
       const action = "exchangeResources";
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
     onCollectFromExchange: function (choosen_nbr) {
       const action = "collectFromExchange";
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            choosen_nbr: choosen_nbr,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { choosen_nbr: parseInt(choosen_nbr) });
       }
     },
 
@@ -1002,15 +892,7 @@ define([
       this.freeAction = 0;
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
@@ -1018,17 +900,10 @@ define([
       const action = "returnFromExchange";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            lastly_returned_nbr: choosen_nbr,
-            lastly_returned_type: resource_type,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, {
+          lastly_returned_nbr: parseInt(choosen_nbr),
+          lastly_returned_type: resource_type,
+        });
       }
     },
 
@@ -1036,17 +911,10 @@ define([
       const action = "returnExcess";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            lastly_returned_nbr: choosen_nbr,
-            lastly_returned_type: resource_type,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, {
+          lastly_returned_nbr: parseInt(choosen_nbr),
+          lastly_returned_type: resource_type,
+        });
       }
     },
 
@@ -1054,15 +922,7 @@ define([
       const action = "saveSpecies";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
@@ -1072,16 +932,7 @@ define([
       const position = event.currentTarget.id.split("species_")[1];
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            shop_position: parseInt(position),
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { shop_position: parseInt(position) });
       }
     },
 
@@ -1091,16 +942,7 @@ define([
       const position = event.currentTarget.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-            board_position: parseInt(position),
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
@@ -1108,15 +950,7 @@ define([
       const action = "cancelMngSpecies";
 
       if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          {
-            lock: true,
-          },
-          this,
-          function (result) {},
-          function (is_error) {}
-        );
+        this.sendAjaxCall(action);
       }
     },
 
