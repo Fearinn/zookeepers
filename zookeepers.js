@@ -192,18 +192,6 @@ define([
         }
       }
 
-      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-        this.onSelectKeeperPile(event);
-      });
-
-      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-        this.onSelectDismissedPile(event);
-      });
-
-      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-        this.onSelectReplacedPile(event);
-      });
-
       // species
       this.allSpecies = gamedatas.allSpecies;
       this.visibleSpecies = gamedatas.visibleSpecies;
@@ -245,6 +233,34 @@ define([
           "zkp_species_deck"
         );
       }
+
+      // event connections
+
+      const playerId = this.getActivePlayerId();
+
+      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+        this.onSelectKeeperPile(event);
+      });
+
+      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+        this.onSelectDismissedPile(event);
+      });
+
+      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+        this.onSelectReplacedPile(event);
+      });
+
+      dojo
+        .query(`.zkp_keeper-${playerId}`)
+        .connect("onclick", this, (event) => {
+          this.onSelectDismissedKeeper(event);
+        });
+
+      dojo
+        .query(`.zkp_keeper-${playerId}`)
+        .connect("onclick", this, (event) => {
+          this.onSelectReplacedKeeper(event);
+        });
 
       dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
         this.onSelectSavedSpecies(event);
@@ -389,15 +405,12 @@ define([
 
           const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
 
-          query.connect("onclick", this, (event) => {
-            this.onSelectDismissedKeeper(event);
-          });
-
           query.removeClass("stockitem_unselectable");
           query.style({
             border: "3px solid green",
-            cursor: "pointer",
           });
+
+          dojo.query(`.zkp_keeper-${playerId}`).style({ cursor: "pointer" });
         }
       }
 
@@ -432,15 +445,12 @@ define([
 
           const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
 
-          query.connect("onclick", this, (event) => {
-            this.onSelectReplacedKeeper(event);
-          });
-
           query.removeClass("stockitem_unselectable");
           query.style({
             border: "3px solid green",
-            cursor: "pointer",
           });
+
+          dojo.query(`.zkp_keeper-${playerId}`).style({ cursor: "pointer" });
         }
       }
 

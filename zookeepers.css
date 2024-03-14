@@ -193,10 +193,6 @@
   gap: 8px;
 }
 
-.zkp_visible_species > .stockitem {
-  pointer-events: none;
-}
-
 .zkp_backup_species {
   background-image: url("img/species_back.png");
   background-size: contain;
@@ -214,6 +210,10 @@
 .zkp_empty_pile {
   background: rgba(0, 0, 0, 0.3);
   box-shadow: none;
+}
+
+.stockitem {
+  pointer-events: none;
 }
 
 .bgaimagebutton {
