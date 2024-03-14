@@ -193,6 +193,10 @@
   gap: 8px;
 }
 
+.zkp_visible_species > .stockitem {
+  pointer-events: none;
+}
+
 .zkp_backup_species {
   background-image: url("img/species_back.png");
   background-size: contain;

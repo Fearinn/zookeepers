@@ -169,14 +169,15 @@ class action_zookeepers extends APP_GameAction
   public function selectSavedSpecies()
   {
     self::setAjaxMode();
-    $this->game->selectSavedSpecies();
+    $shop_position = self::getArg("shop_position", AT_posint, true);
+    $this->game->selectSavedSpecies($shop_position);
     self::ajaxResponse();
   }
 
-  public function selectSavedKeeper()
+  public function selectAssignedKeeper()
   {
     self::setAjaxMode();
-    $this->game->selectSavedKeeper();
+    $this->game->selectAssignedKeeper();
     self::ajaxResponse();
   }
 }

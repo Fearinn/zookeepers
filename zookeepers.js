@@ -171,89 +171,84 @@ define([
             }
           }
         }
+      }
 
-        this.pileCounters = gamedatas.pileCounters;
-        this.pilesTops = gamedatas.pilesTops;
+      this.pileCounters = gamedatas.pileCounters;
+      this.pilesTops = gamedatas.pilesTops;
 
-        for (pile in this.pileCounters) {
-          const element = `zkp_keeper_pile:${pile}`;
-          const className = "zkp_empty_pile";
-          const top = this.pilesTops[pile];
+      for (pile in this.pileCounters) {
+        const element = `zkp_keeper_pile:${pile}`;
+        const className = "zkp_empty_pile";
+        const top = this.pilesTops[pile];
 
-          dojo.style(element, "backgroundPosition", this.topsPositions[top]);
+        dojo.style(element, "backgroundPosition", this.topsPositions[top]);
 
-          if (
-            this.pileCounters[pile] < 1 &&
-            !dojo.hasClass(element, className)
-          ) {
-            dojo.addClass(element, className);
-          }
-
-          if (this.pileCounters > 0 && dojo.hasClass(element, className)) {
-            dojo.removeClass(element, className);
-          }
+        if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
+          dojo.addClass(element, className);
         }
 
-        dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-          this.onSelectKeeperPile(event);
-        });
+        if (this.pileCounters > 0 && dojo.hasClass(element, className)) {
+          dojo.removeClass(element, className);
+        }
+      }
 
-        dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-          this.onSelectDismissedPile(event);
-        });
+      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+        this.onSelectKeeperPile(event);
+      });
 
-        dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-          this.onSelectReplacedPile(event);
-        });
+      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+        this.onSelectDismissedPile(event);
+      });
 
-        // species
-        this.allSpecies = gamedatas.allSpecies;
-        this.visibleSpecies = gamedatas.visibleSpecies;
-        this.savableSpecies = this.formatSavableSpecies(
-          gamedatas.savableSpecies
+      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
+        this.onSelectReplacedPile(event);
+      });
+
+      // species
+      this.allSpecies = gamedatas.allSpecies;
+      this.visibleSpecies = gamedatas.visibleSpecies;
+      this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
+
+      console.log(this.savableSpecies);
+
+      for (let column = 1; column <= 4; column++) {
+        const stockKey = `visibleShop_${column}`;
+        this[stockKey] = new ebg.stock();
+        this[stockKey].create(
+          this,
+          $("zkp_visible_species_" + column),
+          this.cardWidth,
+          this.cardHeight
         );
 
-        console.log(this.savableSpecies);
+        this[stockKey].setSelectionMode(0);
+        this[stockKey].extraClasses = "zkp_card";
+        this[stockKey].image_items_per_row = 10;
 
-        for (let column = 1; column <= 4; column++) {
-          const stockKey = `visibleShop_${column}`;
-          this[stockKey] = new ebg.stock();
-          this[stockKey].create(
-            this,
-            $("zkp_visible_species_" + column),
-            this.cardWidth,
-            this.cardHeight
-          );
-
-          this[stockKey].setSelectionMode(0);
-          this[stockKey].extraClasses = "zkp_visible_species zkp_card";
-          this[stockKey].image_items_per_row = 10;
-
-          for (const species_id in this.allSpecies) {
-            this[stockKey].addItemType(
-              species_id,
-              species_id,
-              g_gamethemeurl + "img/species.png",
-              species_id - 1
-            );
-          }
-        }
-
-        for (const column in this.visibleSpecies) {
-          const stockKey = `visibleShop_${column}`;
-          const species_id = this.visibleSpecies[column].type_arg;
-
-          this[stockKey].addToStockWithId(
+        for (const species_id in this.allSpecies) {
+          this[stockKey].addItemType(
             species_id,
             species_id,
-            "zkp_species_deck"
+            g_gamethemeurl + "img/species.png",
+            species_id - 1
           );
         }
       }
 
-      // dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
-      //   this.onSelectSavedSpecies(event);
-      // });
+      for (const column in this.visibleSpecies) {
+        const stockKey = `visibleShop_${column}`;
+        const species_id = this.visibleSpecies[column].type_arg;
+
+        this[stockKey].addToStockWithId(
+          species_id,
+          species_id,
+          "zkp_species_deck"
+        );
+      }
+
+      dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
+        this.onSelectSavedSpecies(event);
+      });
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
@@ -560,6 +555,17 @@ define([
         return;
       }
 
+      if (stateName === "selectSavedSpecies") {
+        const query = dojo.query(".zkp_visible_species > .stockitem");
+
+        query.removeClass("stockitem_unselectable");
+        query.style({
+          border: "3px solid green",
+        });
+
+        dojo.query(".zkp_visible_species").style({ cursor: "pointer" });
+      }
+
       if (stateName === "betweenActions") {
         this.mainAction = args.args.mainAction;
         return;
@@ -613,6 +619,15 @@ define([
           border: "none",
           cursor: "initial",
         });
+      }
+      if (stateName === "selectSavedSpecies") {
+        dojo.query(".zkp_visible_species").style({
+          cursor: "initial",
+        });
+
+        dojo
+          .query(".zkp_visible_species > .stockitem")
+          .style({ border: "none" });
       }
     },
 
@@ -992,6 +1007,25 @@ define([
           "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
           {
             lock: true,
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onSelectSavedSpecies: function (event) {
+      const action = "selectSavedSpecies";
+
+      const position = event.currentTarget.id.split("species_")[1];
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            shop_position: parseInt(position),
           },
           this,
           function (result) {},
