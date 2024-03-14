@@ -158,7 +158,7 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} can select a species to save'),
         "descriptionmyturn" => clienttranslate('${you} can select a species to save'),
         "type" => "activeplayer",
-        "possibleactions" => array("selectSavedSpecies"),
+        "possibleactions" => array("selectSavedSpecies", "cancelMngSpecies"),
         "transitions" => array("selectAssignedKeeper" => 30, "cancel" => 2)
     ),
 
@@ -167,7 +167,7 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} can select a keeper to keep the species'),
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),
         "type" => "activeplayer",
-        "possibleactions" => array("selectAssignedKeeper"),
+        "possibleactions" => array("selectAssignedKeeper", "cancelMngSpecies"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2)
     ),
 

@@ -177,7 +177,15 @@ class action_zookeepers extends APP_GameAction
   public function selectAssignedKeeper()
   {
     self::setAjaxMode();
-    $this->game->selectAssignedKeeper();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->selectAssignedKeeper($board_position);
+    self::ajaxResponse();
+  }
+
+  public function cancelMngSpecies()
+  {
+    self::setAjaxMode();
+    $this->game->cancelMngSpecies();
     self::ajaxResponse();
   }
 }

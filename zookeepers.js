@@ -566,6 +566,15 @@ define([
       }
 
       if (stateName === "selectSavedSpecies") {
+        this.addActionButton(
+          "cancel_btn",
+          "Cancel",
+          "onCancelMngSpecies",
+          null,
+          null,
+          "red"
+        );
+
         const query = dojo.query(".zkp_visible_species > .stockitem");
 
         query.removeClass("stockitem_unselectable");
@@ -574,6 +583,26 @@ define([
         });
 
         dojo.query(".zkp_visible_species").style({ cursor: "pointer" });
+      }
+
+      if (stateName === "selectAssignedKeeper") {
+        this.addActionButton(
+          "cancel_btn",
+          "Cancel",
+          "onCancelMngSpecies",
+          null,
+          null,
+          "red"
+        );
+
+        const query = dojo.query(`.zkp_keeper-${playerId} > .stockitem`);
+
+        query.removeClass("stockitem_unselectable");
+        query.style({
+          border: "3px solid green",
+        });
+
+        dojo.query(`.zkp_keeper-${playerId}`).style({ cursor: "pointer" });
       }
 
       if (stateName === "betweenActions") {
@@ -593,6 +622,8 @@ define([
     //
     onLeavingState: function (stateName) {
       console.log("Leaving state: " + stateName);
+
+      const playerId = this.getActivePlayerId();
 
       if (stateName === "selectHiredPile") {
         dojo.query(".zkp_keeper_pile").style({
@@ -637,6 +668,16 @@ define([
 
         dojo
           .query(".zkp_visible_species > .stockitem")
+          .style({ border: "none" });
+      }
+
+      if (stateName === "selectAssignedKeeper") {
+        dojo.query(`.zkp_keeper-${playerId}`).style({
+          cursor: "initial",
+        });
+
+        dojo
+          .query(`.zkp_keeper-${playerId} > .stockitem`)
           .style({ border: "none" });
       }
     },
@@ -1036,6 +1077,41 @@ define([
           {
             lock: true,
             shop_position: parseInt(position),
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onSelectAssignedKeeper: function (event) {
+      const action = "selectAssignedKeeper";
+
+      const position = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
+            board_position: parseInt(position),
+          },
+          this,
+          function (result) {},
+          function (is_error) {}
+        );
+      }
+    },
+
+    onCancelMngSpecies: function (event) {
+      const action = "cancelMngSpecies";
+
+      if (this.checkAction(action, true)) {
+        this.ajaxcall(
+          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
+          {
+            lock: true,
           },
           this,
           function (result) {},

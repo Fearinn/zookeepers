@@ -39,7 +39,6 @@ class Zookeepers extends Table
             "freeAction" => 13,
             "selectedBoardPosition" => 14,
             "selectedSpecies" => 15,
-            "selectedShopPosition" => 16,
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -165,6 +164,7 @@ class Zookeepers extends Table
         self::setGameStateInitialValue("totalToReturn", 0);
         self::setGameStateInitialValue("previouslyReturned", 0);
         self::setGameStateInitialValue("selectedBoardPosition", 0);
+        self::setGameStateInitialValue("selectedSpecies", 0);
 
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -553,7 +553,7 @@ class Zookeepers extends Table
         self::checkAction("selectDismissedKeeper");
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException(self::_("Invalid board position"));
+            throw new BgaUserException("Invalid board position");
         }
 
         $player_id = self::getActivePlayerId();
@@ -623,11 +623,11 @@ class Zookeepers extends Table
         $board_position = self::getGameStateValue("selectedBoardPosition");
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException(self::_("Invalid board position"));
+            throw new BgaUserException("Invalid board position");
         }
 
         if ($pile < 1 || $board_position > 4) {
-            throw new BgaUserException(self::_("Invalid keeper pile"));
+            throw new BgaUserException("Invalid keeper pile");
         }
 
         $player_id = self::getActivePlayerId();
@@ -699,7 +699,7 @@ class Zookeepers extends Table
         self::checkAction("selectReplacedKeeper");
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException(self::_("Invalid board position"));
+            throw new BgaUserException("Invalid board position");
         }
 
         $player_id = self::getActivePlayerId();
@@ -1003,8 +1003,10 @@ class Zookeepers extends Table
 
     function selectSavedSpecies($shop_position)
     {
+        self::checkAction("selectSavedSpecies");
+
         if ($shop_position < 1 || $shop_position > 4) {
-            throw new BgaUserException(self::_("Invalid shop position"));
+            throw new BgaUserException("Invalid shop position");
         }
 
         $species_id = null;
@@ -1023,14 +1025,48 @@ class Zookeepers extends Table
         }
 
         self::setGameStateValue("selectedSpecies", $species_id);
-        self::setGameStateValue("selectedShopPosition", $shop_position);
         $this->gamestate->nextState("selectAssignedKeeper");
     }
 
     function selectAssignedKeeper($board_position)
     {
+        self::checkAction("selectAssignedKeeper");
+
+        if ($board_position < 1 || $board_position > 4) {
+            throw new BgaUserException("Invalid board position");
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $species_id = self::getGameStateValue("selectedSpecies");
+
+        $assigned_keeper_id = null;
+
+        foreach ($this->keepers->getCardsInLocation("board:" . $board_position, $player_id) as $card_id => $card) {
+            $assigned_keeper_id = $card_id;
+        }
+
+        $assignable_keepers_ids = array_keys($this->getAssignableKeepers($species_id));
+
+        if (!in_array($assigned_keeper_id, $assignable_keepers_ids, true)) {
+            throw new BgaUserException(self::_("You can't assign this species to this keeper"));
+        }
+
+        $saved_species = $this->species->pickCardForLocation($species_id, "board" . $board_position);
+
+        if ($saved_species === null) {
+            throw new BgaUserException("Species not found");
+        }
 
         $this->gamestate->nextState("betweenActions");
+    }
+
+    function cancelMngSpecies()
+    {
+        self::checkAction("cancelMngSpecies");
+        self::setGameStateValue("selectedSpecies", 0);
+
+        $this->gamestate->nextState("cancel");
     }
 
     //////////////////////////////////////////////////////////////////////////////
