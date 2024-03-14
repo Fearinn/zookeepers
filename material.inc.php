@@ -63,7 +63,7 @@ $this->keepers_info = array(
   1 => array(
     "name" => "Abdul",
     "points" => 3,
-    "class" => array("mammal"),
+    "class" => "mammal",
     "operator" => "single"
   ),
   2 => array(
@@ -75,8 +75,8 @@ $this->keepers_info = array(
   3 => array(
     "name" => "Afonso",
     "points" => 5,
-    "class" => array("mammal"),
-    "diet" => array("herbivore"),
+    "class" => "mammal",
+    "diet" => "herbivore",
     "operator" => "and"
   ),
   4 => array(
@@ -97,7 +97,7 @@ $this->keepers_info = array(
   6 => array(
     "name" => "Bjorn",
     "points" => 4,
-    "class" => array("reptile"),
+    "class" => "reptile",
     "operator" => "single"
   ),
   7 => array(
@@ -116,21 +116,21 @@ $this->keepers_info = array(
     "name" => "Heidi",
     "points" => 4,
     "diet" => "carnivore",
-    "continent" => array("AS"),
+    "continent" => "AS",
     "operator" => "and"
   ),
   10 => array(
     "name" => "Helen",
     "points" => 5,
     "diet" => "herbivore",
-    "continent" => array("AF"),
+    "continent" => "AF",
     "operator" => "and"
   ),
   11 => array(
     "name" => "Isabela",
     "points" => 4,
-    "habitat" => array("TRO"),
-    "continent" => array("AS"),
+    "habitat" => "TRO",
+    "continent" => "AS",
     "operator" => "and"
   ),
   12 => array(
@@ -158,7 +158,7 @@ $this->keepers_info = array(
       "AQU",
       "DES"
     ),
-    "operator" => "OR"
+    "operator" => "or"
   ),
   16 => array(
     "name" => "Kulap",
@@ -187,7 +187,7 @@ $this->keepers_info = array(
   20 => array(
     "name" => "Zala",
     "points" => 3,
-    "class" => array("bird"),
+    "class" => "bird",
     "operator" => "single"
   ),
   21 => array(

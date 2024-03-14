@@ -260,6 +260,12 @@ define([
           .connect("onclick", this, (event) => {
             this.onSelectReplacedKeeper(event);
           });
+
+        dojo
+          .query(`.zkp_keeper-${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectAssignedKeeper(event);
+          });
       }
 
       dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
