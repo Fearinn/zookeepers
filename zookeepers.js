@@ -375,10 +375,7 @@ define([
         if (this.isCurrentPlayerActive()) {
           dojo.query(".zkp_keeper_pile").forEach((element) => {
             if (!dojo.hasClass(element, "zkp_empty_pile")) {
-              dojo.setStyle(element, {
-                border: "3px solid green",
-                cursor: "pointer",
-              });
+              this.addSelectableStyle(".zkp_keeper_pile");
             }
           });
 
@@ -403,14 +400,7 @@ define([
             "red"
           );
 
-          const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
-
-          query.removeClass("stockitem_unselectable");
-          query.style({
-            border: "3px solid green",
-          });
-
-          dojo.query(`.zkp_keeper-${playerId}`).style({ cursor: "pointer" });
+          this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
         }
       }
 
@@ -425,10 +415,7 @@ define([
             "red"
           );
 
-          dojo.query(`.zkp_keeper_pile`).style({
-            border: "3px solid green",
-            cursor: "pointer",
-          });
+          this.addSelectableStyle(".zkp_keeper_pile");
         }
       }
 
@@ -443,14 +430,7 @@ define([
             "red"
           );
 
-          const query = dojo.query(`.zkp_hired_keeper-${playerId}`);
-
-          query.removeClass("stockitem_unselectable");
-          query.style({
-            border: "3px solid green",
-          });
-
-          dojo.query(`.zkp_keeper-${playerId}`).style({ cursor: "pointer" });
+          this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
         }
       }
 
@@ -465,10 +445,7 @@ define([
             "red"
           );
 
-          dojo.query(`.zkp_keeper_pile`).style({
-            border: "3px solid green",
-            cursor: "pointer",
-          });
+          this.addSelectableStyle(".zkp_keeper_pile");
         }
       }
 
@@ -575,14 +552,7 @@ define([
           "red"
         );
 
-        const query = dojo.query(".zkp_visible_species > .stockitem");
-
-        query.removeClass("stockitem_unselectable");
-        query.style({
-          border: "3px solid green",
-        });
-
-        dojo.query(".zkp_visible_species").style({ cursor: "pointer" });
+        this.addSelectableStyle(".zkp_visible_species", ".stockitem");
       }
 
       if (stateName === "selectAssignedKeeper") {
@@ -595,14 +565,7 @@ define([
           "red"
         );
 
-        const query = dojo.query(`.zkp_keeper-${playerId} > .stockitem`);
-
-        query.removeClass("stockitem_unselectable");
-        query.style({
-          border: "3px solid green",
-        });
-
-        dojo.query(`.zkp_keeper-${playerId}`).style({ cursor: "pointer" });
+        this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
       }
 
       if (stateName === "betweenActions") {
@@ -626,59 +589,32 @@ define([
       const playerId = this.getActivePlayerId();
 
       if (stateName === "selectHiredPile") {
-        dojo.query(".zkp_keeper_pile").style({
-          border: "none",
-          cursor: "initial",
-        });
+        this.removeSelectableStyle(".zkp_keeper_pile");
       }
 
       if (stateName === "selectDismissedKeeper") {
         const playerId = this.getActivePlayerId();
-        dojo.query(`.zkp_hired_keeper-${playerId}`).style({
-          border: "none",
-          cursor: "initial",
-        });
+        this.removeSelectableStyle(`.zkp_keeper-${playerId}`);
       }
 
       if (stateName === "selectDismissedPile") {
-        dojo.query(".zkp_keeper_pile").style({
-          border: "none",
-          cursor: "initial",
-        });
+        this.removeSelectableStyle(".zkp_keeper_pile");
       }
 
       if (stateName === "selectReplacedKeeper") {
         const playerId = this.getActivePlayerId();
-        dojo.query(`.zkp_hired_keeper-${playerId}`).style({
-          border: "none",
-          cursor: "initial",
-        });
+        this.removeSelectableStyle(`.zkp_keeper-${playerId}`);
       }
 
       if (stateName === "selectReplacedPile") {
-        dojo.query(".zkp_keeper_pile").style({
-          border: "none",
-          cursor: "initial",
-        });
+        this.removeSelectableStyle(".zkp_keeper_pile");
       }
       if (stateName === "selectSavedSpecies") {
-        dojo.query(".zkp_visible_species").style({
-          cursor: "initial",
-        });
-
-        dojo
-          .query(".zkp_visible_species > .stockitem")
-          .style({ border: "none" });
+        this.removeSelectableStyle(".zkp_visible_species");
       }
 
       if (stateName === "selectAssignedKeeper") {
-        dojo.query(`.zkp_keeper-${playerId}`).style({
-          cursor: "initial",
-        });
-
-        dojo
-          .query(`.zkp_keeper-${playerId} > .stockitem`)
-          .style({ border: "none" });
+        this.removeSelectableStyle(`.zkp_keeper-${playerId}`);
       }
     },
 
@@ -704,6 +640,38 @@ define([
           (result) => {},
           (isError) => {}
         );
+      }
+    },
+
+    addSelectableStyle: function (containerSelector, itemSelector = null) {
+      const border = "3px solid green";
+
+      dojo.query(containerSelector).style({
+        border: itemSelector ? "none" : border,
+        cursor: "pointer",
+      });
+
+      if (itemSelector) {
+        const query = dojo.query(`${containerSelector} > ${itemSelector}`);
+        query.style({
+          border: border,
+        });
+        query.removeClass("stockitem_unselectable");
+      }
+    },
+
+    removeSelectableStyle: function (containerSelector, itemSelector) {
+      dojo.query(containerSelector).style({
+        border: "none",
+        cursor: "initial",
+      });
+
+      if (itemSelector) {
+        const query = dojo.query(`${containerSelector} > ${itemSelector}`);
+        query.style({
+          border: "none",
+        });
+        query.addClass("stockitem_unselectable");
       }
     },
 
