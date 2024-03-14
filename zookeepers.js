@@ -236,8 +236,6 @@ define([
 
       // event connections
 
-      const playerId = this.getActivePlayerId();
-
       dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
         this.onSelectKeeperPile(event);
       });
@@ -250,17 +248,19 @@ define([
         this.onSelectReplacedPile(event);
       });
 
-      dojo
-        .query(`.zkp_keeper-${playerId}`)
-        .connect("onclick", this, (event) => {
-          this.onSelectDismissedKeeper(event);
-        });
+      for (const player_id in gamedatas.players) {
+        dojo
+          .query(`.zkp_keeper-${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectDismissedKeeper(event);
+          });
 
-      dojo
-        .query(`.zkp_keeper-${playerId}`)
-        .connect("onclick", this, (event) => {
-          this.onSelectReplacedKeeper(event);
-        });
+        dojo
+          .query(`.zkp_keeper-${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectReplacedKeeper(event);
+          });
+      }
 
       dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
         this.onSelectSavedSpecies(event);
@@ -643,6 +643,20 @@ define([
       }
     },
 
+    checkKeeperOwner: function (event) {
+      const currentId = this.getActivePlayerId();
+      const targetPlayerId = event.currentTarget.id
+        .split("keeper_")[1]
+        .split(":")[0];
+
+      if (targetPlayerId !== currentId) {
+        this.showMoveUnauthorized();
+        return false;
+      }
+
+      return true;
+    },
+
     addSelectableStyle: function (containerSelector, itemSelector = null) {
       const border = "3px solid green";
 
@@ -787,9 +801,9 @@ define([
     onSelectDismissedKeeper: function (event) {
       const action = "selectDismissedKeeper";
 
-      const position = event.target.id.split(":")[1].split("_")[0];
+      const position = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
+      if (this.checkAction(action, true) && this.checkKeeperOwner(event)) {
         this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
@@ -815,9 +829,9 @@ define([
     onSelectReplacedKeeper: function (event) {
       const action = "selectReplacedKeeper";
 
-      const position = event.target.id.split(":")[1].split("_")[0];
+      const position = event.currentTarget.id.split(":")[1].split("_")[0];
 
-      if (this.checkAction(action, true)) {
+      if (this.checkAction(action, true) && this.checkKeeperOwner(event)) {
         this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
@@ -909,7 +923,7 @@ define([
 
       const position = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
+      if (this.checkAction(action, true) && this.checkKeeperOwner(event)) {
         this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
