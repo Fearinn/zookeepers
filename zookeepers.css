@@ -207,6 +207,10 @@
   gap: 16px;
 }
 
+.zkp_keepers > * {
+  height: 175px !important;
+}
+
 .zkp_empty_pile {
   background: rgba(0, 0, 0, 0.3);
   box-shadow: none;

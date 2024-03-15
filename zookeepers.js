@@ -49,6 +49,7 @@ define([
       this.allSpecies = {};
       this.visibleSpecies = {};
       this.savableSpecies = {};
+      this.savedSpecies = {};
     },
 
     /*
@@ -66,6 +67,18 @@ define([
 
     setup: function (gamedatas) {
       console.log("Starting game setup");
+
+      this.allKeepers = gamedatas.allKeepers;
+      this.keepersOnBoards = this.formatKeepersOnBoards(
+        gamedatas.keepersOnBoards
+      );
+
+      this.allSpecies = gamedatas.allSpecies;
+      this.visibleSpecies = gamedatas.visibleSpecies;
+      this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
+      this.savedSpecies = gamedatas.savedSpecies;
+
+      console.log("saved", this.savedSpecies);
 
       this.isBagEmpty = gamedatas.isBagEmpty;
 
@@ -120,11 +133,6 @@ define([
       this.updateBagCounters(gamedatas.bagCounters);
 
       // keepers
-      this.allKeepers = gamedatas.allKeepers;
-      this.keepersOnBoards = this.formatKeepersOnBoards(
-        gamedatas.keepersOnBoards
-      );
-
       for (const player_id in gamedatas.players) {
         for (let position = 1; position <= 4; position++) {
           const stockKey = `board_${player_id}:${position}`;
@@ -135,12 +143,9 @@ define([
             this.cardWidth,
             this.cardHeight
           );
+
           this[stockKey].setSelectionMode(0);
-
-          this[
-            stockKey
-          ].extraClasses = `zkp_card zkp_hired_keeper-${player_id}`;
-
+          this[stockKey].extraClasses = `zkp_card`;
           this[stockKey].image_items_per_row = 7;
 
           for (const keeper_id in this.allKeepers) {
@@ -170,6 +175,37 @@ define([
               );
             }
           }
+
+          this[stockKey].container_div.width = "120px";
+          this[stockKey].autowidth = false;
+          this[stockKey].use_vertical_overlap_as_offset = false;
+          this[stockKey].vertical_overlap = 95;
+          this[stockKey].horizontal_overlap = -1;
+          this[stockKey].item_margin = 0;
+          this[stockKey].updateDisplay();
+
+          this[stockKey].image_items_per_row = 10;
+
+          for (const species_id in this.allSpecies) {
+            this[stockKey].addItemType(
+              `species_${species_id}`,
+              0,
+              g_gamethemeurl + "img/species.png",
+              species_id - 1
+            );
+          }
+
+          const positionSpecies = this.savedSpecies[player_id][position];
+          if (positionSpecies) {
+            for (const speciesId in positionSpecies) {
+              console.log(this.allSpecies[speciesId]);
+
+              this[stockKey].addToStockWithId(
+                `species_${speciesId}`,
+                `species_${speciesId}`
+              );
+            }
+          }
         }
       }
 
@@ -193,11 +229,6 @@ define([
       }
 
       // species
-      this.allSpecies = gamedatas.allSpecies;
-      this.visibleSpecies = gamedatas.visibleSpecies;
-      this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
-
-      console.log(this.savableSpecies);
 
       for (let column = 1; column <= 4; column++) {
         const stockKey = `visibleShop_${column}`;
@@ -225,13 +256,15 @@ define([
 
       for (const column in this.visibleSpecies) {
         const stockKey = `visibleShop_${column}`;
-        const species_id = this.visibleSpecies[column].type_arg;
+        const species_id = this.visibleSpecies[column]?.type_arg;
 
-        this[stockKey].addToStockWithId(
-          species_id,
-          species_id,
-          "zkp_species_deck"
-        );
+        if (species_id) {
+          this[stockKey].addToStockWithId(
+            species_id,
+            species_id,
+            "zkp_species_deck"
+          );
+        }
       }
 
       // event connections
@@ -600,7 +633,7 @@ define([
 
       if (stateName === "selectDismissedKeeper") {
         const playerId = this.getActivePlayerId();
-        this.removeSelectableStyle(`.zkp_keeper-${playerId}`);
+        this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
       }
 
       if (stateName === "selectDismissedPile") {
@@ -609,18 +642,18 @@ define([
 
       if (stateName === "selectReplacedKeeper") {
         const playerId = this.getActivePlayerId();
-        this.removeSelectableStyle(`.zkp_keeper-${playerId}`);
+        this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
       }
 
       if (stateName === "selectReplacedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
       }
       if (stateName === "selectSavedSpecies") {
-        this.removeSelectableStyle(".zkp_visible_species");
+        this.removeSelectableStyle(".zkp_visible_species", ".stockitem");
       }
 
       if (stateName === "selectAssignedKeeper") {
-        this.removeSelectableStyle(`.zkp_keeper-${playerId}`);
+        this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
       }
     },
 
@@ -691,6 +724,7 @@ define([
         query.style({
           border: "none",
         });
+
         query.addClass("stockitem_unselectable");
       }
     },
@@ -961,6 +995,7 @@ define([
       dojo.subscribe("dismissKeeper", this, "notif_dismissKeeper");
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
+      dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
       dojo.subscribe("pass", this, "notif_pass");
     },
 
@@ -1105,6 +1140,33 @@ define([
       }
       this.updateResourceCounters(newResourcesCounter, notif.args.player_id);
       this.updateBagCounters(notif.args.bag_counters, notif.args.player_id);
+    },
+
+    notif_saveSpecies: function (notif) {
+      this.savableSpecies = notif.args.savable_species;
+      this.savedSpecies = notif.args.saved_species;
+
+      console.log(this.savedSpecies);
+
+      const player_id = notif.args.player_id;
+      const board_position = notif.args.board_position;
+      const shop_position = notif.args.shop_position;
+      const species_id = notif.args.species_id;
+      const originKey = `visibleShop_${shop_position}`;
+      const destinationKey = `board_${player_id}:${board_position}`;
+      const destinationElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
+
+      console.log("id", species_id);
+
+      this[destinationKey].addToStockWithId(
+        `species_${species_id}`,
+        `species_${species_id}`,
+        destinationElement
+      );
+
+      this[originKey].removeFromStockById(species_id);
+
+      this.visibleSpecies = notif.args.visible_species;
     },
 
     notif_pass: function (notif) {},

@@ -662,9 +662,11 @@ $this->species_info = array(
     "diet" => "herbivore",
     "status" => "NT",
     "habitat" => array("SAV"),
-    "continent" => array("EU,
-   AF,
-   AS"),
+    "continent" => array(
+      "EU",
+      "AF",
+      "AS"
+    ),
     "cost" => array(
       "plant" => 1,
       "meat" => 0,
