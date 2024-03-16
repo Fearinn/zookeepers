@@ -75,7 +75,7 @@ $machinestates = array(
         "transitions" => array(
             "betweenActions" => 7, "pass" => 8,
             "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedKeeper" => 25, "selectReplacedKeeper" => 27,
-            "selectSavedSpecies" => 29
+            "selectAssignedKeeper" => 29
         )
     ),
 
@@ -154,15 +154,6 @@ $machinestates = array(
     ),
 
     29 => array(
-        "name" => "selectSavedSpecies",
-        "description" => clienttranslate('${actplayer} can select a species to save'),
-        "descriptionmyturn" => clienttranslate('${you} can select a species to save'),
-        "type" => "activeplayer",
-        "possibleactions" => array("selectSavedSpecies", "cancelMngSpecies"),
-        "transitions" => array("selectAssignedKeeper" => 30, "cancel" => 2)
-    ),
-
-    30 => array(
         "name" => "selectAssignedKeeper",
         "description" => clienttranslate('${actplayer} can select a keeper to keep the species'),
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),

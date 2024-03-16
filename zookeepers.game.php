@@ -39,6 +39,7 @@ class Zookeepers extends Table
             "freeAction" => 13,
             "selectedBoardPosition" => 14,
             "selectedSpecies" => 15,
+            "highestSaved" => 16,
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -553,6 +554,20 @@ class Zookeepers extends Table
                     "visible_species" => $this->getVisibleSpecies(),
                 )
             );
+        }
+    }
+
+    function updateHighestSaved($player_id)
+    {
+        $previous_highest = self::getGameStateValue("highestSaved");
+        $saved_nbr = 0;
+
+        for ($position = 1; $position <= 4; $position++) {
+            $saved_nbr += $this->species->countCardsInLocation("board:" . $position, $player_id);
+        }
+
+        if ($saved_nbr > $previous_highest) {
+            self::setGameStateValue("highestSaved", $saved_nbr);
         }
     }
 
@@ -1106,7 +1121,7 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenExcessReturns");
     }
 
-    function saveSpecies()
+    function saveSpecies($shop_position)
     {
         self::checkAction("saveSpecies");
 
@@ -1119,13 +1134,6 @@ class Zookeepers extends Table
         if (!$can_save) {
             throw new BgaUserException(self::_("You can't save any of the available species"));
         }
-
-        $this->gamestate->nextState("selectSavedSpecies");
-    }
-
-    function selectSavedSpecies($shop_position)
-    {
-        self::checkAction("selectSavedSpecies");
 
         if ($shop_position < 1 || $shop_position > 4) {
             throw new BgaUserException("Invalid shop position");
@@ -1231,6 +1239,8 @@ class Zookeepers extends Table
         );
 
         $this->revealSpecies($species["location_arg"]);
+
+        $this->updateHighestSaved($player_id);
 
         self::setGameStateValue("mainAction", 2);
 

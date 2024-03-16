@@ -221,7 +221,7 @@
   box-shadow: none;
 }
 
-.stockitem {
+.stockitem:not(.zkp_visible_species > .stockitem) {
   pointer-events: none;
 }
 

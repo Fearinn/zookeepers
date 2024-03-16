@@ -80,8 +80,6 @@ define([
       this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
       this.savedSpecies = gamedatas.savedSpecies;
 
-      console.log("saved", this.savedSpecies);
-
       this.isBagEmpty = gamedatas.isBagEmpty;
 
       for (const player_id in gamedatas.players) {
@@ -200,8 +198,6 @@ define([
           const positionSpecies = this.savedSpecies[player_id][position];
           if (positionSpecies) {
             for (const speciesId in positionSpecies) {
-              console.log(this.allSpecies[speciesId]);
-
               this[stockKey].addToStockWithId(
                 `species_${speciesId}`,
                 `species_${speciesId}`
@@ -242,7 +238,11 @@ define([
           this.cardHeight
         );
 
-        this[stockKey].setSelectionMode(0);
+        this[stockKey].setSelectionMode(1);
+        dojo.connect(this[stockKey], "onChangeSelection", this, () => {
+          this.onSelectSpecies(this[stockKey]);
+        });
+
         this[stockKey].extraClasses = "zkp_card";
         this[stockKey].image_items_per_row = 10;
 
@@ -330,10 +330,6 @@ define([
           });
       }
 
-      dojo.query(".zkp_visible_species").connect("onclick", this, (event) => {
-        this.onSelectSavedSpecies(event);
-      });
-
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
 
@@ -354,94 +350,12 @@ define([
         this.mainAction = args.args.mainAction;
         this.freeAction = args.args.freeAction;
         this.isBagEmpty = args.args.isBagEmpty;
-
+        this.savableSpecies = args.args.savable_species;
         this.keepersOnBoards = this.formatKeepersOnBoards(
           args.args.keepers_on_boards
         );
 
-        this.savableSpecies = args.args.savable_species;
-
-        let openBoardPosition = 0;
-        let boardEmpty = true;
-
-        for (const position in this.keepersOnBoards[playerId]) {
-          const keeperOnPosition = this.keepersOnBoards[playerId][position];
-          if (!keeperOnPosition) {
-            openBoardPosition = position;
-            break;
-          }
-        }
-
-        for (const position in this.keepersOnBoards[playerId]) {
-          const keeperOnPosition = this.keepersOnBoards[playerId][position];
-          if (keeperOnPosition && keeperOnPosition.card_type_arg) {
-            boardEmpty = false;
-            break;
-          }
-        }
-
-        if (this.isCurrentPlayerActive()) {
-          if (this.mainAction < 1) {
-            if (
-              this.savableSpecies &&
-              Object.keys(this.savableSpecies).length > 0
-            ) {
-              this.addActionButton(
-                "save_species_btn",
-                _("Save Species"),
-                "onSaveSpecies"
-              );
-            }
-
-            if (openBoardPosition > 0) {
-              this.addActionButton(
-                "hire_keeper_btn",
-                _("Hire Keeper"),
-                "onHireKeeper"
-              );
-            }
-
-            if (!boardEmpty) {
-              this.addActionButton(
-                "replace_keeper_btn",
-                _("Replace Keeper"),
-                "onReplaceKeeper"
-              );
-
-              this.addActionButton(
-                "dismiss_keeper_btn",
-                _("Dismiss Keeper"),
-                "onDismissKeeper"
-              );
-            }
-
-            if (!this.isBagEmpty) {
-              this.addActionButton(
-                "collect_resources_btn",
-                _("Collect Resources"),
-                "onCollectResources"
-              );
-            }
-
-            if (this.freeAction < 1 && !this.isBagEmpty) {
-              this.addActionButton(
-                "exchange_resources_btn",
-                _("Conservation Fund"),
-                "onExchangeResources"
-              );
-            }
-          }
-
-          this.addActionButton(
-            "pass_btn",
-            _("Pass Turn"),
-            "onPass",
-            null,
-            null,
-            "red"
-          );
-        }
-        return;
+        this.addPlayerTurnButtons();
       }
 
       if (stateName === "selectHiredPile") {
@@ -615,21 +529,6 @@ define([
         return;
       }
 
-      if (stateName === "selectSavedSpecies") {
-        if (this.isCurrentPlayerActive()) {
-          this.addActionButton(
-            "cancel_btn",
-            "Cancel",
-            "onCancelMngSpecies",
-            null,
-            null,
-            "red"
-          );
-
-          this.addSelectableStyle(".zkp_visible_species", ".stockitem");
-        }
-      }
-
       if (stateName === "selectAssignedKeeper") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
@@ -686,9 +585,6 @@ define([
       if (stateName === "selectReplacedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
       }
-      if (stateName === "selectSavedSpecies") {
-        this.removeSelectableStyle(".zkp_visible_species", ".stockitem");
-      }
 
       if (stateName === "selectAssignedKeeper") {
         this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
@@ -705,6 +601,80 @@ define([
 
     ///////////////////////////////////////////////////
     //// Utility methods
+
+    addPlayerTurnButtons: function (args) {
+      const playerId = this.getActivePlayerId();
+
+      let openBoardPosition = 0;
+      let boardEmpty = true;
+
+      for (const position in this.keepersOnBoards[playerId]) {
+        const keeperOnPosition = this.keepersOnBoards[playerId][position];
+        if (!keeperOnPosition) {
+          openBoardPosition = position;
+          break;
+        }
+      }
+
+      for (const position in this.keepersOnBoards[playerId]) {
+        const keeperOnPosition = this.keepersOnBoards[playerId][position];
+        if (keeperOnPosition && keeperOnPosition.card_type_arg) {
+          boardEmpty = false;
+          break;
+        }
+      }
+
+      if (this.isCurrentPlayerActive()) {
+        if (this.mainAction < 1) {
+          if (openBoardPosition > 0) {
+            this.addActionButton(
+              "hire_keeper_btn",
+              _("Hire Keeper"),
+              "onHireKeeper"
+            );
+          }
+
+          if (!boardEmpty) {
+            this.addActionButton(
+              "replace_keeper_btn",
+              _("Replace Keeper"),
+              "onReplaceKeeper"
+            );
+
+            this.addActionButton(
+              "dismiss_keeper_btn",
+              _("Dismiss Keeper"),
+              "onDismissKeeper"
+            );
+          }
+
+          if (!this.isBagEmpty) {
+            this.addActionButton(
+              "collect_resources_btn",
+              _("Collect Resources"),
+              "onCollectResources"
+            );
+          }
+
+          if (this.freeAction < 1 && !this.isBagEmpty) {
+            this.addActionButton(
+              "exchange_resources_btn",
+              _("Conservation Fund"),
+              "onExchangeResources"
+            );
+          }
+        }
+
+        this.addActionButton(
+          "pass_btn",
+          _("Pass Turn"),
+          "onPass",
+          null,
+          null,
+          "red"
+        );
+      }
+    },
 
     sendAjaxCall: function (action, args = {}) {
       args.lock = true;
@@ -980,18 +950,54 @@ define([
       }
     },
 
-    onSaveSpecies: function () {
-      const action = "saveSpecies";
+    onSelectSpecies: function (stock) {
+      this.removeActionButtons();
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
+      if (stock.getSelectedItems().length > 0) {
+        const item = stock.getSelectedItems()[0].id;
+
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} may select an action with this species"
+        );
+        this.updatePageTitle();
+
+        this.addActionButton("save_species_btn", _("Save"), () => {
+          stock.unselectAll();
+          this.onSaveSpecies(item);
+        });
+
+        return;
       }
+
+      this.gamedatas.gamestate.descriptionmyturn = _(
+        "${you} can do any free actions and one of the four main actions"
+      );
+      this.updatePageTitle();
+      this.addPlayerTurnButtons();
     },
 
-    onSelectSavedSpecies: function (event) {
-      const action = "selectSavedSpecies";
+    onSaveSpecies: function (speciesId) {
+      const action = "saveSpecies";
 
-      const position = event.currentTarget.id.split("species_")[1];
+      let position = null;
+
+      for (let i = 1; i <= 4; i++) {
+        if (
+          this.visibleSpecies[i] &&
+          this.visibleSpecies[i].type_arg == speciesId
+        ) {
+          position = i;
+          break;
+        }
+      }
+
+      if (!position) {
+        this.showMessage(
+          _("This species is not available to be saved"),
+          "error"
+        );
+        return;
+      }
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, { shop_position: parseInt(position) });
@@ -1109,7 +1115,6 @@ define([
       const player_id = notif.args.player_id;
 
       const newResourceCounters = notif.args.resource_counters[player_id];
-      console.log(newResourceCounters);
 
       const collectedArgs = {
         plant: notif.args["collected_plant_nbr"],
