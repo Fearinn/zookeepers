@@ -198,6 +198,7 @@ class Zookeepers extends Table
         $result["pilesTops"] = $this->getPilesTops();
         $result["keepersOnBoards"] = $this->getKeepersOnBoards();
         $result["allSpecies"] = $species_info;
+        $result["backupSpecies"] = $this->getBackupSpecies();
         $result["visibleSpecies"] = $this->getVisibleSpecies();
         $result["savableSpecies"] = $this->getSavableSpecies();
         $result["savedSpecies"] = $this->getSavedSpecies();
@@ -404,12 +405,12 @@ class Zookeepers extends Table
 
         foreach ($keepers_in_play as $keeper_card) {
             $keeper_id = $keeper_card["card_type_arg"];
-            $keeper_position = $keeper_card["card_location"];
+            $keeper_location = $keeper_card["card_location"];
 
             $keeper_info = $this->keepers_info[$keeper_id];
             $operator = $keeper_info["operator"];
 
-            if ($this->species->countCardsInLocation("board:" . $keeper_position, $player_id) >= 3) {
+            if ($this->species->countCardsInLocation($keeper_location, $player_id) >= 3) {
                 continue;
             }
 
@@ -418,7 +419,7 @@ class Zookeepers extends Table
                 continue;
             }
 
-            if ($operator === "single") {
+            if ($operator === "single" || $operator === "or") {
                 foreach ($keeper_info as $key => $keeper_value) {
                     if (
                         $key !== "points"
@@ -446,27 +447,6 @@ class Zookeepers extends Table
                 }
             }
 
-            if ($operator === "or") {
-                foreach ($keeper_info as $key => $keeper_value) {
-                    if (
-                        $key !== "points"
-                        && in_array($key, $species_keys, true)
-                    ) {
-                        $species_value = $species_info[$key];
-
-                        if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
-                            $assignable_keepers[$keeper_id] = $keeper_card;
-                            break;
-                        }
-
-                        if (!is_array($species_value) && in_array($species_value, $keeper_value, true)) {
-                            $assignable_keepers[$keeper_id] = $keeper_card;
-                            break;
-                        }
-                    }
-                }
-            }
-
             if ($operator === "and") {
                 $conditions_met = 0;
                 foreach ($keeper_info as $key => $keeper_value) {
@@ -475,14 +455,20 @@ class Zookeepers extends Table
                         && in_array($key, $species_keys, true)
                     ) {
                         $species_value = $species_info[$key];
+                        if (is_array($keeper_value)) {
+                            if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
+                                $assignable_keepers[$keeper_id] = $keeper_card;
+                                continue;
+                            }
 
-                        if (is_array($species_value) && in_array($keeper_value, $species_value, true)) {
-                            $conditions_met++;
-                            continue;
+                            if (!is_array($species_value) && in_array($species_value, $keeper_value, true)) {
+                                $assignable_keepers[$keeper_id] = $keeper_card;
+                                continue;
+                            }
                         }
 
-                        if (!is_array($species_value) && $species_value == $keeper_value) {
-                            $conditions_met++;
+                        if (!is_array($keeper_value) && $species_value == $keeper_value) {
+                            $assignable_keepers[$keeper_id] = $keeper_card;
                             continue;
                         }
                     }
@@ -519,6 +505,17 @@ class Zookeepers extends Table
         return $saved_species;
     }
 
+    function getBackupSpecies()
+    {
+        $backup_species = array();
+
+        for ($position = 1; $position <= 4; $position++) {
+            $backup_species[$position] = $this->species->countCardsInLocation("shop_backup", $position);
+        }
+
+        return $backup_species;
+    }
+
     function returnCost($species_id)
     {
         $player_id = self::getActivePlayerId();
@@ -535,6 +532,28 @@ class Zookeepers extends Table
         $this->resources->shuffle("deck");
 
         return $returned_cost;
+    }
+
+    function revealSpecies($shop_position)
+    {
+        $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
+        $species = array_shift($species_in_location);
+
+        if ($species) {
+            $this->species->moveCard($species["id"], "shop_visible", $shop_position);
+
+            $this->notifyAllPlayers(
+                "revealSpecies",
+                clienttranslate('A new species, ${species_name}, is revealed in column ${shop_position}'),
+                array(
+                    "shop_position" => $shop_position,
+                    "species_name" => $species["type"],
+                    "revealed_id" => $species["type_arg"],
+                    "backup_species" => $this->getBackupSpecies(),
+                    "visible_species" => $this->getVisibleSpecies(),
+                )
+            );
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -607,7 +626,7 @@ class Zookeepers extends Table
         $sql = "UPDATE keeper SET pile=$pile WHERE card_id=$keeper_id";
         self::DbQuery($sql);
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "hireKeeper",
             clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. Keepers left in the deck: ${left_in_pile}'),
             array(
@@ -695,7 +714,7 @@ class Zookeepers extends Table
 
         $pile_counters = $this->getPileCounters();
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "dismissKeeper",
             clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
             array(
@@ -751,7 +770,7 @@ class Zookeepers extends Table
 
         $pile_counters = $this->getPileCounters();
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "dismissKeeper",
             clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
             array(
@@ -851,7 +870,7 @@ class Zookeepers extends Table
         self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_keeper_id");
         $this->keepers->insertCardOnExtremePosition($replaced_keeper_id, "deck:" . strval($pile), false);
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "hireKeeper",
             "",
             array(
@@ -864,7 +883,7 @@ class Zookeepers extends Table
             )
         );
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "dismissKeeper",
             clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}, from pile ${pile}'),
             array(
@@ -923,7 +942,7 @@ class Zookeepers extends Table
         $collected_kit = $this->filterByResourceType($collected_resources, 3);
         $collected_kit_nbr = count($collected_kit);
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "collectResources",
             clienttranslate('${player_name} collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
             meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}'),
@@ -980,7 +999,7 @@ class Zookeepers extends Table
         $collected_kit = $this->filterByResourceType($collected_resources, 3);
         $collected_kit_nbr = count($collected_kit);
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "collectResources",
             clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
             meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}. They must return ${return_nbr} resources to the bag'),
@@ -1027,7 +1046,7 @@ class Zookeepers extends Table
 
         $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "returnResources",
             clienttranslate('${player_name} returns ${returned_nbr} resources of ${type}'),
             array(
@@ -1066,7 +1085,7 @@ class Zookeepers extends Table
 
         $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "returnResources",
             clienttranslate('${player_name} returns ${returned_nbr} resources of ${type} as excess'),
             array(
@@ -1178,7 +1197,7 @@ class Zookeepers extends Table
 
         foreach ($returned_cost as $type => $cost) {
             if ($cost > 0) {
-                self::notifyAllPlayers(
+                $this->notifyAllPlayers(
                     "returnResources",
                     clienttranslate('${player_name} uses ${returned_nbr} of ${type} to save the ${species_name}'),
                     array(
@@ -1193,7 +1212,7 @@ class Zookeepers extends Table
             }
         }
 
-        self::notifyAllPlayers(
+        $this->notifyAllPlayers(
             "saveSpecies",
             clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}'),
             array(
@@ -1210,6 +1229,8 @@ class Zookeepers extends Table
                 "assignable_keepers" => $assignable_keepers,
             )
         );
+
+        $this->revealSpecies($species["location_arg"]);
 
         self::setGameStateValue("mainAction", 2);
 
@@ -1239,7 +1260,8 @@ class Zookeepers extends Table
         return array(
             "mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"),
             "isBagEmpty" => $this->isBagEmpty(),
-            "keepers_on_boards" => $this->getKeepersOnBoards()
+            "keepers_on_boards" => $this->getKeepersOnBoards(),
+            "savable_species" => $this->getSavableSpecies(),
         );
     }
 
@@ -1314,7 +1336,7 @@ class Zookeepers extends Table
             return;
         }
 
-        self::notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
+        $this->notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
             "player_name" => self::getActivePlayerName(),
         ));
 
@@ -1338,7 +1360,7 @@ class Zookeepers extends Table
             $this->resources->moveCards($keys, "deck");
             $this->resources->shuffle("deck");
 
-            self::notifyAllPlayers(
+            $this->notifyAllPlayers(
                 "returnResources",
                 clienttranslate('${player_name} returns ${returned_nbr} of kits as excess'),
                 array(

@@ -45,8 +45,12 @@
 /* Note: you must not use any @import directive */
 
 /********* You can start writing your CSS below this line: **********/
-#game_play_area * {
+#game_play_area *:not(.zkp_card) {
   box-sizing: border-box;
+}
+
+.zkp_background_contain {
+  background-size: contain;
 }
 
 .zkp_card {
@@ -178,6 +182,7 @@
 .zkp_backup_shop {
   display: grid;
   grid-template-columns: repeat(4, 120px);
+  align-items: end;
   gap: 8px;
 }
 

@@ -44,46 +44,10 @@
   <div id="zkp_species_deck" class="zkp_species_deck zkp_card"></div>
   <div id="zkp_species_shop" class="zkp_species_shop">
     <div id="zkp_backup_shop" class="zkp_backup_shop">
-      <div id="zkp_backup_column_1" class="zkp_backup_column">
-        <div
-          id="zkp_backup_species_1"
-          class="zkp_backup_species zkp_card"
-        ></div>
-        <div
-          id="zkp_backup_species_1"
-          class="zkp_backup_species zkp_card"
-        ></div>
-      </div>
-      <div id="zkp_backup_column_2" class="zkp_backup_column">
-        <div
-          id="zkp_backup_species_2"
-          class="zkp_backup_species zkp_card"
-        ></div>
-        <div
-          id="zkp_backup_species_2"
-          class="zkp_backup_species zkp_card"
-        ></div>
-      </div>
-      <div id="zkp_backup_column_3" class="zkp_backup_column">
-        <div
-          id="zkp_backup_species_3"
-          class="zkp_backup_species zkp_card"
-        ></div>
-        <div
-          id="zkp_backup_species_3"
-          class="zkp_backup_species zkp_card"
-        ></div>
-      </div>
-      <div id="zkp_backup_column_4" class="zkp_backup_column">
-        <div
-          id="zkp_backup_species_4"
-          class="zkp_backup_species zkp_card"
-        ></div>
-        <div
-          id="zkp_backup_species_4"
-          class="zkp_backup_species zkp_card"
-        ></div>
-      </div>
+      <div id="zkp_backup_column:1" class="zkp_backup_column"></div>
+      <div id="zkp_backup_column:2" class="zkp_backup_column"></div>
+      <div id="zkp_backup_column:3" class="zkp_backup_column"></div>
+      <div id="zkp_backup_column:4" class="zkp_backup_column"></div>
     </div>
     <div id="zkp_visible_shop" class="zkp_visible_shop">
       <div id="zkp_visible_species_1" class="zkp_visible_species"></div>
@@ -94,67 +58,80 @@
   </div>
 </div>
 
-<div id="zkp_playmats" class="zkp_playmats">
-  <!-- BEGIN playmatblock -->
-  <div class="zkp_playmat_container whiteblock">
-    <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
-    <div id="zkp_playmat_{PLAYER_ID}" class="zkp_playmat">
-      <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
-        <div id="zkp_keeper_{PLAYER_ID}:1" class="zkp_keeper-{PLAYER_ID}"></div>
-        <div id="zkp_keeper_{PLAYER_ID}:2" class="zkp_keeper-{PLAYER_ID}"></div>
-        <div id="zkp_keeper_{PLAYER_ID}:3" class="zkp_keeper-{PLAYER_ID}"></div>
-        <div id="zkp_keeper_{PLAYER_ID}:4" class="zkp_keeper-{PLAYER_ID}"></div>
-      </div>
+  <div id="zkp_playmats" class="zkp_playmats">
+    <!-- BEGIN playmatblock -->
+    <div class="zkp_playmat_container whiteblock">
+      <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
+      <div id="zkp_playmat_{PLAYER_ID}" class="zkp_playmat">
+        <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
+          <div
+            id="zkp_keeper_{PLAYER_ID}:1"
+            class="zkp_keeper-{PLAYER_ID}"
+          ></div>
+          <div
+            id="zkp_keeper_{PLAYER_ID}:2"
+            class="zkp_keeper-{PLAYER_ID}"
+          ></div>
+          <div
+            id="zkp_keeper_{PLAYER_ID}:3"
+            class="zkp_keeper-{PLAYER_ID}"
+          ></div>
+          <div
+            id="zkp_keeper_{PLAYER_ID}:4"
+            class="zkp_keeper-{PLAYER_ID}"
+          ></div>
+        </div>
 
-      <div id="zkp_quarantines_{PLAYER_ID}" class="zkp_quarantines">
-        <div
-          id="zkp_quarantine_TEM_{PLAYER_ID}"
-          class="zkp_quarantine_TEM"
-        ></div>
-        <div
-          id="zkp_quarantine_SAV_{PLAYER_ID}"
-          class="zkp_quarantine_SAV"
-        ></div>
-        <div
-          id="zkp_quarantine_PRA_{PLAYER_ID}"
-          class="zkp_quarantine_PRA"
-        ></div>
-        <div
-          id="zkp_quarantine_DES_{PLAYER_ID}"
-          class="zkp_quarantine_DES"
-        ></div>
-        <div
-          id="zkp_quarantine_AQU_{PLAYER_ID}"
-          class="zkp_quarantine_AQU"
-        ></div>
-        <div
-          id="zkp_quarantine_TRO_{PLAYER_ID}"
-          class="zkp_quarantine_TRO"
-        ></div>
-        <div
-          id="zkp_quarantine_ALL_{PLAYER_ID}"
-          class="zkp_quarantine_ALL"
-        ></div>
+        <div id="zkp_quarantines_{PLAYER_ID}" class="zkp_quarantines">
+          <div
+            id="zkp_quarantine_TEM_{PLAYER_ID}"
+            class="zkp_quarantine_TEM"
+          ></div>
+          <div
+            id="zkp_quarantine_SAV_{PLAYER_ID}"
+            class="zkp_quarantine_SAV"
+          ></div>
+          <div
+            id="zkp_quarantine_PRA_{PLAYER_ID}"
+            class="zkp_quarantine_PRA"
+          ></div>
+          <div
+            id="zkp_quarantine_DES_{PLAYER_ID}"
+            class="zkp_quarantine_DES"
+          ></div>
+          <div
+            id="zkp_quarantine_AQU_{PLAYER_ID}"
+            class="zkp_quarantine_AQU"
+          ></div>
+          <div
+            id="zkp_quarantine_TRO_{PLAYER_ID}"
+            class="zkp_quarantine_TRO"
+          ></div>
+          <div
+            id="zkp_quarantine_ALL_{PLAYER_ID}"
+            class="zkp_quarantine_ALL"
+          ></div>
+        </div>
       </div>
     </div>
+    <!-- END playmatblock -->
   </div>
-  <!-- END playmatblock -->
-</div>
 
-<script type="text/javascript">
-  // Javascript HTML templates
+  <script type="text/javascript">
+    // Javascript HTML templates
 
-  var jstpl_player_board =
-    '<div class="zkp_board">\
+    var jstpl_player_board =
+      '<div class="zkp_board">\
     <div class="zkp_resource"><div id="plant_icon_p${id}" class="zkp_resource_icon zkp_plant_icon"></div><span id="plant_count_p${id}">0</span></div>\
     <div class="zkp_resource"><div id="meat_icon_p${id}" class="zkp_resource_icon zkp_meat_icon"></div><span id="meat_count_p${id}">0</span></div>\
     <div class="zkp_resource"><div id="kit_icon_p${id}" class="zkp_resource_icon zkp_kit_icon"></div><span id="kit_count_p${id}">0</span></div>\
 </div>';
 
-  var jstpl_resource_cube =
-    '<div id="zkp_${type}_cube_${nbr}" class="zkp_resource_cube zkp_resource_icon zkp_${type}_icon"></div>';
+    var jstpl_resource_cube =
+      '<div id="zkp_${type}_cube_${nbr}" class="zkp_resource_cube zkp_resource_icon zkp_${type}_icon"></div>';
 
-  var jstpl_dismissed_keeper = '<div id="zkp_dismissed_keeper"></div>';
-</script>
+    var jstpl_dismissed_keeper = '<div id="zkp_dismissed_keeper"></div>';
+  </script>
 
-{OVERALL_GAME_FOOTER}
+  {OVERALL_GAME_FOOTER}
+</div>

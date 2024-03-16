@@ -47,6 +47,7 @@ define([
       this.pilesTops = {};
       this.keepersOnBoards = {};
       this.allSpecies = {};
+      this.backupSpecies = {};
       this.visibleSpecies = {};
       this.savableSpecies = {};
       this.savedSpecies = {};
@@ -74,6 +75,7 @@ define([
       );
 
       this.allSpecies = gamedatas.allSpecies;
+      this.backupSpecies = gamedatas.backupSpecies;
       this.visibleSpecies = gamedatas.visibleSpecies;
       this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
       this.savedSpecies = gamedatas.savedSpecies;
@@ -267,6 +269,33 @@ define([
         }
       }
 
+      for (let column = 1; column <= 4; column++) {
+        const stockKey = `backupShop_${column}`;
+        this[stockKey] = new ebg.stock();
+        this[stockKey].create(
+          this,
+          $(`zkp_backup_column:${column}`),
+          this.cardWidth,
+          this.cardHeight
+        );
+
+        this[stockKey].setSelectionMode(0);
+        this[stockKey].extraClasses = "zkp_card zkp_background_contain";
+
+        this[stockKey].addItemType(
+          0,
+          0,
+          g_gamethemeurl + "img/species_back.png",
+          0
+        );
+
+        const species_nbr = this.backupSpecies[column];
+
+        for (let i = 1; i <= species_nbr; i++) {
+          this[stockKey].addToStockWithId(0, i, "zkp_species_deck");
+        }
+      }
+
       // event connections
 
       dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
@@ -330,6 +359,8 @@ define([
           args.args.keepers_on_boards
         );
 
+        this.savableSpecies = args.args.savable_species;
+
         let openBoardPosition = 0;
         let boardEmpty = true;
 
@@ -351,7 +382,10 @@ define([
 
         if (this.isCurrentPlayerActive()) {
           if (this.mainAction < 1) {
-            if (this.savableSpecies) {
+            if (
+              this.savableSpecies &&
+              Object.keys(this.savableSpecies).length > 0
+            ) {
               this.addActionButton(
                 "save_species_btn",
                 _("Save Species"),
@@ -582,29 +616,33 @@ define([
       }
 
       if (stateName === "selectSavedSpecies") {
-        this.addActionButton(
-          "cancel_btn",
-          "Cancel",
-          "onCancelMngSpecies",
-          null,
-          null,
-          "red"
-        );
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngSpecies",
+            null,
+            null,
+            "red"
+          );
 
-        this.addSelectableStyle(".zkp_visible_species", ".stockitem");
+          this.addSelectableStyle(".zkp_visible_species", ".stockitem");
+        }
       }
 
       if (stateName === "selectAssignedKeeper") {
-        this.addActionButton(
-          "cancel_btn",
-          "Cancel",
-          "onCancelMngSpecies",
-          null,
-          null,
-          "red"
-        );
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngSpecies",
+            null,
+            null,
+            "red"
+          );
 
-        this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+          this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+        }
       }
 
       if (stateName === "betweenActions") {
@@ -705,7 +743,9 @@ define([
       });
 
       if (itemSelector) {
-        const query = dojo.query(`${containerSelector} > ${itemSelector}`);
+        const query = dojo.query(
+          `${containerSelector} > ${itemSelector}:first-child`
+        );
         query.style({
           border: border,
         });
@@ -996,6 +1036,7 @@ define([
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
+      dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe("pass", this, "notif_pass");
     },
 
@@ -1143,20 +1184,16 @@ define([
     },
 
     notif_saveSpecies: function (notif) {
-      this.savableSpecies = notif.args.savable_species;
       this.savedSpecies = notif.args.saved_species;
-
-      console.log(this.savedSpecies);
 
       const player_id = notif.args.player_id;
       const board_position = notif.args.board_position;
       const shop_position = notif.args.shop_position;
       const species_id = notif.args.species_id;
+
       const originKey = `visibleShop_${shop_position}`;
       const destinationKey = `board_${player_id}:${board_position}`;
       const destinationElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
-
-      console.log("id", species_id);
 
       this[destinationKey].addToStockWithId(
         `species_${species_id}`,
@@ -1165,7 +1202,26 @@ define([
       );
 
       this[originKey].removeFromStockById(species_id);
+    },
 
+    notif_revealSpecies: function (notif) {
+      const column = notif.args.shop_position;
+      const revealed_id = notif.args.revealed_id;
+
+      const lastInColumn = this.backupSpecies[column];
+      const originKey = `backupShop_${column}`;
+      const destinationKey = `visibleShop_${column}`;
+      const destinationElement = `zkp_visible_species_${column}`;
+
+      this[destinationKey].addToStockWithId(
+        revealed_id,
+        revealed_id,
+        destinationElement
+      );
+
+      this[originKey].removeFromStockById(lastInColumn);
+
+      this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;
     },
 
