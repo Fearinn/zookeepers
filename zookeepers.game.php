@@ -662,12 +662,16 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
-    function dismissKeeper()
+    function dismissKeeper($board_position)
     {
         self::checkAction("dismissKeeper");
 
         if (self::getGameStateValue("mainAction")) {
             throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        if ($board_position < 1 || $board_position > 4) {
+            throw new BgaUserException("Invalid board position");
         }
 
         $player_id = self::getActivePlayerId();
@@ -682,21 +686,7 @@ class Zookeepers extends Table
             throw new BgaUserException("You don't have any keeper to dismiss");
         }
 
-        $this->gamestate->nextState("selectDismissedKeeper");
-    }
-
-    function selectDismissedKeeper($board_position)
-    {
-        self::checkAction("selectDismissedKeeper");
-
-        if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid board position");
-        }
-
-        $player_id = self::getActivePlayerId();
-
         $pile = 0;
-
         $keepers_info = $this->keepers_info;
         $keeper = null;
 
@@ -748,7 +738,6 @@ class Zookeepers extends Table
         self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
 
         self::setGameStateValue("selectedBoardPosition", $board_position);
-        self::setGameStateValue("mainAction", 6);
 
         $this->gamestate->nextState("betweenActions");
     }
@@ -808,7 +797,7 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
-    function replaceKeeper()
+    function replaceKeeper($board_position)
     {
         self::checkAction("replaceKeeper");
 
@@ -828,18 +817,9 @@ class Zookeepers extends Table
             throw new BgaUserException("You don't have any keeper to replace");
         }
 
-        $this->gamestate->nextState("selectReplacedKeeper");
-    }
-
-    function selectReplacedKeeper($board_position)
-    {
-        self::checkAction("selectReplacedKeeper");
-
         if ($board_position < 1 || $board_position > 4) {
             throw new BgaUserException("Invalid board position");
         }
-
-        $player_id = self::getActivePlayerId();
 
         $keeper = null;
 

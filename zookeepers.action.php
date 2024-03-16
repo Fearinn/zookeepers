@@ -69,17 +69,18 @@ class action_zookeepers extends APP_GameAction
   public function dismissKeeper()
   {
     self::setAjaxMode();
-    $this->game->dismissKeeper();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->dismissKeeper($board_position);
     self::ajaxResponse();
   }
 
-  public function selectDismissedKeeper()
-  {
-    self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
-    $this->game->selectDismissedKeeper($board_position);
-    self::ajaxResponse();
-  }
+  // public function selectDismissedKeeper()
+  // {
+  //   self::setAjaxMode();
+  //   $board_position = self::getArg("board_position", AT_posint, true);
+  //   $this->game->selectDismissedKeeper($board_position);
+  //   self::ajaxResponse();
+  // }
 
   public function selectDismissedPile()
   {
@@ -92,17 +93,18 @@ class action_zookeepers extends APP_GameAction
   public function replaceKeeper()
   {
     self::setAjaxMode();
-    $this->game->replaceKeeper();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->replaceKeeper($board_position);
     self::ajaxResponse();
   }
 
-  public function selectReplacedKeeper()
-  {
-    self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
-    $this->game->selectReplacedKeeper($board_position);
-    self::ajaxResponse();
-  }
+  // public function selectReplacedKeeper()
+  // {
+  //   self::setAjaxMode();
+  //   $board_position = self::getArg("board_position", AT_posint, true);
+  //   $this->game->selectReplacedKeeper($board_position);
+  //   self::ajaxResponse();
+  // }
 
   public function selectReplacedPile()
   {

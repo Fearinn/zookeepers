@@ -144,8 +144,12 @@ define([
             this.cardHeight
           );
 
-          this[stockKey].setSelectionMode(0);
-          this[stockKey].extraClasses = `zkp_card`;
+          this[stockKey].setSelectionMode(1);
+          dojo.connect(this[stockKey], "onChangeSelection", this, () => {
+            this.onSelectKeeper(this[stockKey]);
+          });
+
+          this[stockKey].extraClasses = "zkp_card zkp_hired_keeper";
           this[stockKey].image_items_per_row = 7;
 
           for (const keeper_id in this.allKeepers) {
@@ -314,18 +318,6 @@ define([
         dojo
           .query(`.zkp_keeper-${player_id}`)
           .connect("onclick", this, (event) => {
-            this.onSelectDismissedKeeper(event);
-          });
-
-        dojo
-          .query(`.zkp_keeper-${player_id}`)
-          .connect("onclick", this, (event) => {
-            this.onSelectReplacedKeeper(event);
-          });
-
-        dojo
-          .query(`.zkp_keeper-${player_id}`)
-          .connect("onclick", this, (event) => {
             this.onSelectAssignedKeeper(event);
           });
       }
@@ -376,20 +368,20 @@ define([
           );
         }
       }
-      if (stateName === "selectDismissedKeeper") {
-        if (this.isCurrentPlayerActive()) {
-          this.addActionButton(
-            "cancel_btn",
-            "Cancel",
-            "onCancelMngKeepers",
-            null,
-            null,
-            "red"
-          );
+      // if (stateName === "selectDismissedKeeper") {
+      //   if (this.isCurrentPlayerActive()) {
+      //     this.addActionButton(
+      //       "cancel_btn",
+      //       "Cancel",
+      //       "onCancelMngKeepers",
+      //       null,
+      //       null,
+      //       "red"
+      //     );
 
-          this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
-        }
-      }
+      //     this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+      //   }
+      // }
 
       if (stateName === "selectDismissedPile") {
         if (this.isCurrentPlayerActive()) {
@@ -406,20 +398,20 @@ define([
         }
       }
 
-      if (stateName === "selectReplacedKeeper") {
-        if (this.isCurrentPlayerActive()) {
-          this.addActionButton(
-            "cancel_btn",
-            "Cancel",
-            "onCancelMngKeepers",
-            null,
-            null,
-            "red"
-          );
+      // if (stateName === "selectReplacedKeeper") {
+      //   if (this.isCurrentPlayerActive()) {
+      //     this.addActionButton(
+      //       "cancel_btn",
+      //       "Cancel",
+      //       "onCancelMngKeepers",
+      //       null,
+      //       null,
+      //       "red"
+      //     );
 
-          this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
-        }
-      }
+      //     this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+      //   }
+      // }
 
       if (stateName === "selectReplacedPile") {
         if (this.isCurrentPlayerActive()) {
@@ -616,13 +608,13 @@ define([
         }
       }
 
-      for (const position in this.keepersOnBoards[playerId]) {
-        const keeperOnPosition = this.keepersOnBoards[playerId][position];
-        if (keeperOnPosition && keeperOnPosition.card_type_arg) {
-          boardEmpty = false;
-          break;
-        }
-      }
+      // for (const position in this.keepersOnBoards[playerId]) {
+      //   const keeperOnPosition = this.keepersOnBoards[playerId][position];
+      //   if (keeperOnPosition && keeperOnPosition.card_type_arg) {
+      //     boardEmpty = false;
+      //     break;
+      //   }
+      // }
 
       if (this.isCurrentPlayerActive()) {
         if (this.mainAction < 1) {
@@ -634,19 +626,19 @@ define([
             );
           }
 
-          if (!boardEmpty) {
-            this.addActionButton(
-              "replace_keeper_btn",
-              _("Replace Keeper"),
-              "onReplaceKeeper"
-            );
+          // if (!boardEmpty) {
+          //   this.addActionButton(
+          //     "replace_keeper_btn",
+          //     _("Replace Keeper"),
+          //     "onReplaceKeeper"
+          //   );
 
-            this.addActionButton(
-              "dismiss_keeper_btn",
-              _("Dismiss Keeper"),
-              "onDismissKeeper"
-            );
-          }
+          //   this.addActionButton(
+          //     "dismiss_keeper_btn",
+          //     _("Dismiss Keeper"),
+          //     "onDismissKeeper"
+          //   );
+          // }
 
           if (!this.isBagEmpty) {
             this.addActionButton(
@@ -690,18 +682,45 @@ define([
       }
     },
 
-    checkKeeperOwner: function (event) {
-      const currentId = this.getActivePlayerId();
-      const targetPlayerId = event.currentTarget.id
-        .split("keeper_")[1]
-        .split(":")[0];
+    checkKeeperOwner: function (keeperId, event = null) {
+      const playerId = this.getActivePlayerId();
 
-      if (targetPlayerId !== currentId) {
-        this.showMoveUnauthorized();
-        return false;
+      let result = { isOwner: false, position: 0 };
+
+      if (keeperId) {
+        const ownedKeepers = this.keepersOnBoards[playerId];
+
+        for (const position in ownedKeepers) {
+          if (
+            ownedKeepers[position] &&
+            ownedKeepers[position].card_type_arg == keeperId
+          ) {
+            result = { isOwner: true, position: position };
+            break;
+          }
+        }
+
+        if (!result.isOwner) {
+          this.showMessage("You don't own this keeper", "error");
+        }
+
+        return result;
       }
 
-      return true;
+      if (event) {
+        const targetPlayerId = event.currentTarget.id
+          .split("keeper_")[1]
+          .split(":")[0];
+
+        if (targetPlayerId != playerId) {
+          this.showMessage("You don't own this keeper");
+          result = { isOwner: false, position: 0 };
+        } else {
+          result = { isOwner: true, position: 0 };
+        }
+      }
+
+      return result;
     },
 
     addSelectableStyle: function (containerSelector, itemSelector = null) {
@@ -718,6 +737,7 @@ define([
         );
         query.style({
           border: border,
+          ["pointer-events"]: "none",
         });
         query.removeClass("stockitem_unselectable");
       }
@@ -733,6 +753,7 @@ define([
         const query = dojo.query(`${containerSelector} > ${itemSelector}`);
         query.style({
           border: "none",
+          ["pointer-events"]: "all",
         });
 
         query.addClass("stockitem_unselectable");
@@ -840,21 +861,49 @@ define([
       }
     },
 
-    onDismissKeeper: function () {
+    onSelectKeeper: function (stock) {
+      this.removeActionButtons();
+
+      if (stock.getSelectedItems().length > 0 && this.isCurrentPlayerActive()) {
+        const itemId = stock.getSelectedItems()[0].id;
+
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} may select an action with this keeper"
+        );
+        this.updatePageTitle();
+
+        if (this.checkKeeperOwner(itemId).isOwner) {
+          this.addActionButton("replace_keeper_btn", _("Replace"), () => {
+            stock.unselectAll();
+            this.onReplaceKeeper(itemId);
+          });
+
+          this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
+            stock.unselectAll();
+            this.onDismissKeeper(itemId);
+          });
+        } else {
+          stock.unselectAll();
+        }
+
+        return;
+      }
+
+      this.gamedatas.gamestate.descriptionmyturn = _(
+        "${you} can do any free actions and one of the four main actions"
+      );
+      this.updatePageTitle();
+      this.addPlayerTurnButtons();
+    },
+
+    onDismissKeeper: function (keeperId) {
       const action = "dismissKeeper";
 
       if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
-    },
-
-    onSelectDismissedKeeper: function (event) {
-      const action = "selectDismissedKeeper";
-
-      const position = event.currentTarget.id.split(":")[1];
-
-      if (this.checkAction(action, true) && this.checkKeeperOwner(event)) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        const { isOwner, position } = this.checkKeeperOwner(keeperId);
+        if (isOwner) {
+          this.sendAjaxCall(action, { board_position: parseInt(position) });
+        }
       }
     },
 
@@ -868,21 +917,14 @@ define([
       }
     },
 
-    onReplaceKeeper() {
+    onReplaceKeeper(keeperId) {
       const action = "replaceKeeper";
 
       if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
-    },
-
-    onSelectReplacedKeeper: function (event) {
-      const action = "selectReplacedKeeper";
-
-      const position = event.currentTarget.id.split(":")[1].split("_")[0];
-
-      if (this.checkAction(action, true) && this.checkKeeperOwner(event)) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        const { isOwner, position } = this.checkKeeperOwner(keeperId);
+        if (isOwner) {
+          this.sendAjaxCall(action, { board_position: parseInt(position) });
+        }
       }
     },
 
@@ -953,7 +995,7 @@ define([
     onSelectSpecies: function (stock) {
       this.removeActionButtons();
 
-      if (stock.getSelectedItems().length > 0) {
+      if (stock.getSelectedItems().length > 0 && this.isCurrentPlayerActive()) {
         const item = stock.getSelectedItems()[0].id;
 
         this.gamedatas.gamestate.descriptionmyturn = _(
@@ -1009,8 +1051,10 @@ define([
 
       const position = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true) && this.checkKeeperOwner(event)) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+      if (this.checkAction(action, true)) {
+        if (this.checkKeeperOwner(null, event)) {
+          this.sendAjaxCall(action, { board_position: parseInt(position) });
+        }
       }
     },
 

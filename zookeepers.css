@@ -221,7 +221,7 @@
   box-shadow: none;
 }
 
-.stockitem:not(.zkp_visible_species > .stockitem) {
+.stockitem:not(.zkp_visible_species > .stockitem, .zkp_hired_keeper) {
   pointer-events: none;
 }
 
