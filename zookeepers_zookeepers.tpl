@@ -131,6 +131,8 @@
       '<div id="zkp_${type}_cube_${nbr}" class="zkp_resource_cube zkp_resource_icon zkp_${type}_icon"></div>';
 
     var jstpl_dismissed_keeper = '<div id="zkp_dismissed_keeper"></div>';
+
+    var jstpl_discarded_species = '<div id="zkp_discarded_species_${species}"></div>';
   </script>
 
   {OVERALL_GAME_FOOTER}

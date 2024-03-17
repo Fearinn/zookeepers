@@ -79,6 +79,7 @@ define([
       this.visibleSpecies = gamedatas.visibleSpecies;
       this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
       this.savedSpecies = gamedatas.savedSpecies;
+      console.log("saved", this.savedSpecies);
 
       this.isBagEmpty = gamedatas.isBagEmpty;
 
@@ -732,14 +733,15 @@ define([
       });
 
       if (itemSelector) {
-        const query = dojo.query(
-          `${containerSelector} > ${itemSelector}:first-child`
-        );
+        const query = dojo.query(`${containerSelector} > ${itemSelector}`);
         query.style({
-          border: border,
           ["pointer-events"]: "none",
         });
         query.removeClass("stockitem_unselectable");
+
+        dojo
+          .query(`${containerSelector} > ${itemSelector}:first-child`)
+          .style({ border: border });
       }
     },
 
@@ -862,38 +864,43 @@ define([
     },
 
     onSelectKeeper: function (stock) {
-      this.removeActionButtons();
+      if (
+        this.gamedatas.gamestate.name === "playerTurn" &&
+        this.isCurrentPlayerActive()
+      ) {
+        this.removeActionButtons();
 
-      if (stock.getSelectedItems().length > 0 && this.isCurrentPlayerActive()) {
-        const itemId = stock.getSelectedItems()[0].id;
+        if (stock.getSelectedItems().length > 0) {
+          const itemId = stock.getSelectedItems()[0].id;
 
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} may select an action with this keeper"
-        );
-        this.updatePageTitle();
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may select an action with this keeper"
+          );
+          this.updatePageTitle();
 
-        if (this.checkKeeperOwner(itemId).isOwner) {
-          this.addActionButton("replace_keeper_btn", _("Replace"), () => {
+          if (this.checkKeeperOwner(itemId).isOwner) {
+            this.addActionButton("replace_keeper_btn", _("Replace"), () => {
+              stock.unselectAll();
+              this.onReplaceKeeper(itemId);
+            });
+
+            this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
+              stock.unselectAll();
+              this.onDismissKeeper(itemId);
+            });
+          } else {
             stock.unselectAll();
-            this.onReplaceKeeper(itemId);
-          });
+          }
 
-          this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
-            stock.unselectAll();
-            this.onDismissKeeper(itemId);
-          });
-        } else {
-          stock.unselectAll();
+          return;
         }
 
-        return;
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can do any free actions and one of the four main actions"
+        );
+        this.updatePageTitle();
+        this.addPlayerTurnButtons();
       }
-
-      this.gamedatas.gamestate.descriptionmyturn = _(
-        "${you} can do any free actions and one of the four main actions"
-      );
-      this.updatePageTitle();
-      this.addPlayerTurnButtons();
     },
 
     onDismissKeeper: function (keeperId) {
@@ -993,29 +1000,34 @@ define([
     },
 
     onSelectSpecies: function (stock) {
-      this.removeActionButtons();
+      if (
+        this.gamedatas.gamestate.name === "playerTurn" &&
+        this.isCurrentPlayerActive()
+      ) {
+        this.removeActionButtons();
 
-      if (stock.getSelectedItems().length > 0 && this.isCurrentPlayerActive()) {
-        const item = stock.getSelectedItems()[0].id;
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may select an action with this species"
+          );
+          this.updatePageTitle();
+
+          this.addActionButton("save_species_btn", _("Save"), () => {
+            stock.unselectAll();
+            this.onSaveSpecies(item);
+          });
+
+          return;
+        }
 
         this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} may select an action with this species"
+          "${you} can do any free actions and one of the four main actions"
         );
         this.updatePageTitle();
-
-        this.addActionButton("save_species_btn", _("Save"), () => {
-          stock.unselectAll();
-          this.onSaveSpecies(item);
-        });
-
-        return;
+        this.addPlayerTurnButtons();
       }
-
-      this.gamedatas.gamestate.descriptionmyturn = _(
-        "${you} can do any free actions and one of the four main actions"
-      );
-      this.updatePageTitle();
-      this.addPlayerTurnButtons();
     },
 
     onSaveSpecies: function (speciesId) {
@@ -1052,9 +1064,8 @@ define([
       const position = event.currentTarget.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
-        if (this.checkKeeperOwner(null, event)) {
-          this.sendAjaxCall(action, { board_position: parseInt(position) });
-        }
+        // if (this.checkKeeperOwner(null, event)) {
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
@@ -1087,6 +1098,11 @@ define([
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
+      dojo.subscribe(
+        "discardAllKeptSpecies",
+        this,
+        "notif_discardAllKeptSpecies"
+      );
       dojo.subscribe("pass", this, "notif_pass");
     },
 
@@ -1272,6 +1288,52 @@ define([
 
       this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;
+    },
+
+    notif_discardAllKeptSpecies: function (notif) {
+      const player_id = notif.args.player_id;
+      const position = notif.args.board_position;
+      const discarded_species = notif.args.discarded_species;
+      console.log("discarded", discarded_species);
+
+      const stockKey = `board_${player_id}:${position}`;
+      const deckElement = `zkp_species_deck`;
+      const container = `zkp_keeper_${player_id}:${position}`;
+
+      console.log("container", container);
+
+      for (const card_id in discarded_species) {
+        const species_id = discarded_species[card_id].type_arg;
+        const item = `${container}_item_species_${species_id}`;
+
+        dojo.place(
+          this.format_block("jstpl_discarded_species", {
+            species: species_id,
+          }),
+          container
+        );
+
+        console.log("reached place on object");
+        this.placeOnObject(`zkp_discarded_species_${species_id}`, item);
+
+        console.log("reached animation");
+        const animation = this.slideToObject(
+          `zkp_discarded_species_${species_id}`,
+          deckElement
+        );
+
+        console.log("reached connection");
+        dojo.connect(animation, "onEnd", () => {
+          this[stockKey].removeFromStockById(
+            `species_${species_id}`,
+            deckElement
+          );
+        });
+
+        animation.play();
+      }
+
+      this.savedSpecies = notif.args.saved_species;
     },
 
     notif_pass: function (notif) {},

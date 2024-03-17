@@ -557,6 +557,30 @@ class Zookeepers extends Table
         }
     }
 
+    function discardAllKeptSpecies($board_position, $keeper_name)
+    {
+        $player_id = self::getActivePlayerId();
+        if ($board_position) {
+            $discarded_species = $this->species->getCardsInLocation("board:" . $board_position, $player_id);
+
+            if (count($discarded_species) > 0) {
+                self::warn("entered condition");
+                $this->species->moveAllCardsInLocation("board:" . $board_position, "deck", $player_id);
+                $this->notifyAllPlayers(
+                    "discardAllKeptSpecies",
+                    clienttranslate('All species kept by ${keeper_name} are moved to the bottom of the deck'),
+                    array(
+                        "player_id" => $player_id,
+                        "board_position" => $board_position,
+                        "keeper_name" => $keeper_name,
+                        "discarded_species" => $discarded_species,
+                        "saved_species" => $this->getSavedSpecies()
+                    )
+                );
+            }
+        }
+    }
+
     function updateHighestSaved($player_id)
     {
         $previous_highest = self::getGameStateValue("highestSaved");
@@ -737,6 +761,8 @@ class Zookeepers extends Table
 
         self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
 
+        $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
+
         self::setGameStateValue("selectedBoardPosition", $board_position);
 
         $this->gamestate->nextState("betweenActions");
@@ -786,11 +812,13 @@ class Zookeepers extends Table
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
                 "piles_tops" => $this->getPilesTops(),
-                "left_in_pile" => $pile_counters[$pile]
+                "left_in_pile" => $pile_counters[$pile],
             )
         );
 
         self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
+
+        $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
         self::setGameStateValue("mainAction", 6);
 
@@ -806,7 +834,6 @@ class Zookeepers extends Table
         }
 
         $player_id = self::getActivePlayerId();
-
         $keepers_on_board_nbr = 0;
 
         for ($position = 1; $position <= 4; $position++) {
@@ -893,6 +920,8 @@ class Zookeepers extends Table
                 "piles_tops" => $this->getPilesTops(),
             )
         );
+
+        $this->discardAllKeptSpecies($board_position, $replaced_keeper["card_type"]);
 
         self::setGameStateValue("mainAction", 7);
 
