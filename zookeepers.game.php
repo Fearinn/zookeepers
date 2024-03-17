@@ -203,6 +203,7 @@ class Zookeepers extends Table
         $result["visibleSpecies"] = $this->getVisibleSpecies();
         $result["savableSpecies"] = $this->getSavableSpecies();
         $result["savedSpecies"] = $this->getSavedSpecies();
+        $result["speciesCounters"] = $this->getSpeciesCounters();
 
         $players = self::loadPlayersBasicInfos();
 
@@ -564,7 +565,6 @@ class Zookeepers extends Table
             $discarded_species = $this->species->getCardsInLocation("board:" . $board_position, $player_id);
 
             if (count($discarded_species) > 0) {
-                self::warn("entered condition");
                 $this->species->moveAllCardsInLocation("board:" . $board_position, "deck", $player_id);
                 $this->notifyAllPlayers(
                     "discardAllKeptSpecies",
@@ -574,11 +574,30 @@ class Zookeepers extends Table
                         "board_position" => $board_position,
                         "keeper_name" => $keeper_name,
                         "discarded_species" => $discarded_species,
-                        "saved_species" => $this->getSavedSpecies()
+                        "saved_species" => $this->getSavedSpecies(),
+                        "species_counters" => $this->getSpeciesCounters(),
                     )
                 );
             }
         }
+    }
+
+    function getSpeciesCounters()
+    {
+        $counters = array();
+
+        $players = self::loadPlayersBasicInfos();
+
+        foreach ($players as $player_id => $player) {
+            $species_nbr = 0;
+            for ($position = 1; $position <= 4; $position++) {
+                $species_nbr += $this->species->countCardsInLocation("board:" . $position, $player_id);
+            }
+
+            $counters[$player_id] = $species_nbr;
+        }
+
+        return $counters;
     }
 
     function updateHighestSaved($player_id)
@@ -755,7 +774,7 @@ class Zookeepers extends Table
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
                 "piles_tops" => $this->getPilesTops(),
-                "left_in_pile" => $pile_counters[$pile]
+                "left_in_pile" => $pile_counters[$pile],
             )
         );
 
@@ -951,8 +970,11 @@ class Zookeepers extends Table
 
         $player_id = self::getActivePlayerId();
 
-        // temporary, for tests only
-        $species_nbr = 3;
+        $species_nbr = $this->getSpeciesCounters()[$player_id];
+
+        if ($species_nbr === 0) {
+            throw new BgaUserException(self::_("You can't collect any resources until you save a species"));
+        }
 
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
@@ -1244,6 +1266,7 @@ class Zookeepers extends Table
                 "savable_species" => $this->getSavableSpecies(),
                 "saved_species" => $this->getSavedSpecies(),
                 "assignable_keepers" => $assignable_keepers,
+                "species_counters" => $this->getSpeciesCounters(),
             )
         );
 

@@ -51,6 +51,7 @@ define([
       this.visibleSpecies = {};
       this.savableSpecies = {};
       this.savedSpecies = {};
+      this.speciesCounters = {};
     },
 
     /*
@@ -79,7 +80,6 @@ define([
       this.visibleSpecies = gamedatas.visibleSpecies;
       this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
       this.savedSpecies = gamedatas.savedSpecies;
-      console.log("saved", this.savedSpecies);
 
       this.isBagEmpty = gamedatas.isBagEmpty;
 
@@ -300,6 +300,14 @@ define([
           this[stockKey].addToStockWithId(0, i, "zkp_species_deck");
         }
       }
+
+      for (const player_id in gamedatas.players) {
+        this.speciesCounters[player_id] = new ebg.counter();
+        this.speciesCounters[player_id].create(
+          `zkp_species_count_${player_id}`
+        );
+      }
+      this.updateSpeciesCounters(gamedatas.speciesCounters);
 
       // event connections
 
@@ -599,8 +607,6 @@ define([
       const playerId = this.getActivePlayerId();
 
       let openBoardPosition = 0;
-      let boardEmpty = true;
-
       for (const position in this.keepersOnBoards[playerId]) {
         const keeperOnPosition = this.keepersOnBoards[playerId][position];
         if (!keeperOnPosition) {
@@ -608,14 +614,6 @@ define([
           break;
         }
       }
-
-      // for (const position in this.keepersOnBoards[playerId]) {
-      //   const keeperOnPosition = this.keepersOnBoards[playerId][position];
-      //   if (keeperOnPosition && keeperOnPosition.card_type_arg) {
-      //     boardEmpty = false;
-      //     break;
-      //   }
-      // }
 
       if (this.isCurrentPlayerActive()) {
         if (this.mainAction < 1) {
@@ -627,21 +625,7 @@ define([
             );
           }
 
-          // if (!boardEmpty) {
-          //   this.addActionButton(
-          //     "replace_keeper_btn",
-          //     _("Replace Keeper"),
-          //     "onReplaceKeeper"
-          //   );
-
-          //   this.addActionButton(
-          //     "dismiss_keeper_btn",
-          //     _("Dismiss Keeper"),
-          //     "onDismissKeeper"
-          //   );
-          // }
-
-          if (!this.isBagEmpty) {
+          if (!this.isBagEmpty && this.speciesCounters[playerId].getValue() > 0) {
             this.addActionButton(
               "collect_resources_btn",
               _("Collect Resources"),
@@ -774,6 +758,13 @@ define([
       for (const type in counters) {
         const newValue = counters[type];
         this.bagCounters[type].toValue(newValue);
+      }
+    },
+
+    updateSpeciesCounters: function (counters) {
+      for (const player_id in counters) {
+        const newValue = counters[player_id];
+        this.speciesCounters[player_id].toValue(newValue);
       }
     },
 
@@ -1266,6 +1257,8 @@ define([
         destinationElement
       );
 
+      this.updateSpeciesCounters(notif.args.species_counters);
+
       this[originKey].removeFromStockById(species_id);
     },
 
@@ -1313,16 +1306,13 @@ define([
           container
         );
 
-        console.log("reached place on object");
         this.placeOnObject(`zkp_discarded_species_${species_id}`, item);
 
-        console.log("reached animation");
         const animation = this.slideToObject(
           `zkp_discarded_species_${species_id}`,
           deckElement
         );
 
-        console.log("reached connection");
         dojo.connect(animation, "onEnd", () => {
           this[stockKey].removeFromStockById(
             `species_${species_id}`,
@@ -1332,6 +1322,8 @@ define([
 
         animation.play();
       }
+
+      this.updateSpeciesCounters(notif.args.species_counters);
 
       this.savedSpecies = notif.args.saved_species;
     },

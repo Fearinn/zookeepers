@@ -60,6 +60,13 @@
   width: 120px;
 }
 
+.zkp_board {
+  clear: both;
+  padding: 4px;
+  display: flex;
+  gap: 4px;
+}
+
 .zkp_resource {
   display: flex;
   align-items: center;
@@ -87,15 +94,15 @@
   background-position: -150px 0;
 }
 
-.zkp_resource_cube {
-  position: relative;
+.zkp_species_icon {
+  background-image: url("img/paw.png");
+  background-size: contain;
+  height: 40px;
+  width: 40px;
 }
 
-.zkp_board {
-  clear: both;
-  padding: 4px;
-  display: flex;
-  gap: 4px;
+.zkp_resource_cube {
+  position: relative;
 }
 
 .zkp_playmats {
