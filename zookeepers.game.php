@@ -204,6 +204,7 @@ class Zookeepers extends Table
         $result["backupSpecies"] = $this->getBackupSpecies();
         $result["visibleSpecies"] = $this->getVisibleSpecies();
         $result["savableSpecies"] = $this->getSavableSpecies();
+        $result["getSavableWithFund"] = $this->getSavableWithFund();
         $result["savedSpecies"] = $this->getSavedSpecies();
         $result["speciesCounters"] = $this->getSpeciesCounters();
 
@@ -358,37 +359,107 @@ class Zookeepers extends Table
     function getSavableSpecies()
     {
         $savable_species = array();
-        $player_id = self::getActivePlayerId();
-        $resource_counters = $this->getResourceCounters()[$player_id];
 
         foreach ($this->species->getCardsInLocation("shop_visible") as $species_card) {
             $species_id = $species_card["type_arg"];
-            $species_info = $this->species_info[$species_id];
-            $cost = $species_info["cost"];
 
             $can_assign = count($this->getAssignableKeepers($species_id)) > 0;
-            $can_pay_cost = true;
+            $can_pay_cost = $this->canPayCost($species_id);
+            $can_pay_with_fund = $this->canPayWithFund($species_id);
 
-            foreach ($resource_counters as $type => $counter) {
-                $type_cost = $cost[$type];
-                if ($type_cost > 0 && $counter < $type_cost) {
-                    $can_pay_cost = false;
-                    break;
-                };
-            }
-
-            $keepers_in_play = array();
-
-            for ($i = 1; $i <= 4; $i++) {
-                $keepers_in_play += $this->getKeepersOnBoards()[$player_id][$i];
-            }
-
-            if ($can_pay_cost && $can_assign) {
+            if ($can_assign && ($can_pay_cost || $can_pay_with_fund)) {
                 $savable_species[$species_id] = $species_card;
             }
         }
 
         return $savable_species;
+    }
+
+    function getSavableWithFund()
+    {
+        $savable_with_fund = array();
+
+        foreach ($this->species->getCardsInLocation("shop_visible") as $species_card) {
+            $species_id = $species_card["type_arg"];
+
+            $can_assign = count($this->getAssignableKeepers($species_id)) > 0;
+            $can_pay_cost = $this->canPayCost($species_id);
+            $can_pay_with_fund = $this->canPayWithFund($species_id);
+
+            if ($can_assign && !$can_pay_cost && $can_pay_with_fund) {
+                $savable_with_fund[$species_id] = $species_card;
+            }
+        }
+
+        return $savable_with_fund;
+    }
+
+    function canPayCost($species_id)
+    {
+        $player_id = self::getActivePlayerId();
+        $resource_counters = $this->getResourceCounters()[$player_id];
+
+        $species_info = $this->species_info[$species_id];
+        $cost = $species_info["cost"];
+
+        $can_pay_cost = true;
+
+        foreach ($resource_counters as $type => $counter) {
+            $type_cost = $cost[$type];
+            if ($type_cost > 0 && $counter < $type_cost) {
+                $can_pay_cost = false;
+                break;
+            };
+        }
+
+        return $can_pay_cost;
+    }
+
+    function canPayWithFund($species_id)
+    {
+        $player_id = self::getActivePlayerId();
+        $resource_counters = $this->getResourceCounters()[$player_id];
+
+        $species_info = $this->species_info[$species_id];
+        $cost = $species_info["cost"];
+
+        $kit_nbr = $resource_counters["kit"];
+        $kit_cost = $cost["kit"];
+        $available_kits_nbr = $kit_nbr - $kit_cost;
+
+
+        if ($available_kits_nbr <= 0) {
+            return null;
+        }
+
+        $conservation_fund = array();
+
+        foreach ($cost as $type => $type_cost) {
+            if ($type === "kit") {
+                $conservation_fund["kit"] = null;
+                continue;
+            }
+
+            $type_counter = $resource_counters[$type];
+
+            if ($type_counter >= $type_cost) {
+                $conservation_fund[$type] = null;
+                continue;
+            }
+
+            $needed_kit_nbr = ceil(($type_cost - $type_counter) / 2);
+
+            if ($type_counter < $type_cost && $available_kits_nbr < $needed_kit_nbr) {
+                return null;
+            }
+
+            if ($available_kits_nbr >= $needed_kit_nbr) {
+                $conservation_fund[$type]  = $needed_kit_nbr;
+                $available_kits_nbr = $available_kits_nbr - $needed_kit_nbr;
+            }
+        }
+
+        return $conservation_fund;
     }
 
     function getAssignableKeepers($species_id)
@@ -526,13 +597,41 @@ class Zookeepers extends Table
         $cost = $this->species_info[$species_id]["cost"];
 
         $returned_cost = array();
-        foreach ($cost as $type => $type_cost) {
-            $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id));
-            $resources_returned = array_slice($resources_in_hand, 0, $type_cost);
-            $this->resources->moveCards($resources_returned, "deck");
 
-            $returned_cost[$type] = $type_cost;
+        foreach ($cost as $type => $type_cost) {
+            $fund_cost = null;
+
+            if ($this->canPayWithFund($species_id)) {
+                $fund_cost = $this->canPayWithFund($species_id)[$type];
+            }
+
+            $resources_returned = array();
+
+            if ($fund_cost) {
+                $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id));
+                $resources_returned = array_slice($resources_in_hand, 0, $fund_cost);
+
+                if (in_array("kit", array_keys($returned_cost))) {
+                    $returned_cost["kit"] += $fund_cost;
+                } else {
+                    $returned_cost["kit"] = $fund_cost;
+                }
+
+                $returned_cost[$type] = $type_cost - $this->getResourceCounters()[$player_id][$type];
+            } else {
+                $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id));
+                $resources_returned = array_slice($resources_in_hand, 0, $type_cost);
+
+                if ($type === "kit" && in_array("kit", array_keys($returned_cost))) {
+                    $returned_cost[$type] += $type_cost;
+                } else {
+                    $returned_cost[$type] = $type_cost;
+                }
+            }
+
+            $this->resources->moveCards($resources_returned, "deck");
         }
+
         $this->resources->shuffle("deck");
 
         return $returned_cost;
@@ -1306,6 +1405,7 @@ class Zookeepers extends Table
             "isBagEmpty" => $this->isBagEmpty(),
             "keepers_on_boards" => $this->getKeepersOnBoards(),
             "savable_species" => $this->getSavableSpecies(),
+            "savable_with_fund" => $this->getSavableWithFund(),
         );
     }
 

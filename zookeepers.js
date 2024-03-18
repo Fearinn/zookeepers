@@ -50,6 +50,7 @@ define([
       this.backupSpecies = {};
       this.visibleSpecies = {};
       this.savableSpecies = {};
+      this.savableWithFund = {};
       this.savedSpecies = {};
       this.speciesCounters = {};
     },
@@ -79,6 +80,9 @@ define([
       this.backupSpecies = gamedatas.backupSpecies;
       this.visibleSpecies = gamedatas.visibleSpecies;
       this.savableSpecies = this.formatSavableSpecies(gamedatas.savableSpecies);
+      this.savableWithFund = this.formatSavableSpecies(
+        gamedatas.savableWithFund
+      );
       this.savedSpecies = gamedatas.savedSpecies;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
@@ -351,7 +355,13 @@ define([
         this.mainAction = args.args.mainAction;
         this.freeAction = args.args.freeAction;
         this.isBagEmpty = args.args.isBagEmpty;
-        this.savableSpecies = args.args.savable_species;
+        this.savableSpecies = this.formatSavableSpecies(
+          args.args.savable_species
+        );
+        this.savableWithFund = this.formatSavableSpecies(
+          args.args.savable_with_fund
+        );
+
         this.keepersOnBoards = this.formatKeepersOnBoards(
           args.args.keepers_on_boards
         );
@@ -625,7 +635,10 @@ define([
             );
           }
 
-          if (!this.isBagEmpty && this.speciesCounters[playerId].getValue() > 0) {
+          if (
+            !this.isBagEmpty &&
+            this.speciesCounters[playerId].getValue() > 0
+          ) {
             this.addActionButton(
               "collect_resources_btn",
               _("Collect Resources"),
@@ -1005,11 +1018,31 @@ define([
           );
           this.updatePageTitle();
 
-          this.addActionButton("save_species_btn", _("Save"), () => {
-            stock.unselectAll();
-            this.onSaveSpecies(item);
-          });
+          if (this.savableWithFund && this.savableWithFund[item]) {
+            this.addActionButton(
+              "save_species_btn",
+              _("Save (with conservation fund)"),
+              () => {
+                stock.unselectAll();
+                this.onSaveSpecies(item);
+              }
+            );
+            return;
+          }
 
+          if (this.savableSpecies && this.savableSpecies[item]) {
+            this.addActionButton("save_species_btn", _("Save"), () => {
+              stock.unselectAll();
+              this.onSaveSpecies(item);
+            });
+            return;
+          }
+
+          this.showMessage(
+            _("You can't do anything with this species"),
+            "error"
+          );
+          stock.unselectAll();
           return;
         }
 
@@ -1055,7 +1088,6 @@ define([
       const position = event.currentTarget.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
-        // if (this.checkKeeperOwner(null, event)) {
         this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
