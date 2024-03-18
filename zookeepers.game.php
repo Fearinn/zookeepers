@@ -40,6 +40,7 @@ class Zookeepers extends Table
             "selectedBoardPosition" => 14,
             "selectedSpecies" => 15,
             "highestSaved" => 16,
+            "lastTurn" => 17
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -166,6 +167,7 @@ class Zookeepers extends Table
         self::setGameStateInitialValue("previouslyReturned", 0);
         self::setGameStateInitialValue("selectedBoardPosition", 0);
         self::setGameStateInitialValue("selectedSpecies", 0);
+        self::setGameStateInitialValue("lastTurn", 0);
 
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
@@ -1381,6 +1383,17 @@ class Zookeepers extends Table
         $this->notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
             "player_name" => self::getActivePlayerName(),
         ));
+
+
+        if (self::getGameStateValue("highestSaved") >= 9) {
+            $last_turn = self::getGameStateValue("lastTurn") + 1;
+            self::setGameStateValue("lastTurn", $last_turn);
+        }
+
+        if (self::getGameStateValue("lastTurn") === count(self::loadPlayersBasicInfos())) {
+            $this->gamestate->nextState("gameEnd");
+            return;
+        }
 
         self::activeNextPlayer();
         $next_player_id = self::getActivePlayerId();
