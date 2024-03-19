@@ -1407,6 +1407,7 @@ class Zookeepers extends Table
                 $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
                     "player_name" => self::getActivePlayerName(),
                     "player_id" => $player_id,
+                    "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                     "keeper_id" => $keeper_id,
                     "keeper_name" => $keeper["type"],
                     "keeper_level" => $keeper_level,

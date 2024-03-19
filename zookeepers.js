@@ -1315,19 +1315,21 @@ define([
       const keeper_id = notif.args.keeper_id;
       const level = notif.args.keeper_level;
 
+      const element = `zkp_keeper_${player_id}:${position}_item_${keeper_id}`;
       const backgroundPosition = this.topsPositions[level];
 
-      dojo.setStyle(`zkp_keeper_${player_id}:${position}_item_${keeper_id}`, {
-        backgroundImage: "url('img/keepers.png')",
-        backgroundPosition: backgroundPosition,
-      });
+      if (!dojo.hasClass(element, "zkp_completed_keeper")) {
+        dojo.setStyle(element, {
+          backgroundImage: "url('img/keepers.png')",
+          backgroundPosition: backgroundPosition,
+        });
 
-      dojo.addClass(
-        `zkp_keeper_${player_id}:${position}_item_${keeper_id}`,
-        "zkp_completed_keeper"
-      );
+        dojo.addClass(element, "zkp_completed_keeper");
 
-      this.completedKeepers = notif.args.completed_keepers;
+        this.displayScoring(element, notif.args.player_color, level);
+
+        this.completedKeepers = notif.args.completed_keepers;
+      }
     },
 
     notif_revealSpecies: function (notif) {
