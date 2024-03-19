@@ -609,8 +609,8 @@ class Zookeepers extends Table
             $resources_returned = array();
 
             if ($fund_cost) {
-                $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id));
-                $resources_returned = array_slice($resources_in_hand, 0, $fund_cost);
+                $kits_in_hand = array_keys($this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id));
+                $kits_returned = array_slice($kits_in_hand, 0, $fund_cost);
 
                 if (in_array("kit", array_keys($returned_cost))) {
                     $returned_cost["kit"] += $fund_cost;
@@ -618,7 +618,9 @@ class Zookeepers extends Table
                     $returned_cost["kit"] = $fund_cost;
                 }
 
-                $returned_cost[$type] = $type_cost - $this->getResourceCounters()[$player_id][$type];
+                $returned_cost[$type] = $this->getResourceCounters()[$player_id][$type];
+                $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id));
+                $resources_returned = array_merge($kits_returned, array_slice($resources_in_hand, 0, $returned_cost[$type]));
             } else {
                 $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id));
                 $resources_returned = array_slice($resources_in_hand, 0, $type_cost);
@@ -629,6 +631,7 @@ class Zookeepers extends Table
                     $returned_cost[$type] = $type_cost;
                 }
             }
+
 
             $this->resources->moveCards($resources_returned, "deck");
         }
