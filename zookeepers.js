@@ -1142,6 +1142,7 @@ define([
         this,
         "notif_discardAllKeptSpecies"
       );
+      dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
     },
 
@@ -1392,6 +1393,10 @@ define([
 
       this.updateSpeciesCounters(notif.args.species_counters);
       this.savedSpecies = notif.args.saved_species;
+    },
+
+    notif_newScores: function (notif) {
+      this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
     },
 
     notif_pass: function (notif) {},

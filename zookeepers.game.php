@@ -671,7 +671,7 @@ class Zookeepers extends Table
                 $keepers = ($this->keepers->getCardsInLocation("board:" . $position, $player_id));
                 $keeper = array_shift($keepers);
 
-                if ($saved_species_nbr >= 3) {
+                if ($saved_species_nbr >= 1) {
                     $completed_keepers[$player_id][$position] = $keeper;
                 } else {
                     $completed_keepers[$player_id][$position] = null;
@@ -736,6 +736,18 @@ class Zookeepers extends Table
         if ($saved_nbr > $previous_highest) {
             self::setGameStateValue("highestSaved", $saved_nbr);
         }
+    }
+
+    function updateScore($player_id, $score)
+    {
+        self::DbQuery("UPDATE player SET player_score=player_score+$score WHERE player_id='$player_id'");
+        $newScores = 0;
+        $collection = self::getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
+        foreach ($collection as $player) {
+            $newScores = $player['player_score'];
+        }
+
+        self::notifyAllPlayers("newScores", '', array('player_id' => $player_id, 'new_scores' => $newScores));
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -856,11 +868,13 @@ class Zookeepers extends Table
         $pile = 0;
         $keepers_info = $this->keepers_info;
         $keeper = null;
+        $Keeper_id = null;
 
         foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
             $pile = $card["pile"];
             $keeper_level = $keepers_info[$card["card_type_arg"]]["level"];
             $keeper = $card;
+            $keeper_id = $card["card_type_arg"];
         }
 
         if ($keeper === null) {
@@ -881,7 +895,13 @@ class Zookeepers extends Table
             throw new BgaUserException("Invalid keeper pile");
         }
 
-        $keeper_id = $keeper["card_id"];
+        $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_keeper && $keeper_id == $completed_keeper["type_arg"]) {
+            $score = $this->keepers_info[$keeper_id]["level"];
+            $this->updateScore($player_id, -$score);
+        }
+
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
 
         $pile_counters = $this->getPileCounters();
@@ -893,7 +913,7 @@ class Zookeepers extends Table
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
                 "keeper_name" => $keeper["card_type"],
-                "keeper_id" => $keeper["card_type_arg"],
+                "keeper_id" => $keeper_id,
                 "board_position" => $board_position,
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
@@ -901,8 +921,6 @@ class Zookeepers extends Table
                 "left_in_pile" => $pile_counters[$pile],
             )
         );
-
-        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
 
         $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
@@ -928,16 +946,23 @@ class Zookeepers extends Table
         $player_id = self::getActivePlayerId();
 
         $keeper = null;
+        $keeper_id = null;
 
         foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
             $keeper = $card;
+            $keeper_id = $card["card_type_arg"];
         }
 
         if ($keeper === null) {
             throw new BgaUserException("Keeper not found");
         }
 
-        $keeper_id = $keeper["card_id"];
+        $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_keeper && $keeper_id == $completed_keeper["type_arg"]) {
+            $score = $this->keepers_info[$keeper_id]["level"];
+            $this->updateScore($player_id, -$score);
+        }
 
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "pile:" . $pile, false);
 
@@ -950,7 +975,7 @@ class Zookeepers extends Table
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
                 "keeper_name" => $keeper["card_type"],
-                "keeper_id" => $keeper["card_type_arg"],
+                "keeper_id" => $keeper_id,
                 "board_position" => $board_position,
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
@@ -959,7 +984,9 @@ class Zookeepers extends Table
             )
         );
 
-        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_id'");
+        $keeper_card_id = $keeper["card_id"];
+
+        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_card_id'");
 
         $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
@@ -1030,10 +1057,18 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("The selected pile is out of cards"));
         }
 
-        $replaced_keeper_id = $replaced_keeper["card_id"];
+        $replaced_keeper_id = $replaced_keeper["card_type_arg"];
 
-        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_keeper_id");
-        $this->keepers->insertCardOnExtremePosition($replaced_keeper_id, "deck:" . strval($pile), false);
+        $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_keeper && $replaced_keeper_id == $completed_keeper["type_arg"]) {
+            $score = $this->keepers_info[$replaced_keeper_id]["level"];
+            $this->updateScore($player_id, -$score);
+        }
+
+        $replaced_card_id = $replaced_keeper["card_id"];
+        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_card_id");
+        $this->keepers->insertCardOnExtremePosition($replaced_card_id, "deck:" . strval($pile), false);;
 
         $this->notifyAllPlayers(
             "hireKeeper",
@@ -1056,7 +1091,7 @@ class Zookeepers extends Table
                 "player_name" => self::getActivePlayerName(),
                 "replaced_keeper_name" => $replaced_keeper["card_type"],
                 "hired_keeper_name" => $hired_keeper["type"],
-                "keeper_id" => $replaced_keeper["card_type_arg"],
+                "keeper_id" => $replaced_keeper_id,
                 "board_position" => $board_position,
                 "pile" => $pile,
                 "pile_counters" => $this->getPileCounters(),
@@ -1397,13 +1432,11 @@ class Zookeepers extends Table
         $completed_card = $this->getCompletedKeepers()[$player_id][$board_position];
 
         if ($completed_card !== null) {
-
             $completed_id = $completed_card["type_arg"];
-            self::warn(json_encode($completed_id));
-            self::warn(json_encode($keeper_id));
 
             if ($keeper_id == $completed_id) {
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
+
                 $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
                     "player_name" => self::getActivePlayerName(),
                     "player_id" => $player_id,
@@ -1414,8 +1447,12 @@ class Zookeepers extends Table
                     "board_position" => $board_position,
                     "completed_keepers" => $this->getCompletedKeepers(),
                 ));
+
+                $this->updateScore($player_id, $keeper_level);
             }
         }
+
+
 
         $this->revealSpecies($species["location_arg"]);
 
