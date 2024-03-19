@@ -1301,7 +1301,7 @@ define([
       const destinationElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
 
       this.displayScoring(
-        `zkp_species_deck`,
+        `zkp_visible_shop`,
         notif.args.player_color,
         notif.args.species_points
       );
