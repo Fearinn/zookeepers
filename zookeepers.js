@@ -206,14 +206,29 @@ define([
             );
           }
 
-          const positionSpecies = this.savedSpecies[player_id][position];
-          if (positionSpecies) {
-            for (const speciesId in positionSpecies) {
+          const savedSpecies = this.savedSpecies[player_id][position];
+          if (savedSpecies) {
+            for (const speciesId in savedSpecies) {
               this[stockKey].addToStockWithId(
                 `species_${speciesId}`,
                 `species_${speciesId}`
               );
             }
+          }
+
+          const completedKeeper = this.completedKeepers[player_id][position];
+
+          if (completedKeeper) {
+            const keeperId = completedKeeper.type_arg;
+            const element = `zkp_keeper_${player_id}:${position}_item_${keeperId}`;
+            dojo.addClass(element, "zkp_completed_keeper");
+
+            const level = this.allKeepers[keeperId].points;
+            const backgroundPosition = this.topsPositions[level];
+
+            dojo.setStyle(element, {
+              backgroundPosition: backgroundPosition,
+            });
           }
         }
       }

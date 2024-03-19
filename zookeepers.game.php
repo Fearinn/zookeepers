@@ -670,7 +670,7 @@ class Zookeepers extends Table
                 $keepers = ($this->keepers->getCardsInLocation("board:" . $position, $player_id));
                 $keeper = array_shift($keepers);
 
-                if ($saved_species_nbr >= 1) {
+                if ($saved_species_nbr >= 3) {
                     $completed_keepers[$player_id][$position] = $keeper;
                 } else {
                     $completed_keepers[$player_id][$position] = null;
