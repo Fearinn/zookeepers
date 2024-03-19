@@ -1300,6 +1300,12 @@ define([
       const destinationKey = `board_${player_id}:${board_position}`;
       const destinationElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
 
+      this.displayScoring(
+        `zkp_species_deck`,
+        notif.args.player_color,
+        notif.args.species_points
+      );
+
       this[destinationKey].addToStockWithId(
         `species_${species_id}`,
         `species_${species_id}`,

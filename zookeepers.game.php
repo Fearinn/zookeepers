@@ -671,7 +671,7 @@ class Zookeepers extends Table
                 $keepers = ($this->keepers->getCardsInLocation("board:" . $position, $player_id));
                 $keeper = array_shift($keepers);
 
-                if ($saved_species_nbr >= 1) {
+                if ($saved_species_nbr >= 3) {
                     $completed_keepers[$player_id][$position] = $keeper;
                 } else {
                     $completed_keepers[$player_id][$position] = null;
@@ -702,6 +702,14 @@ class Zookeepers extends Table
                         "species_counters" => $this->getSpeciesCounters(),
                     )
                 );
+            }
+
+            if (count($discarded_species) >= 3) {
+                $score = 0;
+                foreach ($discarded_species as $species) {
+                    $score -= $this->species_info[$species["type_arg"]]["points"];
+                }
+                $this->updateScore($player_id, $score);
             }
         }
     }
@@ -1390,7 +1398,6 @@ class Zookeepers extends Table
             $player_id
         );
 
-
         $returned_cost = $this->returnCost($species_id);
 
         foreach ($returned_cost as $type => $cost) {
@@ -1410,14 +1417,18 @@ class Zookeepers extends Table
             }
         }
 
+        $points = $this->species_info[$species_id]["points"];
+
         $this->notifyAllPlayers(
             "saveSpecies",
-            clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}'),
+            clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
+                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_name" => $species["type"],
                 "species_id" => $species["type_arg"],
+                "species_points" => $points,
                 "shop_position" => $species["location_arg"],
                 "keeper_name" => $keeper["type"],
                 "board_position" => $board_position,
@@ -1428,6 +1439,8 @@ class Zookeepers extends Table
                 "species_counters" => $this->getSpeciesCounters(),
             )
         );
+
+        $this->updateScore($player_id, $points);
 
         $completed_card = $this->getCompletedKeepers()[$player_id][$board_position];
 
@@ -1451,8 +1464,6 @@ class Zookeepers extends Table
                 $this->updateScore($player_id, $keeper_level);
             }
         }
-
-
 
         $this->revealSpecies($species["location_arg"]);
 
