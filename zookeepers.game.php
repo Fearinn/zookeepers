@@ -206,6 +206,7 @@ class Zookeepers extends Table
         $result["savableSpecies"] = $this->getSavableSpecies();
         $result["getSavableWithFund"] = $this->getSavableWithFund();
         $result["savedSpecies"] = $this->getSavedSpecies();
+        $result["completedKeepers"] = $this->getCompletedKeepers();
         $result["speciesCounters"] = $this->getSpeciesCounters();
 
         $players = self::loadPlayersBasicInfos();
@@ -657,6 +658,27 @@ class Zookeepers extends Table
                 )
             );
         }
+    }
+
+    function getCompletedKeepers()
+    {
+        $completed_keepers = array();
+
+        foreach (self::loadPlayersBasicInfos() as $player_id => $player) {
+            for ($position = 1; $position <= 4; $position++) {
+                $saved_species_nbr = $this->species->countCardsInLocation("board:" . $position, $player_id);
+                $keepers = ($this->keepers->getCardsInLocation("board:" . $position, $player_id));
+                $keeper = array_shift($keepers);
+
+                if ($saved_species_nbr >= 1) {
+                    $completed_keepers[$player_id][$position] = $keeper;
+                } else {
+                    $completed_keepers[$player_id][$position] = null;
+                }
+            }
+        }
+
+        return $completed_keepers;
     }
 
     function discardAllKeptSpecies($board_position, $keeper_name)
@@ -1310,18 +1332,18 @@ class Zookeepers extends Table
 
         $species_id = $species["type_arg"];
 
-        $assigned_keeper = null;
-        $assigned_keeper_id = null;
+        $keeper = null;
+        $keeper_id = null;
         foreach ($this->keepers->getCardsInLocation("board:" . $board_position, $player_id) as $card) {
-            $assigned_keeper = $card;
-            $assigned_keeper_id = $card["type_arg"];
+            $keeper = $card;
+            $keeper_id = $card["type_arg"];
         }
 
         $assignable_keepers = $this->getAssignableKeepers($species_id);
 
         $assignable_keepers_ids = array_keys($assignable_keepers);
 
-        if (!in_array($assigned_keeper_id, $assignable_keepers_ids)) {
+        if (!in_array($keeper_id, $assignable_keepers_ids)) {
             throw new BgaUserException(self::_("You can't assign this species to this keeper"));
         }
 
@@ -1361,7 +1383,7 @@ class Zookeepers extends Table
                 "species_name" => $species["type"],
                 "species_id" => $species["type_arg"],
                 "shop_position" => $species["location_arg"],
-                "keeper_name" => $assigned_keeper["type"],
+                "keeper_name" => $keeper["type"],
                 "board_position" => $board_position,
                 "visible_species" => $this->getVisibleSpecies(),
                 "savable_species" => $this->getSavableSpecies(),
@@ -1370,6 +1392,28 @@ class Zookeepers extends Table
                 "species_counters" => $this->getSpeciesCounters(),
             )
         );
+
+        $completed_card = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_card !== null) {
+
+            $completed_id = $completed_card["type_arg"];
+            self::warn(json_encode($completed_id));
+            self::warn(json_encode($keeper_id));
+
+            if ($keeper_id == $completed_id) {
+                $keeper_level = $this->keepers_info[$keeper_id]["points"];
+                $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
+                    "player_name" => self::getActivePlayerName(),
+                    "player_id" => $player_id,
+                    "keeper_id" => $keeper_id,
+                    "keeper_name" => $keeper["type"],
+                    "keeper_level" => $keeper_level,
+                    "board_position" => $board_position,
+                    "completed_keepers" => $this->getCompletedKeepers(),
+                ));
+            }
+        }
 
         $this->revealSpecies($species["location_arg"]);
 

@@ -223,6 +223,10 @@
   height: 175px !important;
 }
 
+.zkp_completed_keeper {
+  background-image: url("img/keepers_backs.png") !important;
+}
+
 .zkp_empty_pile {
   background: rgba(0, 0, 0, 0.3);
   box-shadow: none;

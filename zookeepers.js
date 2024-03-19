@@ -52,6 +52,7 @@ define([
       this.savableSpecies = {};
       this.savableWithFund = {};
       this.savedSpecies = {};
+      this.completedKeepers = {};
       this.speciesCounters = {};
     },
 
@@ -84,6 +85,7 @@ define([
         gamedatas.savableWithFund
       );
       this.savedSpecies = gamedatas.savedSpecies;
+      this.completedKeepers = gamedatas.completedKeepers;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
 
@@ -754,8 +756,6 @@ define([
           border: "none",
           ["pointer-events"]: "all",
         });
-
-        query.addClass("stockitem_unselectable");
       }
     },
 
@@ -1120,6 +1120,7 @@ define([
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
+      dojo.subscribe("completeKeeper", this, "notif_completeKeeper");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe(
         "discardAllKeptSpecies",
@@ -1290,8 +1291,28 @@ define([
       );
 
       this.updateSpeciesCounters(notif.args.species_counters);
-
       this[originKey].removeFromStockById(species_id);
+    },
+
+    notif_completeKeeper: function (notif) {
+      const position = notif.args.board_position;
+      const player_id = notif.args.player_id;
+      const keeper_id = notif.args.keeper_id;
+      const level = notif.args.keeper_level;
+
+      const backgroundPosition = this.topsPositions[level];
+
+      dojo.setStyle(`zkp_keeper_${player_id}:${position}_item_${keeper_id}`, {
+        backgroundImage: "url('img/keepers.png')",
+        backgroundPosition: backgroundPosition,
+      });
+
+      dojo.addClass(
+        `zkp_keeper_${player_id}:${position}_item_${keeper_id}`,
+        "zkp_completed_keeper"
+      );
+
+      this.completedKeepers = notif.args.completed_keepers;
     },
 
     notif_revealSpecies: function (notif) {
@@ -1319,13 +1340,10 @@ define([
       const player_id = notif.args.player_id;
       const position = notif.args.board_position;
       const discarded_species = notif.args.discarded_species;
-      console.log("discarded", discarded_species);
 
       const stockKey = `board_${player_id}:${position}`;
       const deckElement = `zkp_species_deck`;
       const container = `zkp_keeper_${player_id}:${position}`;
-
-      console.log("container", container);
 
       for (const card_id in discarded_species) {
         const species_id = discarded_species[card_id].type_arg;
@@ -1356,7 +1374,6 @@ define([
       }
 
       this.updateSpeciesCounters(notif.args.species_counters);
-
       this.savedSpecies = notif.args.saved_species;
     },
 
