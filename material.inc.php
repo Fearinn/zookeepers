@@ -62,32 +62,32 @@ $this->resource_types = array(
 $this->keepers_info = array(
   1 => array(
     "name" => "Abdul",
-    "points" => 3,
+    "level" => 3,
     "class" => "mammal",
     "operator" => "single"
   ),
   2 => array(
     "name" => "Adaeze",
-    "points" => 2,
+    "level" => 2,
     "continent" => array("AS"),
     "operator" => "single"
   ),
   3 => array(
     "name" => "Afonso",
-    "points" => 5,
+    "level" => 5,
     "class" => "mammal",
     "diet" => "herbivore",
     "operator" => "and"
   ),
   4 => array(
     "name" => "Ana",
-    "points" => 3,
+    "level" => 3,
     "habitat" => array("PRA"),
     "operator" => "single"
   ),
   5 => array(
     "name" => "Ayaan",
-    "points" => 3,
+    "level" => 3,
     "continent" => array(
       "EU",
       "OC"
@@ -96,64 +96,64 @@ $this->keepers_info = array(
   ),
   6 => array(
     "name" => "Bjorn",
-    "points" => 4,
+    "level" => 4,
     "class" => "reptile",
     "operator" => "single"
   ),
   7 => array(
     "name" => "Dimitri",
-    "points" => 3,
+    "level" => 3,
     "continent" => array("AM"),
     "operator" => "single"
   ),
   8 => array(
     "name" => "Gabriela",
-    "points" => 4,
+    "level" => 4,
     "habitat" => array("TEM"),
     "operator" => "single"
   ),
   9 => array(
     "name" => "Heidi",
-    "points" => 4,
+    "level" => 4,
     "diet" => "carnivore",
     "continent" => "AS",
     "operator" => "and"
   ),
   10 => array(
     "name" => "Helen",
-    "points" => 5,
+    "level" => 5,
     "diet" => "herbivore",
     "continent" => "AF",
     "operator" => "and"
   ),
   11 => array(
     "name" => "Isabela",
-    "points" => 4,
+    "level" => 4,
     "habitat" => "TRO",
     "continent" => "AS",
     "operator" => "and"
   ),
   12 => array(
     "name" => "Jen",
-    "points" => 5,
+    "level" => 5,
     "status" => "EN",
     "operator" => "single"
   ),
   13 => array(
     "name" => "Jhon",
-    "points" => 5,
+    "level" => 5,
     "diet" => "omnivore",
     "operator" => "single"
   ),
   14 => array(
     "name" => "Jung-woo",
-    "points" => 2,
+    "level" => 2,
     "habitat" => array("TRO"),
     "operator" => "single"
   ),
   15 => array(
     "name" => "Kareena",
-    "points" => 5,
+    "level" => 5,
     "habitat" => array(
       "AQU",
       "DES"
@@ -162,57 +162,57 @@ $this->keepers_info = array(
   ),
   16 => array(
     "name" => "Kulap",
-    "points" => 2,
+    "level" => 2,
     "continent" => array("AF"),
     "operator" => "single"
   ),
   17 => array(
     "name" => "Paco",
-    "points" => 2,
+    "level" => 2,
     "diet" => "herbivore",
     "operator" => "single"
   ),
   18 => array(
     "name" => "Rui",
-    "points" => 4,
+    "level" => 4,
     "habitat" => array("SAV"),
     "operator" => "single"
   ),
   19 => array(
     "name" => "Yu Yan",
-    "points" => 2,
+    "level" => 2,
     "diet" => "carnivore",
     "operator" => "single"
   ),
   20 => array(
     "name" => "Zala",
-    "points" => 3,
+    "level" => 3,
     "class" => "bird",
     "operator" => "single"
   ),
   21 => array(
     "name" => "Maria",
-    "points" => 1,
+    "level" => 1,
     "operator" => "any"
   ),
   22 => array(
     "name" => "Mario",
-    "points" => 1,
+    "level" => 1,
     "operator" => "any"
   ),
   23 => array(
     "name" => "Penélope",
-    "points" => 1,
+    "level" => 1,
     "operator" => "any"
   ),
   24 => array(
     "name" => "Paul",
-    "points" => 1,
+    "level" => 1,
     "operator" => "any"
   ),
   25 => array(
     "name" => "Aiko",
-    "points" => 1,
+    "level" => 1,
     "operator" => "any"
   ),
 );

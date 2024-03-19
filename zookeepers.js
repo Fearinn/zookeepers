@@ -223,7 +223,7 @@ define([
             const element = `zkp_keeper_${player_id}:${position}_item_${keeperId}`;
             dojo.addClass(element, "zkp_completed_keeper");
 
-            const level = this.allKeepers[keeperId].points;
+            const level = this.allKeepers[keeperId].level;
             const backgroundPosition = this.topsPositions[level];
 
             dojo.setStyle(element, {

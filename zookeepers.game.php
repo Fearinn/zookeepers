@@ -112,7 +112,7 @@ class Zookeepers extends Table
         // temporary data, tests only
         $starting_keepers = array();
 
-        foreach ($this->filterByPoints($keepers_info, 1) as $keeper_id => $keeper) {
+        foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
             $starting_keepers[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
         }
         $this->keepers->createCards($starting_keepers, "deck");
@@ -125,7 +125,7 @@ class Zookeepers extends Table
         $this->keepers->moveAllCardsInLocation("deck", "box");
 
         $other_keepers = array();
-        foreach ($this->filterByPoints($keepers_info, 1, true) as $keeper_id => $keeper) {
+        foreach ($this->filterByLevel($keepers_info, 1, true) as $keeper_id => $keeper) {
             $other_keepers[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
         }
         $this->keepers->createCards($other_keepers, "deck");
@@ -245,14 +245,14 @@ class Zookeepers extends Table
         return $filtered_resources;
     }
 
-    function filterByPoints($items, $points, $exclusive = false)
+    function filterByLevel($items, $level, $exclusive = false)
     {
-        $filtered_items = array_filter($items, function ($item) use ($points, $exclusive) {
+        $filtered_items = array_filter($items, function ($item) use ($level, $exclusive) {
             if ($exclusive) {
-                return $item["points"] !== $points;
+                return $item["level"] !== $level;
             }
 
-            return $item["points"] == $points;
+            return $item["level"] == $level;
         });
 
         return $filtered_items;
@@ -267,7 +267,7 @@ class Zookeepers extends Table
 
             if ($topCard) {
                 $keeper_info = $this->keepers_info[$topCard["type_arg"]];
-                $tops[$pile] = $keeper_info["points"];
+                $tops[$pile] = $keeper_info["level"];
             } else {
                 $top[$pile] = null;
             }
@@ -498,8 +498,7 @@ class Zookeepers extends Table
             if ($operator === "single" || $operator === "or") {
                 foreach ($keeper_info as $key => $keeper_value) {
                     if (
-                        $key !== "points"
-                        && in_array($key, $species_keys, true)
+                        in_array($key, $species_keys, true)
                     ) {
                         $species_value = $species_info[$key];
 
@@ -527,8 +526,7 @@ class Zookeepers extends Table
                 $conditions_met = 0;
                 foreach ($keeper_info as $key => $keeper_value) {
                     if (
-                        $key !== "points"
-                        && in_array($key, $species_keys, true)
+                        in_array($key, $species_keys, true)
                     ) {
                         $species_value = $species_info[$key];
                         if (is_array($keeper_value)) {
@@ -861,7 +859,7 @@ class Zookeepers extends Table
 
         foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
             $pile = $card["pile"];
-            $keeper_points = $keepers_info[$card["card_type_arg"]]["points"];
+            $keeper_level = $keepers_info[$card["card_type_arg"]]["level"];
             $keeper = $card;
         }
 
@@ -869,7 +867,7 @@ class Zookeepers extends Table
             throw new BgaUserException("Keeper not found");
         }
 
-        if ($pile == 0 && $keeper_points === 1) {
+        if ($pile == 0 && $keeper_level === 1) {
             self::setGameStateValue("selectedBoardPosition", $board_position);
             $this->gamestate->nextState("selectDismissedPile");
             return;
@@ -1405,7 +1403,7 @@ class Zookeepers extends Table
             self::warn(json_encode($keeper_id));
 
             if ($keeper_id == $completed_id) {
-                $keeper_level = $this->keepers_info[$keeper_id]["points"];
+                $keeper_level = $this->keepers_info[$keeper_id]["level"];
                 $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
                     "player_name" => self::getActivePlayerName(),
                     "player_id" => $player_id,
