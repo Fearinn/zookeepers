@@ -704,13 +704,11 @@ class Zookeepers extends Table
                 );
             }
 
-            if (count($discarded_species) >= 3) {
-                $score = 0;
-                foreach ($discarded_species as $species) {
-                    $score -= $this->species_info[$species["type_arg"]]["points"];
-                }
-                $this->updateScore($player_id, $score);
+            $score = 0;
+            foreach ($discarded_species as $species) {
+                $score -= $this->species_info[$species["type_arg"]]["points"];
             }
+            $this->updateScore($player_id, $score);
         }
     }
 
@@ -876,7 +874,7 @@ class Zookeepers extends Table
         $pile = 0;
         $keepers_info = $this->keepers_info;
         $keeper = null;
-        $Keeper_id = null;
+        $keeper_id = null;
 
         foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
             $pile = $card["pile"];
