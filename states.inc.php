@@ -169,7 +169,7 @@ $machinestates = array(
         "type" => "game",
         "action" => "stBetweenActions",
         "args" => "argBetweenActions",
-        "transitions" => array("nextAction" => 2, "gameEnd" => 99)
+        "transitions" => array("nextAction" => 2, "gameEnd" => 98)
     ),
 
     8 => array(
@@ -178,7 +178,7 @@ $machinestates = array(
         "descriptionmyturn" => "",
         "type" => "game",
         "action" => "stBetweenPlayers",
-        "transitions" => array("nextPlayer" => 2, "excessResources" => 81, "gameEnd" => 99)
+        "transitions" => array("nextPlayer" => 2, "excessResources" => 81, "finalScoresCalc" => 98)
     ),
 
     81 => array(
@@ -205,6 +205,13 @@ $machinestates = array(
         "type" => "game",
         "action" => "stBetweenExcessReturns",
         "transitions" => array("nextReturn" => 82)
+    ),
+
+    98 => array(
+        "name" => "finalScoresCalc",
+        "type" => "game",
+        "action" => "stFinalScoresCalc",
+        "transitions" => array("gameEnd" => 99)
     ),
 
     // Final state.

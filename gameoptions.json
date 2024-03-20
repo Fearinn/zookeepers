@@ -1,1 +1,16 @@
-{}
+{
+  "100": {
+    "name": "Score Tracking",
+    "values": {
+      "1": {
+        "name": "End of game only",
+        "description": "Scores will not be displayed until the end of the game.",
+        "default": true
+      },
+      "2": {
+        "name": "Real-time",
+        "description": "Each player's score will be updated and displayed throughout the game."
+      }
+    }
+  }
+}

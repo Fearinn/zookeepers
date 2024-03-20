@@ -40,7 +40,9 @@ class Zookeepers extends Table
             "selectedBoardPosition" => 14,
             "selectedSpecies" => 15,
             "highestSaved" => 16,
-            "lastTurn" => 17
+            "lastTurn" => 17,
+
+            "scoreTracking" => 100
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -192,6 +194,7 @@ class Zookeepers extends Table
         $species_info = $this->species_info;
         $keepers_info = $this->keepers_info;
 
+        $result["isRealTimeScoreTracking"] = $this->isRealTimeScoreTracking();
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
@@ -235,6 +238,11 @@ class Zookeepers extends Table
     //////////////////////////////////////////////////////////////////////////////
     //////////// Utility functions
     ////////////    
+
+    function isRealTimeScoreTracking()
+    {
+        return self::getGameStateValue("scoreTracking") == 2;
+    }
 
     function filterByResourceType($resources, $type_arg)
     {
@@ -747,13 +755,13 @@ class Zookeepers extends Table
     function updateScore($player_id, $score)
     {
         self::DbQuery("UPDATE player SET player_score=player_score+$score WHERE player_id='$player_id'");
-        $newScores = 0;
+        $new_scores = 0;
         $collection = self::getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
         foreach ($collection as $player) {
-            $newScores = $player['player_score'];
+            $new_scores = $player['player_score'];
         }
 
-        self::notifyAllPlayers("newScores", '', array('player_id' => $player_id, 'new_scores' => $newScores));
+        self::notifyAllPlayers("newScores", '', array('player_id' => $player_id, 'new_scores' => $new_scores));
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1583,7 +1591,7 @@ class Zookeepers extends Table
         }
 
         if (self::getGameStateValue("lastTurn") === count(self::loadPlayersBasicInfos())) {
-            $this->gamestate->nextState("gameEnd");
+            $this->gamestate->nextState("finalScoresCalc");
             return;
         }
 
@@ -1629,6 +1637,27 @@ class Zookeepers extends Table
         }
 
         $this->gamestate->nextState("betweenPlayers");
+    }
+
+    function stFinalScoresCalc()
+    {
+        $players = self::loadPlayersBasicInfos();
+
+        foreach ($players as $player_id => $player) {
+            $collection = self::getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
+
+            $new_scores = 0;
+            foreach ($collection as $player_data) {
+                $new_scores = $player_data["player_score"];
+            }
+
+            $this->notifyAllPlayers("newScores", "", array(
+                "player_id" => $player_id,
+                "new_scores" => $new_scores, "final_scores_calc" => true
+            ));
+        }
+
+        $this->gamestate->nextState("gameEnd");
     }
 
     //////////////////////////////////////////////////////////////////////////////

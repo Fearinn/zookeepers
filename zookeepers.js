@@ -37,6 +37,8 @@ define([
         5: "-249px -3px",
       };
 
+      this.isRealTimeScoreTracking = false;
+
       this.mainAction = 0;
       this.freeAction = 0;
       this.resourceCounters = {};
@@ -71,6 +73,8 @@ define([
 
     setup: function (gamedatas) {
       console.log("Starting game setup");
+
+      this.isRealTimeScoreTracking = gamedatas.isRealTimeScoreTracking;
 
       this.allKeepers = gamedatas.allKeepers;
       this.keepersOnBoards = this.formatKeepersOnBoards(
@@ -1402,7 +1406,9 @@ define([
     },
 
     notif_newScores: function (notif) {
-      this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
+      if (this.isRealTimeScoreTracking || notif.args.final_scores_calc) {
+        this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
+      }
     },
 
     notif_pass: function (notif) {},
