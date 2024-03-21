@@ -1541,6 +1541,96 @@ class Zookeepers extends Table
         $this->gamestate->nextState("mngSecondSpecies");
     }
 
+    function lookAtBackup(
+        $shop_position,
+        $backup_id
+    ) {
+        self::checkAction("lookAtBackup");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        if ($shop_position < 0 || $shop_position > 4) {
+            throw new BgaUserException("Invalid shop position");
+        }
+
+        $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
+        $species = array_shift($species_in_location);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        $species_id = $species["type_arg"];
+
+        $this->notifyPlayer(
+            $player_id,
+            "lookAtBackup",
+            clienttranslate('You look at an unrevealed species... It is the ${species_name}!'),
+            array(
+                "player_id" => $player_id,
+                "species_id" => $species_id,
+                "species_name" => $species["type"],
+                "shop_position" => $shop_position,
+                "backup_id" => $backup_id,
+                "backup_species" => $this->getBackupSpecies(),
+            ),
+        );
+
+        $this->gamestate->nextState("mngBackup");
+    }
+
+    function discardBackup(
+        $shop_position,
+        $backup_id
+    ) {
+        self::checkAction("discardBackup");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
+        $species = array_shift($species_in_location);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        $species_id = $species["type_arg"];
+
+        $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
+
+        $this->notifyAllPlayers(
+            "discardBackup",
+            clienttranslate('${player_name} moves an unrevealed species of the column ${shop_position} to the bottom of the deck'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                // "species_id" => $species_id,
+                // "species_name" => $species["type"],
+                "shop_position" => $shop_position,
+                "backup_id" => $backup_id,
+                "backup_species" => $this->getBackupSpecies(),
+            ),
+        );
+
+        if (self::getGameStateValue("selectedSpecies") > 0) {
+            self::setGameStateValue("mainAction", 4);
+            $this->gamestate->nextState("betweenActions");
+            return;
+        }
+
+        self::setGameStateValue("selectedSpecies", $species_id);
+
+        $this->gamestate->nextState("mngSecondSpecies");
+    }
+
     // function quarantineSpecies($species_id)
     // {
     //     $player_id = self::getActivePlayerId();

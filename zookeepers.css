@@ -232,7 +232,11 @@
   box-shadow: none;
 }
 
-.stockitem:not(.zkp_visible_species > .stockitem, .zkp_hired_keeper) {
+.stockitem:not(
+    .zkp_visible_species > .stockitem,
+    .zkp_backup_column > .stockitem,
+    .zkp_hired_keeper
+  ) {
   pointer-events: none;
 }
 

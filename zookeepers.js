@@ -309,7 +309,11 @@ define([
           this.cardHeight
         );
 
-        this[stockKey].setSelectionMode(0);
+        this[stockKey].setSelectionMode(1);
+        dojo.connect(this[stockKey], "onChangeSelection", this, (target) => {
+          this.onSelectBackup(target, this[stockKey]);
+        });
+
         this[stockKey].extraClasses = "zkp_card zkp_background_contain";
 
         this[stockKey].addItemType(
@@ -1071,6 +1075,60 @@ define([
       }
     },
 
+    onSelectBackup: function (target, stock) {
+      const stateName = this.gamedatas.gamestate.name;
+
+      const column = target.split(":")[1];
+
+      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may select an action with this species"
+          );
+          this.updatePageTitle();
+
+          this.addActionButton(
+            "manage_backup_species_btn",
+            _("Look at and discard/quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onLookAtBackup(column, item);
+            }
+          );
+          return;
+        }
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can do any free actions and one of the four main actions"
+        );
+        this.updatePageTitle();
+        this.addPlayerTurnButtons();
+        return;
+      }
+
+      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.addActionButton(
+            "manage_backup_species_btn",
+            _("Look at and discard/quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onLookAtBackup(column, item);
+            }
+          );
+          return;
+        }
+
+        this.removeActionButtons();
+      }
+    },
+
     onSaveSpecies: function (speciesId) {
       const action = "saveSpecies";
 
@@ -1115,6 +1173,17 @@ define([
       }
     },
 
+    onLookAtBackup: function (column, backupId) {
+      const action = "lookAtBackup";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, {
+          shop_position: parseInt(column),
+          backup_id: parseInt(backupId),
+        });
+      }
+    },
+
     onSelectAssignedKeeper: function (event) {
       const action = "selectAssignedKeeper";
 
@@ -1155,6 +1224,7 @@ define([
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
       dojo.subscribe("discardSpecies", this, "notif_discardSpecies");
       this.notifqueue.setSynchronous("discardSpecies", 1000);
+      dojo.subscribe("discardBackup", this, "notif_discardBackup");
       dojo.subscribe("completeKeeper", this, "notif_completeKeeper");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe(
@@ -1362,6 +1432,37 @@ define([
 
       dojo.connect(animation, "onEnd", () => {
         this[stockKey].removeFromStockById(species_id, deckElement);
+      });
+
+      animation.play();
+    },
+
+    notif_discardBackup: function (notif) {
+      const column = notif.args.shop_position;
+      const backup_id = notif.args.backup_id;
+
+      const stockKey = `backupShop_${column}`;
+      const deckElement = `zkp_species_deck`;
+      const container = `zkp_backup_column:${column}`;
+
+      const item = `${container}_item_${backup_id}`;
+
+      dojo.place(
+        this.format_block("jstpl_discarded_species", {
+          species: backup_id,
+        }),
+        container
+      );
+
+      this.placeOnObject(`zkp_discarded_species_${backup_id}`, item);
+
+      const animation = this.slideToObject(
+        `zkp_discarded_species_${backup_id}`,
+        deckElement
+      );
+
+      dojo.connect(animation, "onEnd", () => {
+        this[stockKey].removeFromStockById(backup_id, deckElement);
       });
 
       animation.play();

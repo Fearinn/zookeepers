@@ -69,14 +69,14 @@ $machinestates = array(
         "type" => "activeplayer",
         "possibleactions" => array(
             "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange",
-            "quarantineSpecies", "discardSpecies", "replaceKeeper", "dismissKeeper",
+            "quarantineSpecies", "discardSpecies", "lookAtBackup", "replaceKeeper", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
         "transitions" => array(
             "betweenActions" => 7, "pass" => 8,
             "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedPile" => 25, "selectReplacedPile" => 26,
-            "selectAssignedKeeper" => 27, "selectQuarantine" => 28, "mngSecondSpecies" => 29,
+            "selectAssignedKeeper" => 27, "selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30
         )
     ),
 
@@ -151,14 +151,23 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must select a quarantine to put the species in'),
         "type" => "activeplayer",
         "possibleactions" => array("quarantineSpecies", "cancelMngSpecies"),
-        "transitions" => array("betweenActions" => 7, "mngSecondSpecies" => 29, "cancel" => 2)
+        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2)
     ),
     29 => array(
         "name" => "mngSecondSpecies",
         "description" => clienttranslate('${actplayer} can discard or quarantine other species'),
         "descriptionmyturn" => clienttranslate('${you} can discard or quarantine other species'),
         "type" => "activeplayer",
-        "possibleactions" => array("discardSpecies", "quarantineSpecies"),
+        "possibleactions" => array("discardSpecies", "quarantineSpecies", "lookAtBackup"),
+        "transitions" => array("mngBackup" => 30, "betweenActions" => 7)
+    ),
+
+    30 => array(
+        "name" => "mngBackup",
+        "description" => clienttranslate('${actplayer} must choose to discard or quaranteine this species'),
+        "descriptionmyturn" => clienttranslate('${you} must choose to discard or quaranteine this species'),
+        "type" => "activeplayer",
+        "possibleactions" => array("discardBackup", "quarantineBackup"),
         "transitions" => array("betweenActions" => 7)
     ),
 
