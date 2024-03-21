@@ -266,6 +266,19 @@ class Zookeepers extends Table
         return $filtered_items;
     }
 
+    function findCardByTypeArg($cards, $arg)
+    {
+        $found_card = null;
+        foreach ($cards as $card) {
+            if ($card["type_arg"] == $arg) {
+                $found_card = $card;
+                break;
+            }
+        }
+        self::warn(json_encode($found_card));
+        return $found_card;
+    }
+
     function getPilesTops()
     {
         $tops = array();
@@ -1479,6 +1492,73 @@ class Zookeepers extends Table
 
         $this->gamestate->nextState("betweenActions");
     }
+
+    function discardSpecies(
+        $species_id
+    ) {
+        self::checkAction("discardSpecies");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        $shop_position = $species["location_arg"];
+
+        $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
+
+        $this->notifyAllPlayers(
+            "discardSpecies",
+            clienttranslate('${player_name} moves ${species_name} to the bottom of the deck'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                "species_id" => $species_id,
+                "species_name" => $species["type"],
+                "shop_position" => $shop_position,
+                "visible_species" => $this->getVisibleSpecies(),
+            ),
+        );
+
+        $this->revealSpecies($shop_position);
+
+        if (self::getGameStateValue("selectedSpecies") > 0) {
+            self::setGameStateValue("mainAction", 4);
+            $this->gamestate->nextState("betweenActions");
+            return;
+        }
+
+        self::setGameStateValue("selectedSpecies", $species_id);
+
+        $this->gamestate->nextState("mngSecondSpecies");
+    }
+
+    // function quarantineSpecies($species_id)
+    // {
+    //     $player_id = self::getActivePlayerId();
+
+    //     $discarded_species = null;
+    //     for ($shop_position = 1; $shop_position <= 4; $shop_position++) {
+    //         $species_in_location = $this->species->getCardsInLocation("board:" . $shop_position, $player_id);
+    //         $discarded_species = $this->findCardByTypeArg($species_in_location, $species_id);
+    //     }
+
+    //     if ($discarded_species === null) {
+    //         throw new BgaUserException("Species not found");
+    //     }
+
+    //  
+
+    //     $this->gamestate->nextState("selectQuarantine");
+    // }
 
     function cancelMngSpecies()
     {

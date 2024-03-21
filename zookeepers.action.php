@@ -74,14 +74,6 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
-  // public function selectDismissedKeeper()
-  // {
-  //   self::setAjaxMode();
-  //   $board_position = self::getArg("board_position", AT_posint, true);
-  //   $this->game->selectDismissedKeeper($board_position);
-  //   self::ajaxResponse();
-  // }
-
   public function selectDismissedPile()
   {
     self::setAjaxMode();
@@ -97,14 +89,6 @@ class action_zookeepers extends APP_GameAction
     $this->game->replaceKeeper($board_position);
     self::ajaxResponse();
   }
-
-  // public function selectReplacedKeeper()
-  // {
-  //   self::setAjaxMode();
-  //   $board_position = self::getArg("board_position", AT_posint, true);
-  //   $this->game->selectReplacedKeeper($board_position);
-  //   self::ajaxResponse();
-  // }
 
   public function selectReplacedPile()
   {
@@ -166,6 +150,22 @@ class action_zookeepers extends APP_GameAction
     self::setAjaxMode();
     $shop_position = self::getArg("shop_position", AT_posint, true);
     $this->game->saveSpecies($shop_position);
+    self::ajaxResponse();
+  }
+
+  public function discardSpecies()
+  {
+    self::setAjaxMode();
+    $species_id = self::getArg("species_id", AT_posint, true);
+    $this->game->discardSpecies($species_id);
+    self::ajaxResponse();
+  }
+
+  public function quarantineSpecies()
+  {
+    self::setAjaxMode();
+    $species_id = self::getArg("species_id", AT_posint, true);
+    $this->game->quarantineSpecies($species_id);
     self::ajaxResponse();
   }
 

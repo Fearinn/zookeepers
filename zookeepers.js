@@ -408,20 +408,6 @@ define([
           );
         }
       }
-      // if (stateName === "selectDismissedKeeper") {
-      //   if (this.isCurrentPlayerActive()) {
-      //     this.addActionButton(
-      //       "cancel_btn",
-      //       "Cancel",
-      //       "onCancelMngKeepers",
-      //       null,
-      //       null,
-      //       "red"
-      //     );
-
-      //     this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
-      //   }
-      // }
 
       if (stateName === "selectDismissedPile") {
         if (this.isCurrentPlayerActive()) {
@@ -437,21 +423,6 @@ define([
           this.addSelectableStyle(".zkp_keeper_pile");
         }
       }
-
-      // if (stateName === "selectReplacedKeeper") {
-      //   if (this.isCurrentPlayerActive()) {
-      //     this.addActionButton(
-      //       "cancel_btn",
-      //       "Cancel",
-      //       "onCancelMngKeepers",
-      //       null,
-      //       null,
-      //       "red"
-      //     );
-
-      //     this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
-      //   }
-      // }
 
       if (stateName === "selectReplacedPile") {
         if (this.isCurrentPlayerActive()) {
@@ -1023,10 +994,9 @@ define([
     },
 
     onSelectSpecies: function (stock) {
-      if (
-        this.gamedatas.gamestate.name === "playerTurn" &&
-        this.isCurrentPlayerActive()
-      ) {
+      const stateName = this.gamedatas.gamestate.name;
+
+      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
         this.removeActionButtons();
 
         if (stock.getSelectedItems().length > 0) {
@@ -1046,30 +1016,58 @@ define([
                 this.onSaveSpecies(item);
               }
             );
-            return;
-          }
-
-          if (this.savableSpecies && this.savableSpecies[item]) {
+          } else if (this.savableSpecies && this.savableSpecies[item]) {
             this.addActionButton("save_species_btn", _("Save"), () => {
               stock.unselectAll();
               this.onSaveSpecies(item);
             });
-            return;
           }
 
-          this.showMessage(
-            _("You can't do anything with this species"),
-            "error"
+          this.addActionButton("discard_species_btn", _("Discard"), () => {
+            stock.unselectAll();
+            this.onDiscardSpecies(item);
+          });
+
+          this.addActionButton(
+            "quarantine_species_btn",
+            _("Quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onQuarantineSpecies(item);
+            }
           );
-          stock.unselectAll();
           return;
         }
-
         this.gamedatas.gamestate.descriptionmyturn = _(
           "${you} can do any free actions and one of the four main actions"
         );
         this.updatePageTitle();
         this.addPlayerTurnButtons();
+        return;
+      }
+
+      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.addActionButton("discard_species_btn", _("Discard"), () => {
+            stock.unselectAll();
+            this.onDiscardSpecies(item);
+          });
+
+          this.addActionButton(
+            "quarantine_species_btn",
+            _("Quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onQuarantineSpecies(item);
+            }
+          );
+          return;
+        }
+
+        this.removeActionButtons();
       }
     },
 
@@ -1098,6 +1096,22 @@ define([
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, { shop_position: parseInt(position) });
+      }
+    },
+
+    onDiscardSpecies: function (speciesId) {
+      const action = "discardSpecies";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      }
+    },
+
+    onQuarantineSpecies: function (speciesId) {
+      const action = "quarantineSpecies";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
       }
     },
 
@@ -1139,6 +1153,8 @@ define([
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
+      dojo.subscribe("discardSpecies", this, "notif_discardSpecies");
+      this.notifqueue.setSynchronous("discardSpecies", 1000);
       dojo.subscribe("completeKeeper", this, "notif_completeKeeper");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe(
@@ -1320,27 +1336,35 @@ define([
       this[originKey].removeFromStockById(species_id);
     },
 
-    notif_completeKeeper: function (notif) {
-      const position = notif.args.board_position;
-      const player_id = notif.args.player_id;
-      const keeper_id = notif.args.keeper_id;
-      const level = notif.args.keeper_level;
+    notif_discardSpecies: function (notif) {
+      const column = notif.args.shop_position;
+      const species_id = notif.args.species_id;
 
-      const element = `zkp_keeper_${player_id}:${position}_item_${keeper_id}`;
-      const backgroundPosition = this.topsPositions[level];
+      const stockKey = `visibleShop_${column}`;
+      const deckElement = `zkp_species_deck`;
+      const container = `zkp_visible_species_${column}`;
 
-      if (!dojo.hasClass(element, "zkp_completed_keeper")) {
-        dojo.setStyle(element, {
-          backgroundImage: "url('img/keepers.png')",
-          backgroundPosition: backgroundPosition,
-        });
+      const item = `${container}_item_${species_id}`;
 
-        dojo.addClass(element, "zkp_completed_keeper");
+      dojo.place(
+        this.format_block("jstpl_discarded_species", {
+          species: species_id,
+        }),
+        container
+      );
 
-        this.displayScoring(element, notif.args.player_color, level);
+      this.placeOnObject(`zkp_discarded_species_${species_id}`, item);
 
-        this.completedKeepers = notif.args.completed_keepers;
-      }
+      const animation = this.slideToObject(
+        `zkp_discarded_species_${species_id}`,
+        deckElement
+      );
+
+      dojo.connect(animation, "onEnd", () => {
+        this[stockKey].removeFromStockById(species_id, deckElement);
+      });
+
+      animation.play();
     },
 
     notif_revealSpecies: function (notif) {
@@ -1403,6 +1427,29 @@ define([
 
       this.updateSpeciesCounters(notif.args.species_counters);
       this.savedSpecies = notif.args.saved_species;
+    },
+
+    notif_completeKeeper: function (notif) {
+      const position = notif.args.board_position;
+      const player_id = notif.args.player_id;
+      const keeper_id = notif.args.keeper_id;
+      const level = notif.args.keeper_level;
+
+      const element = `zkp_keeper_${player_id}:${position}_item_${keeper_id}`;
+      const backgroundPosition = this.topsPositions[level];
+
+      if (!dojo.hasClass(element, "zkp_completed_keeper")) {
+        dojo.setStyle(element, {
+          backgroundImage: "url('img/keepers.png')",
+          backgroundPosition: backgroundPosition,
+        });
+
+        dojo.addClass(element, "zkp_completed_keeper");
+
+        this.displayScoring(element, notif.args.player_color, level);
+
+        this.completedKeepers = notif.args.completed_keepers;
+      }
     },
 
     notif_newScores: function (notif) {

@@ -68,14 +68,15 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
         "type" => "activeplayer",
         "possibleactions" => array(
-            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange", "quarantineSpecies", "discardSpecies", "replaceKeeper", "dismissKeeper",
+            "saveSpecies", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange",
+            "quarantineSpecies", "discardSpecies", "replaceKeeper", "dismissKeeper",
             "hireKeeper", "zooHelp", "newSpecies", "pass"
         ),
         "args" => "argPlayerTurn",
         "transitions" => array(
             "betweenActions" => 7, "pass" => 8,
             "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedPile" => 25, "selectReplacedPile" => 26,
-            "selectAssignedKeeper" => 27
+            "selectAssignedKeeper" => 27, "selectQuarantine" => 28, "mngSecondSpecies" => 29,
         )
     ),
 
@@ -117,15 +118,6 @@ $machinestates = array(
         "transitions" => array("betweenActions" => 7, "cancel" => 2)
     ),
 
-    // 25 => array(
-    //     "name" => "selectDismissedKeeper",
-    //     "description" => clienttranslate('${actplayer} can select a keeper to dismiss'),
-    //     "descriptionmyturn" => clienttranslate('${you} can select a keeper to dismiss'),
-    //     "type" => "activeplayer",
-    //     "possibleactions" => array("selectDismissedKeeper", "cancelMngKeepers"),
-    //     "transitions" => array("selectDismissedPile" => 26, "betweenActions" => 7, "cancel" => 2)
-    // ),
-
     25 => array(
         "name" => "selectDismissedPile",
         "description" => clienttranslate('${actplayer} can select a pile to send the dismissed keeper to'),
@@ -134,15 +126,6 @@ $machinestates = array(
         "possibleactions" => array("selectDismissedPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2)
     ),
-
-    // 27 => array(
-    //     "name" => "selectReplacedKeeper",
-    //     "description" => clienttranslate('${actplayer} you can select a keeper to replace'),
-    //     "descriptionmyturn" => clienttranslate('${you} can select a keeper to replace'),
-    //     "type" => "activeplayer",
-    //     "possibleactions" => array("selectReplacedKeeper", "cancelMngKeepers"),
-    //     "transitions" => array("selectReplacedPile" => 28, "cancel" => 2)
-    // ),
 
     26 => array(
         "name" => "selectReplacedPile",
@@ -160,6 +143,23 @@ $machinestates = array(
         "type" => "activeplayer",
         "possibleactions" => array("selectAssignedKeeper", "cancelMngSpecies"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2)
+    ),
+
+    28 => array(
+        "name" => "selectQuarantine",
+        "description" => clienttranslate('${actplayer} can select a quarantine to put the species in'),
+        "descriptionmyturn" => clienttranslate('${you} must select a quarantine to put the species in'),
+        "type" => "activeplayer",
+        "possibleactions" => array("quarantineSpecies", "cancelMngSpecies"),
+        "transitions" => array("betweenActions" => 7, "mngSecondSpecies" => 29, "cancel" => 2)
+    ),
+    29 => array(
+        "name" => "mngSecondSpecies",
+        "description" => clienttranslate('${actplayer} can discard or quarantine other species'),
+        "descriptionmyturn" => clienttranslate('${you} can discard or quarantine other species'),
+        "type" => "activeplayer",
+        "possibleactions" => array("discardSpecies", "quarantineSpecies"),
+        "transitions" => array("betweenActions" => 7)
     ),
 
     7 => array(
