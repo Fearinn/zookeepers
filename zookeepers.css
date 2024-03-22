@@ -193,12 +193,6 @@
   gap: 8px;
 }
 
-.zkp_backup_column {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .zkp_visible_shop {
   display: grid;
   grid-template-columns: repeat(4, 120px);

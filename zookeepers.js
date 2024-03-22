@@ -562,6 +562,19 @@ define([
         // });
       }
 
+      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+        this.addActionButton(
+          "cancel_btn",
+          _("Cancel"),
+          () => {
+            this.onCancelMngSpecies();
+          },
+          null,
+          null,
+          "red"
+        );
+      }
+
       if (stateName === "betweenActions") {
         this.mainAction = args.args.mainAction;
         return;
@@ -1043,14 +1056,14 @@ define([
             this.onDiscardSpecies(item);
           });
 
-          this.addActionButton(
-            "quarantine_species_btn",
-            _("Quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onQuarantineSpecies(item);
-            }
-          );
+          // this.addActionButton(
+          //   "quarantine_species_btn",
+          //   _("Quarantine"),
+          //   () => {
+          //     stock.unselectAll();
+          //     this.onQuarantineSpecies(item);
+          //   }
+          // );
           return;
         }
         this.gamedatas.gamestate.descriptionmyturn = _(
@@ -1212,7 +1225,7 @@ define([
       }
     },
 
-    onCancelMngSpecies: function (event) {
+    onCancelMngSpecies: function () {
       const action = "cancelMngSpecies";
 
       if (this.checkAction(action, true)) {
@@ -1242,8 +1255,14 @@ define([
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
       dojo.subscribe("discardSpecies", this, "notif_discardSpecies");
       this.notifqueue.setSynchronous("discardSpecies", 1000);
-      dojo.subscribe("discardBackup", this, "notif_discardBackup");
       dojo.subscribe("lookAtBackup", this, "notif_lookAtBackup");
+      dojo.subscribe("discardBackup", this, "notif_discardBackup");
+      dojo.subscribe(
+        "discardBackupPrivately",
+        this,
+        "notif_discardBackupPrivately"
+      );
+      this.notifqueue.setSynchronous("discardBackupPrivately", 1000);
       dojo.subscribe("completeKeeper", this, "notif_completeKeeper");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe(
@@ -1430,9 +1449,9 @@ define([
       const species_id = notif.args.species_id;
 
       const stockKey = `visibleShop_${column}`;
-      const deckElement = `zkp_species_deck`;
+      const deckElement = "zkp_species_deck";
       const container = `zkp_visible_species_${column}`;
-
+      const template = `zkp_discarded_species_${species_id}`;
       const item = `${container}_item_${species_id}`;
 
       dojo.place(
@@ -1442,15 +1461,13 @@ define([
         container
       );
 
-      this.placeOnObject(`zkp_discarded_species_${species_id}`, item);
+      this.placeOnObject(template, item);
 
-      const animation = this.slideToObject(
-        `zkp_discarded_species_${species_id}`,
-        deckElement
-      );
+      const animation = this.slideToObject(template, deckElement);
 
       dojo.connect(animation, "onEnd", () => {
         this[stockKey].removeFromStockById(species_id, deckElement);
+        dojo.destroy(template);
       });
 
       animation.play();
@@ -1485,13 +1502,17 @@ define([
     },
 
     notif_discardBackup: function (notif) {
+      if (this.isCurrentPlayerActive()) {
+        return;
+      }
+
       const column = notif.args.shop_position;
       const backup_id = notif.args.backup_id;
 
       const stockKey = `backupShop_${column}`;
-      const deckElement = `zkp_species_deck`;
+      const deckElement = "zkp_species_deck";
       const container = `zkp_backup_column:${column}`;
-
+      const template = `zkp_discarded_species_${backup_id}`;
       const item = `${container}_item_${backup_id}`;
 
       dojo.place(
@@ -1501,26 +1522,70 @@ define([
         container
       );
 
-      this.placeOnObject(`zkp_discarded_species_${backup_id}`, item);
+      this.placeOnObject(template, item);
 
-      const animation = this.slideToObject(
-        `zkp_discarded_species_${backup_id}`,
-        deckElement
-      );
+      const animation = this.slideToObject(template, deckElement);
 
       dojo.connect(animation, "onEnd", () => {
-        this[stockKey].removeFromStockById(backup_id, deckElement);
+        this[stockKey].removeFromStockById(backup_id, deckElement, true);
+        dojo.destroy(template);
+
+        if (this[stockKey].count() > 0 && backup_id == 2) {
+          setTimeout(() => this[stockKey].updateDisplay(), 1000);
+        }
       });
 
       animation.play();
+
+      this.backupSpecies = notif.args.backup_species;
+    },
+
+    notif_discardBackupPrivately(notif) {
+      const column = notif.args.shop_position;
+      const species_id = notif.args.species_id;
+      const backup_id = notif.args.backup_id;
+
+      const stockKey = `backupShop_${column}`;
+      const deckElement = "zkp_species_deck";
+      const container = `zkp_backup_column:${column}`;
+      const template = `zkp_discarded_species_${species_id}`;
+      const item = `${container}_item_species_${species_id}`;
+
+      dojo.place(
+        this.format_block("jstpl_discarded_species", {
+          species: species_id,
+        }),
+        container
+      );
+
+      this.placeOnObject(template, item);
+
+      const animation = this.slideToObject(template, deckElement);
+
+      dojo.connect(animation, "onEnd", () => {
+        this[stockKey].removeFromStockById(
+          `species_${species_id}`,
+          deckElement,
+          true
+        );
+        dojo.destroy(template);
+
+        if (this[stockKey].count() > 0 && backup_id == 2) {
+          setTimeout(() => this[stockKey].updateDisplay(), 1000);
+        }
+      });
+
+      animation.play();
+
+      this.backupSpecies = notif.args.backup_species;
     },
 
     notif_revealSpecies: function (notif) {
       const column = notif.args.shop_position;
       const revealed_id = notif.args.revealed_id;
 
-      const lastInColumn = this.backupSpecies[column];
       const originKey = `backupShop_${column}`;
+      const lastInColumn = this[originKey].count();
       const destinationKey = `visibleShop_${column}`;
       const destinationElement = `zkp_visible_species_${column}`;
 
@@ -1530,7 +1595,9 @@ define([
         destinationElement
       );
 
-      this[originKey].removeFromStockById(lastInColumn);
+      if (lastInColumn > 0) {
+        this[originKey].removeFromStockById(lastInColumn);
+      }
 
       this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;

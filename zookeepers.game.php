@@ -37,10 +37,12 @@ class Zookeepers extends Table
             "totalToReturn" => 11,
             "previouslyReturned" => 12,
             "freeAction" => 13,
-            "selectedBoardPosition" => 14,
+            "selectedPosition" => 14,
             "selectedSpecies" => 15,
-            "highestSaved" => 16,
-            "lastTurn" => 17,
+            "selectedBackup" => 16,
+            "highestSaved" => 17,
+            "secondStep" => 18,
+            "lastTurn" => 19,
 
             "scoreTracking" => 100
         ));
@@ -167,8 +169,10 @@ class Zookeepers extends Table
         self::setGameStateInitialValue("freeAction", 0);
         self::setGameStateInitialValue("totalToReturn", 0);
         self::setGameStateInitialValue("previouslyReturned", 0);
-        self::setGameStateInitialValue("selectedBoardPosition", 0);
+        self::setGameStateInitialValue("selectedPosition", 0);
         self::setGameStateInitialValue("selectedSpecies", 0);
+        self::setGameStateInitialValue("selectedBackup", 0);
+        self::setGameStateInitialValue("secondStep", 0);
         self::setGameStateInitialValue("lastTurn", 0);
 
         // Init game statistics
@@ -909,7 +913,7 @@ class Zookeepers extends Table
         }
 
         if ($pile == 0 && $keeper_level === 1) {
-            self::setGameStateValue("selectedBoardPosition", $board_position);
+            self::setGameStateValue("selectedPosition", $board_position);
             $this->gamestate->nextState("selectDismissedPile");
             return;
         }
@@ -951,7 +955,7 @@ class Zookeepers extends Table
 
         $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
-        self::setGameStateValue("selectedBoardPosition", $board_position);
+        self::setGameStateValue("selectedPosition", $board_position);
 
         $this->gamestate->nextState("betweenActions");
     }
@@ -960,7 +964,7 @@ class Zookeepers extends Table
     {
         self::checkAction("selectDismissedPile");
 
-        $board_position = self::getGameStateValue("selectedBoardPosition");
+        $board_position = self::getGameStateValue("selectedPosition");
 
         if ($board_position < 1 || $board_position > 4) {
             throw new BgaUserException("Invalid board position");
@@ -1055,7 +1059,7 @@ class Zookeepers extends Table
             throw new BgaUserException("Keeper not found");
         }
 
-        self::setGameStateValue("selectedBoardPosition", $board_position);
+        self::setGameStateValue("selectedPosition", $board_position);
 
         $this->gamestate->nextState("selectReplacedPile");
     }
@@ -1066,7 +1070,7 @@ class Zookeepers extends Table
 
         $player_id = self::getActivePlayerId();
 
-        $board_position = self::getGameStateValue("selectedBoardPosition");
+        $board_position = self::getGameStateValue("selectedPosition");
 
         $replaced_keeper = null;
 
@@ -1136,7 +1140,7 @@ class Zookeepers extends Table
     function cancelMngKeepers()
     {
         self::checkAction("cancelMngKeepers");
-        self::setGameStateValue("selectedBoardPosition", 0);
+        self::setGameStateValue("selectedPosition", 0);
         self::setGameStateValue("mainAction", 0);
 
         $this->gamestate->nextState("cancel");
@@ -1530,14 +1534,13 @@ class Zookeepers extends Table
 
         $this->revealSpecies($shop_position);
 
-        if (self::getGameStateValue("selectedSpecies") > 0) {
+        if (self::getGameStateValue("secondStep") > 0) {
             self::setGameStateValue("mainAction", 4);
             $this->gamestate->nextState("betweenActions");
             return;
         }
 
-        self::setGameStateValue("selectedSpecies", $species_id);
-
+        self::setGameStateValue("secondStep", 1);
         $this->gamestate->nextState("mngSecondSpecies");
     }
 
@@ -1569,7 +1572,7 @@ class Zookeepers extends Table
         $this->notifyPlayer(
             $player_id,
             "lookAtBackup",
-            clienttranslate('You look at a face down species... It is the ${species_name}!'),
+            clienttranslate('You look at a face down species and... It is the ${species_name}!'),
             array(
                 "player_id" => $player_id,
                 "species_id" => $species_id,
@@ -1581,6 +1584,8 @@ class Zookeepers extends Table
         );
 
         self::setGameStateValue("selectedSpecies", $species_id);
+        self::setGameStateValue("selectedBackup", $backup_id);
+        self::setGameStateValue("selectedPosition", $shop_position);
 
         $this->gamestate->nextState("mngBackup");
     }
@@ -1596,31 +1601,49 @@ class Zookeepers extends Table
         $player_id = self::getActivePlayerId();
 
         $species_id = self::getGameStateValue("selectedSpecies");
+        $backup_id = self::getGameStateValue("selectedBackup");
+        $shop_position = self::getGameStateValue("selectedPosition");
 
         $species_in_location = $this->species->getCardsInLocation("shop_backup");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
 
-        $this->notifyAllPlayers(
-            "discardBackup",
-            clienttranslate('${player_name} moves a face down species to the bottom of the deck'),
+        $this->notifyPlayer(
+            $player_id,
+            "discardBackupPrivately",
+            "",
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
-                // "shop_position" => $shop_position,
-                // "backup_id" => $backup_id,
+                "shop_position" => $shop_position,
+                "backup_id" => $backup_id,
+                "species_id" => $species_id,
                 "backup_species" => $this->getBackupSpecies(),
             ),
         );
 
-        if (self::getGameStateValue("selectedSpecies") > 0) {
+        $this->notifyAllPlayers(
+            "discardBackup",
+            clienttranslate('${player_name} moves a face down species from the column ${shop_position} to the bottom of the deck'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                "shop_position" => $shop_position,
+                "backup_id" => $backup_id,
+                "backup_species" => $this->getBackupSpecies(),
+            ),
+        );
+
+        if (self::getGameStateValue("secondStep") > 0) {
             self::setGameStateValue("mainAction", 4);
             $this->gamestate->nextState("betweenActions");
             return;
         }
 
-        self::setGameStateValue("selectedSpecies", $species_id);
+        self::setGameStateValue("selectedBackup", 0);
+        self::setGameStateValue("selectedPosition", 0);
+        self::setGameStateValue("secondStep", 1);
 
         $this->gamestate->nextState("mngSecondSpecies");
     }
@@ -1647,7 +1670,11 @@ class Zookeepers extends Table
     function cancelMngSpecies()
     {
         self::checkAction("cancelMngSpecies");
+
         self::setGameStateValue("selectedSpecies", 0);
+        self::setGameStateValue("selectedPosition", 0);
+        self::setGameStateValue("selectedBackup", 0);
+        self::setGameStateValue("secondStep", 0);
 
         $this->gamestate->nextState("cancel");
     }
@@ -1721,8 +1748,10 @@ class Zookeepers extends Table
     {
         self::setGameStateValue("totalToReturn", 0);
         self::setGameStateValue("previouslyReturned", 0);
-        self::setGameStateValue("selectedBoardPosition", 0);
+        self::setGameStateValue("selectedPosition", 0);
         self::setGameStateValue("selectedSpecies", 0);
+        self::setGameStateValue("selectedBackup", 0);
+        self::setGameStateValue("secondStep", 0);
 
         $this->gamestate->nextState("nextAction");
     }
