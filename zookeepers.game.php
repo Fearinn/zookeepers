@@ -1569,7 +1569,7 @@ class Zookeepers extends Table
         $this->notifyPlayer(
             $player_id,
             "lookAtBackup",
-            clienttranslate('You look at an unrevealed species... It is the ${species_name}!'),
+            clienttranslate('You look at a face down species... It is the ${species_name}!'),
             array(
                 "player_id" => $player_id,
                 "species_id" => $species_id,
@@ -1580,13 +1580,13 @@ class Zookeepers extends Table
             ),
         );
 
+        self::setGameStateValue("selectedSpecies", $species_id);
+
         $this->gamestate->nextState("mngBackup");
     }
 
-    function discardBackup(
-        $shop_position,
-        $backup_id
-    ) {
+    function discardBackup()
+    {
         self::checkAction("discardBackup");
 
         if (self::getGameStateValue("mainAction")) {
@@ -1595,27 +1595,21 @@ class Zookeepers extends Table
 
         $player_id = self::getActivePlayerId();
 
-        $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
-        $species = array_shift($species_in_location);
+        $species_id = self::getGameStateValue("selectedSpecies");
 
-        if ($species === null) {
-            throw new BgaUserException("Species not found");
-        }
-
-        $species_id = $species["type_arg"];
+        $species_in_location = $this->species->getCardsInLocation("shop_backup");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
 
         $this->notifyAllPlayers(
             "discardBackup",
-            clienttranslate('${player_name} moves an unrevealed species of the column ${shop_position} to the bottom of the deck'),
+            clienttranslate('${player_name} moves a face down species to the bottom of the deck'),
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
-                // "species_id" => $species_id,
-                // "species_name" => $species["type"],
-                "shop_position" => $shop_position,
-                "backup_id" => $backup_id,
+                // "shop_position" => $shop_position,
+                // "backup_id" => $backup_id,
                 "backup_species" => $this->getBackupSpecies(),
             ),
         );

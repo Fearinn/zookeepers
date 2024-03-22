@@ -551,6 +551,17 @@ define([
         }
       }
 
+      if (stateName === "mngBackup" && this.isCurrentPlayerActive()) {
+        this.addActionButton("discard_backup_btn", _("Discard"), () => {
+          this.onDiscardBackup();
+        });
+
+        // this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
+        //   stock.unselectAll();
+        //   this.onQuarantineBackup(item);
+        // });
+      }
+
       if (stateName === "betweenActions") {
         this.mainAction = args.args.mainAction;
         return;
@@ -1184,6 +1195,13 @@ define([
       }
     },
 
+    onDiscardBackup: function () {
+      const action = "discardBackup";
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action);
+      }
+    },
+
     onSelectAssignedKeeper: function (event) {
       const action = "selectAssignedKeeper";
 
@@ -1225,6 +1243,7 @@ define([
       dojo.subscribe("discardSpecies", this, "notif_discardSpecies");
       this.notifqueue.setSynchronous("discardSpecies", 1000);
       dojo.subscribe("discardBackup", this, "notif_discardBackup");
+      dojo.subscribe("lookAtBackup", this, "notif_lookAtBackup");
       dojo.subscribe("completeKeeper", this, "notif_completeKeeper");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe(
@@ -1435,6 +1454,34 @@ define([
       });
 
       animation.play();
+    },
+
+    notif_lookAtBackup: function (notif) {
+      const column = notif.args.shop_position;
+      const backup_id = notif.args.backup_id;
+      const species_id = notif.args.species_id;
+
+      const stockKey = `backupShop_${column}`;
+
+      this[stockKey].removeFromStockById(backup_id);
+
+      this[stockKey].image_items_per_row = 10;
+
+      this[stockKey].addItemType(
+        species_id,
+        backup_id == 1 ? -1 : 1,
+        g_gamethemeurl + "img/species.png",
+        species_id - 1
+      );
+
+      this[stockKey].addToStockWithId(species_id, `species_${species_id}`);
+
+      dojo.removeClass(
+        `zkp_backup_column:${column}_item_species_${species_id}`,
+        "zkp_background_contain"
+      );
+
+      this[stockKey].image_items_per_row = 1;
     },
 
     notif_discardBackup: function (notif) {

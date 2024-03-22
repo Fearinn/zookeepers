@@ -173,9 +173,7 @@ class action_zookeepers extends APP_GameAction
   public function discardBackup()
   {
     self::setAjaxMode();
-    $shop_position = self::getArg("shop_position", AT_posint, true);
-    $backup_id = self::getArg("backup_id", AT_posint, true);
-    $this->game->discardBackup($shop_position, $backup_id);
+    $this->game->discardBackup();
     self::ajaxResponse();
   }
 
