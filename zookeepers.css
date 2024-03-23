@@ -105,33 +105,6 @@
   position: relative;
 }
 
-.zkp_playmats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, 666.7px);
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-}
-
-.zkp_playmat_container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin: 0;
-  padding: 8px;
-  width: 666.7px;
-}
-
-.zkp_playmat {
-  background-image: url("img/playmat.png");
-  background-size: 467px 467px;
-  background-position: bottom;
-  background-repeat: no-repeat;
-  margin: 0 auto;
-  height: 533px;
-  width: 600px;
-}
-
 .zkp_common_area {
   display: flex;
   align-items: end;
@@ -204,10 +177,38 @@
   background-size: contain;
 }
 
-.zkp_keepers {
+.zkp_playmats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 666.7px);
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.zkp_playmat_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0;
+  padding: 8px;
+  width: 666.7px;
+}
+
+.zkp_playmat {
   position: relative;
-  top: 127px;
-  left: 170px;
+  background-image: url("img/playmat.png");
+  background-size: 467px 467px;
+  background-position: bottom 45px center;
+  background-repeat: no-repeat;
+  margin: 0 auto;
+  height: 625px;
+  width: 600px;
+}
+
+.zkp_keepers {
+  position: absolute;
+  top: 173px;
+  left: 173px;
   display: grid;
   grid-template-columns: repeat(2, 120px);
   gap: 16px;
@@ -215,6 +216,50 @@
 
 .zkp_keepers > * {
   height: 175px !important;
+}
+
+.zkp_quarantine {
+  border: 2px solid red;
+  height: 165px;
+  width: 120px;
+}
+
+.zkp_quarantine_ALL {
+  position: absolute;
+  top: 0;
+  left: 173px;
+}
+
+.zkp_quarantine_TEM {
+  position: absolute;
+  top: 100px;
+  left: 0;
+}
+.zkp_quarantine_SAV {
+  position: absolute;
+  top: 270px;
+  left: 0;
+}
+.zkp_quarantine_PRA {
+  position: absolute;
+  top: 440px;
+  left: 0;
+}
+
+.zkp_quarantine_DES {
+  position: absolute;
+  top: 100px;
+  right: 0;
+}
+.zkp_quarantine_AQU {
+  position: absolute;
+  top: 270px;
+  right: 0;
+}
+.zkp_quarantine_TRO {
+  position: absolute;
+  top: 440px;
+  right: 0;
 }
 
 .zkp_completed_keeper {
