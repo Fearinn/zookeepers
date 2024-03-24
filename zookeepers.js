@@ -395,7 +395,7 @@ define([
 
       for (const player_id in gamedatas.players) {
         dojo
-          .query(`.zkp_keeper-${player_id}`)
+          .query(`.zkp_keeper_${player_id}`)
           .connect("onclick", this, (event) => {
             this.onSelectAssignedKeeper(event);
           });
@@ -404,6 +404,12 @@ define([
           .query(`.zkp_quarantine_${player_id}`)
           .connect("onclick", this, (event) => {
             this.onSelectQuarantine(event);
+          });
+
+        dojo
+          .query(`.zkp_quarantine_${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectBackupQuarantine(event);
           });
       }
 
@@ -613,15 +619,29 @@ define([
         }
       }
 
+      if (stateName === "selectBackupQuarantine") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngSpecies",
+            null,
+            null,
+            "red"
+          );
+
+          this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
+        }
+      }
+
       if (stateName === "mngBackup" && this.isCurrentPlayerActive()) {
         this.addActionButton("discard_backup_btn", _("Discard"), () => {
           this.onDiscardBackup();
         });
 
-        // this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
-        //   stock.unselectAll();
-        //   this.onQuarantineBackup(item);
-        // });
+        this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
+          this.onQuarantineBackup();
+        });
       }
 
       if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
@@ -684,6 +704,10 @@ define([
       }
 
       if (stateName === "selectQuarantine") {
+        this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+      }
+
+      if (stateName === "selectBackupQuarantine") {
         this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
       }
     },
@@ -1271,6 +1295,16 @@ define([
       }
     },
 
+    onSelectAssignedKeeper: function (event) {
+      const action = "selectAssignedKeeper";
+
+      const position = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
+      }
+    },
+
     onDiscardSpecies: function (speciesId) {
       const action = "discardSpecies";
 
@@ -1315,13 +1349,21 @@ define([
       }
     },
 
-    onSelectAssignedKeeper: function (event) {
-      const action = "selectAssignedKeeper";
-
-      const position = event.currentTarget.id.split(":")[1];
+    onQuarantineBackup: function () {
+      const action = "quarantineBackup";
 
       if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        this.sendAjaxCall(action);
+      }
+    },
+
+    onSelectBackupQuarantine: function (event) {
+      const action = "selectBackupQuarantine";
+
+      const quarantine = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { quarantine: quarantine });
       }
     },
 
@@ -1364,6 +1406,7 @@ define([
         "notif_discardBackupPrivately"
       );
       this.notifqueue.setSynchronous("discardBackupPrivately", 1000);
+      dojo.subscribe("quarantineBackup", this, "notif_quarantineBackup");
       dojo.subscribe("completeKeeper", this, "notif_completeKeeper");
       dojo.subscribe("revealSpecies", this, "notif_revealSpecies");
       dojo.subscribe(
@@ -1593,6 +1636,37 @@ define([
 
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
+      this.quarantinedSpecies = notif.args.quarantined_species;
+    },
+
+    notif_quarantineBackup: function (notif) {
+      const column = notif.args.shop_position;
+      const species_id = notif.args.species_id;
+      const player_id = notif.args.player_id;
+      const backup_id = notif.args.backup_id;
+      const quarantine = notif.args.quarantine;
+
+      const originKey = `backupShop_${column}`;
+      const destinationKey = `quarantine_${player_id}:${quarantine}`;
+
+      let originElement = `zkp_backup_${column}_item_${backup_id}`;
+
+      if (this.isCurrentPlayerActive()) {
+        originElement = `zkp_backup_column:${column}_item_species_${species_id}`;
+      }
+
+      console.log(originElement);
+
+      this[destinationKey].addToStockWithId(
+        species_id,
+        species_id,
+        originElement
+      );
+
+      this[originKey].removeFromStockById(`species_${species_id}`);
+      this[originKey].removeFromStockById(backup_id);
+
+      this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
       this.quarantinedSpecies = notif.args.quarantined_species;
     },
 

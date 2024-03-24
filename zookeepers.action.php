@@ -153,27 +153,19 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function selectAssignedKeeper()
+  {
+    self::setAjaxMode();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->selectAssignedKeeper($board_position);
+    self::ajaxResponse();
+  }
+
   public function discardSpecies()
   {
     self::setAjaxMode();
     $species_id = self::getArg("species_id", AT_posint, true);
     $this->game->discardSpecies($species_id);
-    self::ajaxResponse();
-  }
-
-  public function lookAtBackup()
-  {
-    self::setAjaxMode();
-    $shop_position = self::getArg("shop_position", AT_posint, true);
-    $backup_id = self::getArg("backup_id", AT_posint, true);
-    $this->game->lookAtBackup($shop_position, $backup_id);
-    self::ajaxResponse();
-  }
-
-  public function discardBackup()
-  {
-    self::setAjaxMode();
-    $this->game->discardBackup();
     self::ajaxResponse();
   }
 
@@ -199,11 +191,40 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
-  public function selectAssignedKeeper()
+  public function lookAtBackup()
   {
     self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
-    $this->game->selectAssignedKeeper($board_position);
+    $shop_position = self::getArg("shop_position", AT_posint, true);
+    $backup_id = self::getArg("backup_id", AT_posint, true);
+    $this->game->lookAtBackup($shop_position, $backup_id);
+    self::ajaxResponse();
+  }
+
+  public function discardBackup()
+  {
+    self::setAjaxMode();
+    $this->game->discardBackup();
+    self::ajaxResponse();
+  }
+
+  public function quarantineBackup()
+  {
+    self::setAjaxMode();
+    $this->game->quarantineBackup();
+    self::ajaxResponse();
+  }
+
+  public function selectBackupQuarantine()
+  {
+    self::setAjaxMode();
+    $quarantine = self::getArg(
+      "quarantine",
+      AT_enum,
+      true,
+      null,
+      array("ALL", "TEM", "SAV", "PRA", "DES", "AQU", "TRO")
+    );
+    $this->game->selectBackupQuarantine($quarantine);
     self::ajaxResponse();
   }
 

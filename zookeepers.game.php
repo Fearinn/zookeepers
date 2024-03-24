@@ -1643,6 +1643,10 @@ class Zookeepers extends Table
         $species_in_location = $this->species->getCardsInLocation("shop_backup");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
         $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
 
         $this->notifyPlayer(
@@ -1682,6 +1686,98 @@ class Zookeepers extends Table
         self::setGameStateValue("secondStep", 1);
 
         $this->gamestate->nextState("mngSecondSpecies");
+    }
+
+    function quarantineBackup()
+    {
+        self::checkAction("quarantineBackup");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $player_id = self::getActivePlayerId();
+
+        $species_in_location = $this->species->getCardsInLocation("shop_backup");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        $is_quarantinable = false;
+
+        foreach ($this->getOpenQuarantines()[$player_id] as $quarantine) {
+            if ($this->canLiveInQuarantine($species_id, $quarantine)) {
+                $is_quarantinable = true;
+                break;
+            }
+        }
+
+        if (!$is_quarantinable) {
+            throw new BgaUserException("You can't quarantine this species");
+        }
+
+        self::setGameStateValue("selectedSpecies", $species_id);
+
+        $this->gamestate->nextState("selectBackupQuarantine");
+    }
+
+    function selectBackupQuarantine($quarantine)
+    {
+        self::checkAction("selectBackupQuarantine");
+
+        $player_id = self::getActivePlayerId();
+        $species_id = self::getGameStateValue("selectedSpecies");
+
+        $species_in_location = $this->species->getCardsInLocation("shop_backup");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
+            throw new BgaUserException(self::_("This species can't live in that quarantine"));
+        }
+
+        $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
+
+        $quarantine_label = $quarantine;
+        if ($quarantine_label === "ALL") {
+            $quarantine_label = "generic";
+        }
+
+        $this->notifyAllPlayers(
+            "quarantineBackup",
+            clienttranslate('${player_name} puts ${species_name} in their ${quarantine_label} quarantine'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "species_id" => $species_id,
+                "species_name" => $species["type"],
+                "shop_position" => $species["location_arg"],
+                "backup_id" => self::getGameStateValue("selectedBackup"),
+                "quarantine" => $quarantine,
+                "quarantine_label" => $quarantine_label,
+                "quarantined_species" => $this->getQuarantinedSpecies(),
+                "visible_species" => $this->getVisibleSpecies(),
+            )
+        );
+
+        $this->updateScore($player_id, -2);
+
+        if (self::getGameStateValue("secondStep") == 0) {
+            self::setGameStateValue("secondStep", 1);
+            self::setGameStateValue("selectedSpecies", 0);
+            $this->gamestate->nextState("mngSecondSpecies");
+            return;
+        }
+
+        self::setGameStateValue("mainAction", 3);
+        $this->gamestate->nextState("betweenActions");
     }
 
     function discardSpecies(
