@@ -211,7 +211,9 @@ class Zookeepers extends Table
         $result["backupSpecies"] = $this->getBackupSpecies();
         $result["visibleSpecies"] = $this->getVisibleSpecies();
         $result["savableSpecies"] = $this->getSavableSpecies();
-        $result["getSavableWithFund"] = $this->getSavableWithFund();
+        $result["savableWithFund"] = $this->getSavableWithFund();
+        $result["allQuarantines"] = $this->quarantines;
+        $result["quarantinableSpecies"] = $this->getQuarantinableSpecies();
         $result["savedSpecies"] = $this->getSavedSpecies();
         $result["completedKeepers"] = $this->getCompletedKeepers();
         $result["speciesCounters"] = $this->getSpeciesCounters();
@@ -279,7 +281,6 @@ class Zookeepers extends Table
                 break;
             }
         }
-        self::warn(json_encode($found_card));
         return $found_card;
     }
 
@@ -604,17 +605,6 @@ class Zookeepers extends Table
         return $saved_species;
     }
 
-    function getBackupSpecies()
-    {
-        $backup_species = array();
-
-        for ($position = 1; $position <= 4; $position++) {
-            $backup_species[$position] = $this->species->countCardsInLocation("shop_backup", $position);
-        }
-
-        return $backup_species;
-    }
-
     function returnCost($species_id)
     {
         $player_id = self::getActivePlayerId();
@@ -735,6 +725,76 @@ class Zookeepers extends Table
             }
             $this->updateScore($player_id, $score);
         }
+    }
+
+    function getBackupSpecies()
+    {
+        $backup_species = array();
+
+        for ($position = 1; $position <= 4; $position++) {
+            $backup_species[$position] = $this->species->countCardsInLocation("shop_backup", $position);
+        }
+
+        return $backup_species;
+    }
+
+    function getOpenQuarantines()
+    {
+        $players = self::loadPlayersBasicInfos();
+        $open_quarantines = array();
+
+        foreach ($players as $player_id => $player) {
+            $open_quarantines[$player_id] = array();
+            foreach ($this->quarantines as $quarantine_id => $quarantine) {
+                if ($this->species->countCardsInLocation("quarantine:" . $player_id, $quarantine) == 0) {
+                    $open_quarantines[$player_id][$quarantine] = $quarantine;
+                }
+            }
+        }
+
+        return $open_quarantines;
+    }
+
+    function getQuarantinableSpecies()
+    {
+        $players = self::loadPlayersBasicInfos();
+        $quarantinable_species = array();
+
+        foreach ($players as $player_id => $player) {
+            $quarantinable_species[$player_id] = array();
+
+            $species = null;
+            $species_id = null;
+            foreach ($this->species->getCardsInLocation("shop_visible") as $card_id => $card) {
+                $species = $card;
+                $species_id = $card["type_arg"];
+
+                $species_habitats = $this->species_info[$species_id]["habitat"];
+
+                $open_quarantines = $this->getOpenQuarantines()[$player_id];
+
+                if (in_array("ALL", $open_quarantines) || count(array_intersect($species_habitats, $open_quarantines)) > 0) {
+                    $quarantinable_species[$player_id][$species_id] = $species;
+                }
+            }
+        }
+
+        return $quarantinable_species;
+    }
+
+    function canLiveInQuarantine($species_id, $quarantine)
+    {
+        $player_id = self::getActivePlayerId();
+        $canLiveInQuarantine = false;
+
+        $species_habitats = $this->species_info[$species_id]["habitat"];
+        $open_quarantines = $this->getOpenQuarantines()[$player_id];
+
+        if (($quarantine === "ALL" || in_array($quarantine, $species_habitats)) && in_array($quarantine, $open_quarantines)) {
+            $canLiveInQuarantine = true;
+        }
+
+        return $canLiveInQuarantine;
     }
 
     function getSpeciesCounters()
@@ -1497,53 +1557,6 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
-    function discardSpecies(
-        $species_id
-    ) {
-        self::checkAction("discardSpecies");
-
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
-        }
-
-        $player_id = self::getActivePlayerId();
-
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
-
-        if ($species === null) {
-            throw new BgaUserException("Species not found");
-        }
-
-        $shop_position = $species["location_arg"];
-
-        $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
-
-        $this->notifyAllPlayers(
-            "discardSpecies",
-            clienttranslate('${player_name} moves ${species_name} to the bottom of the deck'),
-            array(
-                "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
-                "species_id" => $species_id,
-                "species_name" => $species["type"],
-                "shop_position" => $shop_position,
-                "visible_species" => $this->getVisibleSpecies(),
-            ),
-        );
-
-        $this->revealSpecies($shop_position);
-
-        if (self::getGameStateValue("secondStep") > 0) {
-            self::setGameStateValue("mainAction", 4);
-            $this->gamestate->nextState("betweenActions");
-            return;
-        }
-
-        self::setGameStateValue("secondStep", 1);
-        $this->gamestate->nextState("mngSecondSpecies");
-    }
-
     function lookAtBackup(
         $shop_position,
         $backup_id
@@ -1648,24 +1661,130 @@ class Zookeepers extends Table
         $this->gamestate->nextState("mngSecondSpecies");
     }
 
-    // function quarantineSpecies($species_id)
-    // {
-    //     $player_id = self::getActivePlayerId();
+    function discardSpecies(
+        $species_id
+    ) {
+        self::checkAction("discardSpecies");
 
-    //     $discarded_species = null;
-    //     for ($shop_position = 1; $shop_position <= 4; $shop_position++) {
-    //         $species_in_location = $this->species->getCardsInLocation("board:" . $shop_position, $player_id);
-    //         $discarded_species = $this->findCardByTypeArg($species_in_location, $species_id);
-    //     }
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
 
-    //     if ($discarded_species === null) {
-    //         throw new BgaUserException("Species not found");
-    //     }
+        $player_id = self::getActivePlayerId();
 
-    //  
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
-    //     $this->gamestate->nextState("selectQuarantine");
-    // }
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        $shop_position = $species["location_arg"];
+
+        $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
+
+        $this->notifyAllPlayers(
+            "discardSpecies",
+            clienttranslate('${player_name} moves ${species_name} to the bottom of the deck'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                "species_id" => $species_id,
+                "species_name" => $species["type"],
+                "shop_position" => $shop_position,
+                "visible_species" => $this->getVisibleSpecies(),
+            ),
+        );
+
+        $this->revealSpecies($shop_position);
+
+        if (self::getGameStateValue("secondStep") > 0) {
+            self::setGameStateValue("mainAction", 4);
+            $this->gamestate->nextState("betweenActions");
+            return;
+        }
+
+        self::setGameStateValue("secondStep", 1);
+        $this->gamestate->nextState("mngSecondSpecies");
+    }
+
+
+    function quarantineSpecies($species_id)
+    {
+        self::checkAction("quarantineSpecies");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
+
+        if (!in_array($species_id, $quarantinable_species)) {
+            throw new BgaUserException("You can't quarantine this species");
+        }
+
+        self::setGameStateValue("selectedSpecies", $species_id);
+
+        $this->gamestate->nextState("selectQuarantine");
+    }
+
+    function selectQuarantine($quarantine)
+    {
+        self::checkAction("selectQuarantine");
+
+        $player_id = self::getActivePlayerId();
+        $species_id = self::getGameStateValue("selectedSpecies");
+
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
+            throw new BgaUserException(self::_("This species can't live in that quarantine"));
+        }
+
+        $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
+
+        if ($quarantine === "ALL") {
+            $quarantine = "generic";
+        }
+
+        $this->notifyAllPlayers(
+            "quarantineSpecies",
+            clienttranslate('${player_name} puts ${species_name} in their ${quarantine} quarantine'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                "species_id" => $species_id,
+                "species_name" => $species["type"],
+                "quarantine" => $quarantine,
+                "visible_species" => $this->getVisibleSpecies(),
+            )
+        );
+
+        $this->revealSpecies($species["location_arg"]);
+
+        if (self::getGameStateValue("secondStep") == 0) {
+            self::setGameStateValue("secondStep", 1);
+            self::setGameStateValue("selectedSpecies", 0);
+            $this->gamestate->nextState("mngSecondSpecies");
+        }
+
+        self::setGameStateValue("mainAction", 3);
+        $this->gamestate->nextState("betweenActions");
+    }
 
     function cancelMngSpecies()
     {
@@ -1697,6 +1816,7 @@ class Zookeepers extends Table
             "keepers_on_boards" => $this->getKeepersOnBoards(),
             "savable_species" => $this->getSavableSpecies(),
             "savable_with_fund" => $this->getSavableWithFund(),
+            "quarantinable_species" => $this->getQuarantinableSpecies(),
         );
     }
 

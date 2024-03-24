@@ -80,6 +80,7 @@ define([
       this.keepersOnBoards = this.formatKeepersOnBoards(
         gamedatas.keepersOnBoards
       );
+      this.completedKeepers = gamedatas.completedKeepers;
 
       this.allSpecies = gamedatas.allSpecies;
       this.backupSpecies = gamedatas.backupSpecies;
@@ -89,7 +90,7 @@ define([
         gamedatas.savableWithFund
       );
       this.savedSpecies = gamedatas.savedSpecies;
-      this.completedKeepers = gamedatas.completedKeepers;
+      this.allQuarantines = gamedatas.allQuarantines;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
 
@@ -358,6 +359,12 @@ define([
           .connect("onclick", this, (event) => {
             this.onSelectAssignedKeeper(event);
           });
+
+        dojo
+          .query(`.zkp_quarantine_${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectQuarantine(event);
+          });
       }
 
       // Setup game notifications to handle (see "setupNotifications" method below)
@@ -548,6 +555,21 @@ define([
           );
 
           this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+        }
+      }
+
+      if (stateName === "selectQuarantine") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngSpecies",
+            null,
+            null,
+            "red"
+          );
+
+          this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
         }
       }
 
@@ -1056,14 +1078,14 @@ define([
             this.onDiscardSpecies(item);
           });
 
-          // this.addActionButton(
-          //   "quarantine_species_btn",
-          //   _("Quarantine"),
-          //   () => {
-          //     stock.unselectAll();
-          //     this.onQuarantineSpecies(item);
-          //   }
-          // );
+          this.addActionButton(
+            "quarantine_species_btn",
+            _("Quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onQuarantineSpecies(item);
+            }
+          );
           return;
         }
         this.gamedatas.gamestate.descriptionmyturn = _(
@@ -1194,6 +1216,17 @@ define([
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      }
+    },
+
+    onSelectQuarantine: function (event) {
+      const action = "selectQuarantine";
+      console.log(action, event);
+
+      const quarantine = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { quarantine: quarantine });
       }
     },
 

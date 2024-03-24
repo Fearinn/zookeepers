@@ -185,6 +185,20 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function selectQuarantine()
+  {
+    self::setAjaxMode();
+    $quarantine = self::getArg(
+      "quarantine",
+      AT_enum,
+      true,
+      null,
+      array("ALL", "TEM", "SAV", "PRA", "DES", "AQU", "TRO")
+    );
+    $this->game->selectQuarantine($quarantine);
+    self::ajaxResponse();
+  }
+
   public function selectAssignedKeeper()
   {
     self::setAjaxMode();

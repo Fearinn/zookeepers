@@ -222,6 +222,7 @@
   border: 2px solid red;
   height: 165px;
   width: 120px;
+  pointer-events: all;
 }
 
 .zkp_quarantine_ALL {

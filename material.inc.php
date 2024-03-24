@@ -59,6 +59,10 @@ $this->resource_types = array(
   )
 );
 
+$this->quarantines = array(
+  1 => "ALL", 2 => "TEM", 3 => "SAV", 4 => "PRA", 5 => "DES", 6 => "AQU", 7 => "TRO"
+);
+
 $this->keepers_info = array(
   1 => array(
     "name" => "Abdul",

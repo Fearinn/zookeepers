@@ -71,31 +71,31 @@
       </div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:ALL"
-        class="zkp_quarantine zkp_quarantine_ALL"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_ALL"
       ></div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:TEM"
-        class="zkp_quarantine zkp_quarantine_TEM"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TEM"
       ></div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:SAV"
-        class="zkp_quarantine zkp_quarantine_SAV"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_SAV"
       ></div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:PRA"
-        class="zkp_quarantine zkp_quarantine_PRA"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_PRA"
       ></div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:DES"
-        class="zkp_quarantine zkp_quarantine_DES"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_DES"
       ></div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:AQU"
-        class="zkp_quarantine zkp_quarantine_AQU"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_AQU"
       ></div>
       <div
         id="zkp_quarantine_{PLAYER_ID}:TRO"
-        class="zkp_quarantine zkp_quarantine_TRO"
+        class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TRO"
       ></div>
     </div>
   </div>
