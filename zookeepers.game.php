@@ -215,6 +215,7 @@ class Zookeepers extends Table
         $result["allQuarantines"] = $this->quarantines;
         $result["quarantinableSpecies"] = $this->getQuarantinableSpecies();
         $result["savedSpecies"] = $this->getSavedSpecies();
+        $result["quarantinedSpecies"] = $this->getQuarantinedSpecies();
         $result["completedKeepers"] = $this->getCompletedKeepers();
         $result["speciesCounters"] = $this->getSpeciesCounters();
 
@@ -674,6 +675,28 @@ class Zookeepers extends Table
                 )
             );
         }
+    }
+
+    function getQuarantinedSpecies()
+    {
+        $players = self::loadPlayersBasicInfos();
+        $quarantined_species = array();
+
+        foreach ($players as $player_id => $player) {
+            foreach ($this->quarantines as $quarantine) {
+                $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
+
+                if (count($cards_in_location) > 0) {
+                    foreach ($cards_in_location as $card) {
+                        $quarantined_species[$player_id][$quarantine][$card["type_arg"]] = $card;
+                    }
+                } else {
+                    $quarantined_species[$player_id][$quarantine] = null;
+                }
+            }
+        }
+
+        return $quarantined_species;
     }
 
     function getCompletedKeepers()
@@ -1757,19 +1780,23 @@ class Zookeepers extends Table
 
         $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
 
-        if ($quarantine === "ALL") {
-            $quarantine = "generic";
+        $quarantine_label = $quarantine;
+        if ($quarantine_label === "ALL") {
+            $quarantine_label = "generic";
         }
 
         $this->notifyAllPlayers(
             "quarantineSpecies",
-            clienttranslate('${player_name} puts ${species_name} in their ${quarantine} quarantine'),
+            clienttranslate('${player_name} puts ${species_name} in their ${quarantine_label} quarantine'),
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
                 "species_id" => $species_id,
                 "species_name" => $species["type"],
+                "shop_position" => $species["location_arg"],
                 "quarantine" => $quarantine,
+                "quarantine_label" => $quarantine_label,
+                "quarantined_species" => $this->getQuarantinedSpecies(),
                 "visible_species" => $this->getVisibleSpecies(),
             )
         );

@@ -54,6 +54,8 @@ define([
       this.savableSpecies = {};
       this.savableWithFund = {};
       this.savedSpecies = {};
+      this.allQuarantines = {};
+      this.quarantinedSpecies = {};
       this.completedKeepers = {};
       this.speciesCounters = {};
     },
@@ -91,6 +93,7 @@ define([
       );
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
+      this.quarantinedSpecies = gamedatas.quarantinedSpecies;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
 
@@ -332,6 +335,34 @@ define([
       }
 
       for (const player_id in gamedatas.players) {
+        for (const quarantine_id in this.allQuarantines) {
+          const quarantine = this.allQuarantines[quarantine_id];
+          const stockKey = `quarantine_${player_id}:${quarantine}`;
+
+          this[stockKey] = new ebg.stock();
+          this[stockKey].image_items_per_row = 10;
+
+          for (const species_id in this.allSpecies) {
+            this[stockKey].addItemType(
+              species_id,
+              species_id,
+              g_gamethemeurl + "img/species.png",
+              species_id - 1
+            );
+          }
+
+          const speciesInQuarantine =
+            this.quarantinedSpecies[player_id][quarantine];
+
+          console.log(quarantine, speciesInQuarantine);
+
+          for (const species_id in speciesInQuarantine) {
+            this[stockKey].addToStockWithId(species_id, species_id);
+          }
+
+          console.log(this[stockKey]);
+        }
+
         this.speciesCounters[player_id] = new ebg.counter();
         this.speciesCounters[player_id].create(
           `zkp_species_count_${player_id}`
@@ -1221,7 +1252,6 @@ define([
 
     onSelectQuarantine: function (event) {
       const action = "selectQuarantine";
-      console.log(action, event);
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
@@ -1288,6 +1318,7 @@ define([
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
       dojo.subscribe("discardSpecies", this, "notif_discardSpecies");
       this.notifqueue.setSynchronous("discardSpecies", 1000);
+      dojo.subscribe("quarantineSpecies", this, "notif_quarantineSpecies");
       dojo.subscribe("lookAtBackup", this, "notif_lookAtBackup");
       dojo.subscribe("discardBackup", this, "notif_discardBackup");
       dojo.subscribe(
@@ -1504,6 +1535,28 @@ define([
       });
 
       animation.play();
+    },
+
+    notif_quarantineSpecies: function (notif) {
+      const column = notif.args.shop_position;
+      const species_id = notif.args.species_id;
+      const player_id = notif.args.player_id;
+      const quarantine = notif.args.quarantine;
+
+      const originKey = `visibleShop_${column}`;
+      const destinationKey = `quarantine_${player_id}:${quarantine}`;
+      const destinationElement = `zkp_quarantine_${player_id}:${quarantine}`;
+
+      console.log(destinationKey);
+
+      this[destinationKey].addToStockWithId(
+        species_id,
+        species_id,
+        destinationElement
+      );
+      this[originKey].removeFromStockById(species_id);
+
+      this.quarantinedSpecies = notif.args.quarantined_species;
     },
 
     notif_lookAtBackup: function (notif) {
