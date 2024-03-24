@@ -769,7 +769,7 @@ class Zookeepers extends Table
         foreach ($players as $player_id => $player) {
             $open_quarantines[$player_id] = array();
             foreach ($this->quarantines as $quarantine_id => $quarantine) {
-                if ($this->species->countCardsInLocation("quarantine:" . $player_id, $quarantine) == 0) {
+                if ($this->species->countCardsInLocation("quarantine:" . $quarantine, $player_id) == 0) {
                     $open_quarantines[$player_id][$quarantine] = $quarantine;
                 }
             }
@@ -1791,6 +1791,7 @@ class Zookeepers extends Table
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
+                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
                 "species_name" => $species["type"],
                 "shop_position" => $species["location_arg"],
@@ -1801,12 +1802,14 @@ class Zookeepers extends Table
             )
         );
 
+        $this->updateScore($player_id, -2);
         $this->revealSpecies($species["location_arg"]);
 
         if (self::getGameStateValue("secondStep") == 0) {
             self::setGameStateValue("secondStep", 1);
             self::setGameStateValue("selectedSpecies", 0);
             $this->gamestate->nextState("mngSecondSpecies");
+            return;
         }
 
         self::setGameStateValue("mainAction", 3);
@@ -1820,10 +1823,19 @@ class Zookeepers extends Table
         self::setGameStateValue("selectedSpecies", 0);
         self::setGameStateValue("selectedPosition", 0);
         self::setGameStateValue("selectedBackup", 0);
-        self::setGameStateValue("secondStep", 0);
+
+        if (
+            self::getGameStateValue("secondStep") > 0
+            && $this->gamestate->state()["name"] !== "mngSecondSpecies"
+        ) {
+            self::setGameStateValue("secondStep", 0);
+            $this->gamestate->nextState("cancelSecond");
+            return;
+        }
 
         $this->gamestate->nextState("cancel");
     }
+
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state arguments

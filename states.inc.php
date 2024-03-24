@@ -151,7 +151,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a quarantine to put the species in'),
         "type" => "activeplayer",
         "possibleactions" => array("selectQuarantine", "cancelMngSpecies"),
-        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2, "cancelSecond" => 29)
     ),
     29 => array(
         "name" => "mngSecondSpecies",
@@ -159,7 +159,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can discard or quarantine other species'),
         "type" => "activeplayer",
         "possibleactions" => array("discardSpecies", "quarantineSpecies", "lookAtBackup", "cancelMngSpecies"),
-        "transitions" => array("mngBackup" => 30, "betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("selectQuarantine" => 28, "mngBackup" => 30, "betweenActions" => 7, "cancel" => 2)
     ),
 
     30 => array(

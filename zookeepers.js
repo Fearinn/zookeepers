@@ -340,6 +340,15 @@ define([
           const stockKey = `quarantine_${player_id}:${quarantine}`;
 
           this[stockKey] = new ebg.stock();
+          this[stockKey].create(
+            this,
+            $(`zkp_quarantine_${player_id}:${quarantine}`),
+            this.cardWidth,
+            this.cardHeight
+          );
+
+          this[stockKey].setSelectionMode(1);
+          this[stockKey].extraClasses = "zkp_card";
           this[stockKey].image_items_per_row = 10;
 
           for (const species_id in this.allSpecies) {
@@ -585,7 +594,7 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+          this.addSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
         }
       }
 
@@ -654,7 +663,7 @@ define([
 
       if (stateName === "selectDismissedKeeper") {
         const playerId = this.getActivePlayerId();
-        this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+        this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
       }
 
       if (stateName === "selectDismissedPile") {
@@ -663,7 +672,7 @@ define([
 
       if (stateName === "selectReplacedKeeper") {
         const playerId = this.getActivePlayerId();
-        this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+        this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
       }
 
       if (stateName === "selectReplacedPile") {
@@ -671,7 +680,11 @@ define([
       }
 
       if (stateName === "selectAssignedKeeper") {
-        this.removeSelectableStyle(`.zkp_keeper-${playerId}`, ".stockitem");
+        this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+      }
+
+      if (stateName === "selectQuarantine") {
+        this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
       }
     },
 
@@ -1149,6 +1162,18 @@ define([
         }
 
         this.removeActionButtons();
+
+        this.addActionButton(
+          "cancel_btn",
+          _("Cancel"),
+          () => {
+            stock.unselectAll();
+            this.onCancelMngSpecies(item);
+          },
+          null,
+          null,
+          "red"
+        );
       }
     },
 
@@ -1203,6 +1228,18 @@ define([
         }
 
         this.removeActionButtons();
+
+        this.addActionButton(
+          "cancel_btn",
+          _("Cancel"),
+          () => {
+            stock.unselectAll();
+            this.onCancelMngSpecies(item);
+          },
+          null,
+          null,
+          "red"
+        );
       }
     },
 
@@ -1490,7 +1527,7 @@ define([
 
       const originKey = `visibleShop_${shop_position}`;
       const destinationKey = `board_${player_id}:${board_position}`;
-      const destinationElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
+      const originElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
 
       this.displayScoring(
         `zkp_visible_shop`,
@@ -1501,7 +1538,7 @@ define([
       this[destinationKey].addToStockWithId(
         `species_${species_id}`,
         `species_${species_id}`,
-        destinationElement
+        originElement
       );
 
       this.updateSpeciesCounters(notif.args.species_counters);
@@ -1545,16 +1582,16 @@ define([
 
       const originKey = `visibleShop_${column}`;
       const destinationKey = `quarantine_${player_id}:${quarantine}`;
-      const destinationElement = `zkp_quarantine_${player_id}:${quarantine}`;
-
-      console.log(destinationKey);
+      const originElement = `zkp_visible_species_${column}_item_${species_id}`;
 
       this[destinationKey].addToStockWithId(
         species_id,
         species_id,
-        destinationElement
+        originElement
       );
       this[originKey].removeFromStockById(species_id);
+
+      this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
       this.quarantinedSpecies = notif.args.quarantined_species;
     },
@@ -1673,12 +1710,12 @@ define([
       const originKey = `backupShop_${column}`;
       const lastInColumn = this[originKey].count();
       const destinationKey = `visibleShop_${column}`;
-      const destinationElement = `zkp_visible_species_${column}`;
+      const originElement = `zkp_backup_column:${column}_item_${lastInColumn}`;
 
       this[destinationKey].addToStockWithId(
         revealed_id,
         revealed_id,
-        destinationElement
+        originElement
       );
 
       if (lastInColumn > 0) {

@@ -219,10 +219,9 @@
 }
 
 .zkp_quarantine {
-  border: 2px solid red;
+  border-radius: 12px;
   height: 165px;
   width: 120px;
-  pointer-events: all;
 }
 
 .zkp_quarantine_ALL {
