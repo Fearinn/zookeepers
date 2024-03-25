@@ -457,11 +457,11 @@ class Zookeepers extends Table
 
     function getSavableQuarantinedWithFund()
     {
-        $savable_quarantined = array();
+        $savable_with_fund = array();
         $players = self::loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
-            $savable_quarantined[$player_id] = array();
+            $savable_with_fund[$player_id] = array();
             foreach ($this->quarantines as $quarantine) {
                 $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
 
@@ -483,7 +483,7 @@ class Zookeepers extends Table
             }
         }
 
-        return $savable_quarantined;
+        return $savable_with_fund;
     }
 
     function canPayCost($species_id)
@@ -518,7 +518,6 @@ class Zookeepers extends Table
         $kit_nbr = $resource_counters["kit"];
         $kit_cost = $cost["kit"];
         $available_kits_nbr = $kit_nbr - $kit_cost;
-
 
         if ($available_kits_nbr <= 0) {
             return null;
@@ -2146,12 +2145,16 @@ class Zookeepers extends Table
             self::getGameStateValue("secondStep") > 0
             && $this->gamestate->state()["name"] !== "mngSecondSpecies"
         ) {
-            self::setGameStateValue("secondStep", 0);
             self::setGameStateValue("mainAction", 3);
             $this->gamestate->nextState("cancelSecond");
             return;
         }
 
+        if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
+            self::setGameStateValue("mainAction", 3);
+        }
+
+        self::setGameStateValue("secondStep", 0);
         $this->gamestate->nextState("cancel");
     }
 

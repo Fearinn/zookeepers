@@ -1347,7 +1347,7 @@ $this->species_info = array(
     "class" => "mammal",
     "diet" => "carnivore",
     "status" => "LC",
-    "habitat" => array("TRO"),
+    "habitat" => array("AQU"),
     "continent" => array(
       "AF",
       "AM",

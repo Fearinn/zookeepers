@@ -95,6 +95,7 @@ define([
       );
       this.savableQuarantined = gamedatas.savableQuarantined;
       this.savableQuarantinedWithFund = gamedatas.savableQuarantinedWithFund;
+      console.log("setup", this.savableQuarantinedWithFund);
 
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
@@ -454,6 +455,7 @@ define([
         this.savableQuarantined = args.args.savable_quarantined;
         this.savableQuarantinedWithFund =
           args.args.savable_quarantined_with_fund;
+        console.log(this.savableQuarantinedWithFund, "playerTurn");
 
         this.keepersOnBoards = this.formatKeepersOnBoards(
           args.args.keepers_on_boards
@@ -865,6 +867,28 @@ define([
       return result;
     },
 
+    checkQuarantinedOwner: function (quarantined_id) {
+      const playerId = this.getActivePlayerId();
+
+      let isOwner = false;
+
+      for (const quarantine_id in this.allQuarantines) {
+        const quarantine = this.allQuarantines[quarantine_id];
+        const ownedQuarantine = this.quarantinedSpecies[playerId][quarantine];
+
+        if (ownedQuarantine && ownedQuarantine[quarantined_id]) {
+          isOwner = true;
+          break;
+        }
+      }
+
+      if (!isOwner) {
+        this.showMessage("This quarantine is not yours", "error");
+      }
+
+      return isOwner;
+    },
+
     addSelectableStyle: function (containerSelector, itemSelector = null) {
       const border = "3px solid green";
 
@@ -977,7 +1001,7 @@ define([
           const itemId = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may select an action with this keeper"
+            "${you} can select an action with this keeper"
           );
           this.updatePageTitle();
 
@@ -1016,7 +1040,7 @@ define([
           const item = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may select an action with this species"
+            "${you} can select an action with this species"
           );
           this.updatePageTitle();
 
@@ -1108,7 +1132,7 @@ define([
           const item = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may select an action with this species"
+            "${you} can select an action with this species"
           );
           this.updatePageTitle();
 
@@ -1172,28 +1196,32 @@ define([
         if (stock.getSelectedItems().length > 0) {
           const item = stock.getSelectedItems()[0].id;
 
-          this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may save this quarantined species"
-          );
-          this.updatePageTitle();
+          if (this.checkQuarantinedOwner(item)) {
+            this.gamedatas.gamestate.descriptionmyturn = _(
+              "${you} can save this quarantined species"
+            );
+            this.updatePageTitle();
 
-          if (this.savableQuarantinedWithFund[playerId][item]) {
-            this.addActionButton(
-              "save_species_btn",
-              _("Save (with conservation fund)"),
-              () => {
+            console.log(this.savableQuarantinedWithFund);
+
+            if (this.savableQuarantinedWithFund[playerId][item]) {
+              this.addActionButton(
+                "save_species_btn",
+                _("Save (with conservation fund)"),
+                () => {
+                  stock.unselectAll();
+                  this.onSaveQuarantined(item);
+                }
+              );
+            } else {
+              this.addActionButton("save_species_btn", _("Save"), () => {
                 stock.unselectAll();
                 this.onSaveQuarantined(item);
-              }
-            );
-          } else {
-            this.addActionButton("save_species_btn", _("Save"), () => {
-              stock.unselectAll();
-              this.onSaveQuarantined(item);
-            });
-          }
+              });
+            }
 
-          return;
+            return;
+          }
         }
 
         this.gamedatas.gamestate.descriptionmyturn = _(
@@ -1775,13 +1803,11 @@ define([
       const originKey = `backupShop_${column}`;
       const destinationKey = `quarantine_${player_id}:${quarantine}`;
 
-      let originElement = `zkp_backup_${column}_item_${backup_id}`;
+      let originElement = `zkp_backup_column:${column}_item_${backup_id}`;
 
       if (this.isCurrentPlayerActive()) {
         originElement = `zkp_backup_column:${column}_item_species_${species_id}`;
       }
-
-      console.log(originElement);
 
       this[destinationKey].addToStockWithId(
         species_id,
