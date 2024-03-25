@@ -53,6 +53,8 @@ define([
       this.visibleSpecies = {};
       this.savableSpecies = {};
       this.savableWithFund = {};
+      this.savableQuarantined = {};
+      this.savableQuarantinedWithFund = {};
       this.savedSpecies = {};
       this.allQuarantines = {};
       this.quarantinedSpecies = {};
@@ -91,6 +93,9 @@ define([
       this.savableWithFund = this.formatSavableSpecies(
         gamedatas.savableWithFund
       );
+      this.savableQuarantined = gamedatas.savableQuarantined;
+      this.savableQuarantinedWithFund = gamedatas.savableQuarantinedWithFund;
+
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
@@ -348,8 +353,13 @@ define([
           );
 
           this[stockKey].setSelectionMode(1);
+          dojo.connect(this[stockKey], "onChangeSelection", () => {
+            this.onSelectQuarantined(this[stockKey]);
+          });
+
           this[stockKey].extraClasses = "zkp_card";
           this[stockKey].image_items_per_row = 10;
+          this[stockKey].setSelectionMode(1);
 
           for (const species_id in this.allSpecies) {
             this[stockKey].addItemType(
@@ -363,13 +373,9 @@ define([
           const speciesInQuarantine =
             this.quarantinedSpecies[player_id][quarantine];
 
-          console.log(quarantine, speciesInQuarantine);
-
           for (const species_id in speciesInQuarantine) {
             this[stockKey].addToStockWithId(species_id, species_id);
           }
-
-          console.log(this[stockKey]);
         }
 
         this.speciesCounters[player_id] = new ebg.counter();
@@ -398,6 +404,12 @@ define([
           .query(`.zkp_keeper_${player_id}`)
           .connect("onclick", this, (event) => {
             this.onSelectAssignedKeeper(event);
+          });
+
+        dojo
+          .query(`.zkp_keeper_${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectQuarantinedKeeper(event);
           });
 
         dojo
@@ -439,6 +451,9 @@ define([
         this.savableWithFund = this.formatSavableSpecies(
           args.args.savable_with_fund
         );
+        this.savableQuarantined = args.args.savable_quarantined;
+        this.savableQuarantinedWithFund =
+          args.args.savable_quarantined_with_fund;
 
         this.keepersOnBoards = this.formatKeepersOnBoards(
           args.args.keepers_on_boards
@@ -604,6 +619,21 @@ define([
         }
       }
 
+      if (stateName === "selectQuarantinedKeeper") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            "Cancel",
+            "onCancelMngSpecies",
+            null,
+            null,
+            "red"
+          );
+
+          this.addSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        }
+      }
+
       if (stateName === "selectQuarantine") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
@@ -700,6 +730,10 @@ define([
       }
 
       if (stateName === "selectAssignedKeeper") {
+        this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+      }
+
+      if (stateName === "selectQuarantinedKeeper") {
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
       }
 
@@ -930,6 +964,247 @@ define([
             _ make a call to the game server
         
         */
+
+    // stock selections
+    onSelectKeeper: function (stock) {
+      if (
+        this.gamedatas.gamestate.name === "playerTurn" &&
+        this.isCurrentPlayerActive()
+      ) {
+        this.removeActionButtons();
+
+        if (stock.getSelectedItems().length > 0) {
+          const itemId = stock.getSelectedItems()[0].id;
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may select an action with this keeper"
+          );
+          this.updatePageTitle();
+
+          if (this.checkKeeperOwner(itemId).isOwner) {
+            this.addActionButton("replace_keeper_btn", _("Replace"), () => {
+              stock.unselectAll();
+              this.onReplaceKeeper(itemId);
+            });
+
+            this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
+              stock.unselectAll();
+              this.onDismissKeeper(itemId);
+            });
+          } else {
+            stock.unselectAll();
+          }
+
+          return;
+        }
+
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can do any free actions and one of the four main actions"
+        );
+        this.updatePageTitle();
+        this.addPlayerTurnButtons();
+      }
+    },
+
+    onSelectSpecies: function (stock) {
+      const stateName = this.gamedatas.gamestate.name;
+
+      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may select an action with this species"
+          );
+          this.updatePageTitle();
+
+          if (this.savableWithFund && this.savableWithFund[item]) {
+            this.addActionButton(
+              "save_species_btn",
+              _("Save (with conservation fund)"),
+              () => {
+                stock.unselectAll();
+                this.onSaveSpecies(item);
+              }
+            );
+          } else if (this.savableSpecies && this.savableSpecies[item]) {
+            this.addActionButton("save_species_btn", _("Save"), () => {
+              stock.unselectAll();
+              this.onSaveSpecies(item);
+            });
+          }
+
+          this.addActionButton("discard_species_btn", _("Discard"), () => {
+            stock.unselectAll();
+            this.onDiscardSpecies(item);
+          });
+
+          this.addActionButton(
+            "quarantine_species_btn",
+            _("Quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onQuarantineSpecies(item);
+            }
+          );
+          return;
+        }
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can do any free actions and one of the four main actions"
+        );
+        this.updatePageTitle();
+        this.addPlayerTurnButtons();
+        return;
+      }
+
+      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.addActionButton("discard_species_btn", _("Discard"), () => {
+            stock.unselectAll();
+            this.onDiscardSpecies(item);
+          });
+
+          this.addActionButton(
+            "quarantine_species_btn",
+            _("Quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onQuarantineSpecies(item);
+            }
+          );
+          return;
+        }
+
+        this.removeActionButtons();
+
+        this.addActionButton(
+          "cancel_btn",
+          _("Cancel"),
+          () => {
+            stock.unselectAll();
+            this.onCancelMngSpecies();
+          },
+          null,
+          null,
+          "red"
+        );
+      }
+    },
+
+    onSelectBackup: function (target, stock) {
+      const stateName = this.gamedatas.gamestate.name;
+
+      const column = target.split(":")[1];
+
+      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may select an action with this species"
+          );
+          this.updatePageTitle();
+
+          this.addActionButton(
+            "manage_backup_species_btn",
+            _("Look at and discard/quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onLookAtBackup(column, item);
+            }
+          );
+          return;
+        }
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can do any free actions and one of the four main actions"
+        );
+        this.updatePageTitle();
+        this.addPlayerTurnButtons();
+        return;
+      }
+
+      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.addActionButton(
+            "manage_backup_species_btn",
+            _("Look at and discard/quarantine"),
+            () => {
+              stock.unselectAll();
+              this.onLookAtBackup(column, item);
+            }
+          );
+          return;
+        }
+
+        this.removeActionButtons();
+
+        this.addActionButton(
+          "cancel_btn",
+          _("Cancel"),
+          () => {
+            stock.unselectAll();
+            this.onCancelMngSpecies();
+          },
+          null,
+          null,
+          "red"
+        );
+      }
+    },
+
+    onSelectQuarantined: function (stock) {
+      const stateName = this.gamedatas.gamestate.name;
+      const playerId = this.getActivePlayerId();
+
+      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+        this.removeActionButtons();
+
+        if (stock.getSelectedItems().length > 0) {
+          const item = stock.getSelectedItems()[0].id;
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} may save this quarantined species"
+          );
+          this.updatePageTitle();
+
+          if (this.savableQuarantinedWithFund[playerId][item]) {
+            this.addActionButton(
+              "save_species_btn",
+              _("Save (with conservation fund)"),
+              () => {
+                stock.unselectAll();
+                this.onSaveQuarantined(item);
+              }
+            );
+          } else {
+            this.addActionButton("save_species_btn", _("Save"), () => {
+              stock.unselectAll();
+              this.onSaveQuarantined(item);
+            });
+          }
+
+          return;
+        }
+
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can do any free actions and one of the four main actions"
+        );
+        this.updatePageTitle();
+        this.addPlayerTurnButtons();
+      }
+    },
+
+    // actions
     onPass: function () {
       const action = "pass";
 
@@ -972,46 +1247,6 @@ define([
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, { pile: parseInt(pile) });
-      }
-    },
-
-    onSelectKeeper: function (stock) {
-      if (
-        this.gamedatas.gamestate.name === "playerTurn" &&
-        this.isCurrentPlayerActive()
-      ) {
-        this.removeActionButtons();
-
-        if (stock.getSelectedItems().length > 0) {
-          const itemId = stock.getSelectedItems()[0].id;
-
-          this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may select an action with this keeper"
-          );
-          this.updatePageTitle();
-
-          if (this.checkKeeperOwner(itemId).isOwner) {
-            this.addActionButton("replace_keeper_btn", _("Replace"), () => {
-              stock.unselectAll();
-              this.onReplaceKeeper(itemId);
-            });
-
-            this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
-              stock.unselectAll();
-              this.onDismissKeeper(itemId);
-            });
-          } else {
-            stock.unselectAll();
-          }
-
-          return;
-        }
-
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
-        this.addPlayerTurnButtons();
       }
     },
 
@@ -1111,162 +1346,6 @@ define([
       }
     },
 
-    onSelectSpecies: function (stock) {
-      const stateName = this.gamedatas.gamestate.name;
-
-      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
-        this.removeActionButtons();
-
-        if (stock.getSelectedItems().length > 0) {
-          const item = stock.getSelectedItems()[0].id;
-
-          this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may select an action with this species"
-          );
-          this.updatePageTitle();
-
-          if (this.savableWithFund && this.savableWithFund[item]) {
-            this.addActionButton(
-              "save_species_btn",
-              _("Save (with conservation fund)"),
-              () => {
-                stock.unselectAll();
-                this.onSaveSpecies(item);
-              }
-            );
-          } else if (this.savableSpecies && this.savableSpecies[item]) {
-            this.addActionButton("save_species_btn", _("Save"), () => {
-              stock.unselectAll();
-              this.onSaveSpecies(item);
-            });
-          }
-
-          this.addActionButton("discard_species_btn", _("Discard"), () => {
-            stock.unselectAll();
-            this.onDiscardSpecies(item);
-          });
-
-          this.addActionButton(
-            "quarantine_species_btn",
-            _("Quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onQuarantineSpecies(item);
-            }
-          );
-          return;
-        }
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
-        this.addPlayerTurnButtons();
-        return;
-      }
-
-      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
-        this.removeActionButtons();
-        if (stock.getSelectedItems().length > 0) {
-          const item = stock.getSelectedItems()[0].id;
-
-          this.addActionButton("discard_species_btn", _("Discard"), () => {
-            stock.unselectAll();
-            this.onDiscardSpecies(item);
-          });
-
-          this.addActionButton(
-            "quarantine_species_btn",
-            _("Quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onQuarantineSpecies(item);
-            }
-          );
-          return;
-        }
-
-        this.removeActionButtons();
-
-        this.addActionButton(
-          "cancel_btn",
-          _("Cancel"),
-          () => {
-            stock.unselectAll();
-            this.onCancelMngSpecies(item);
-          },
-          null,
-          null,
-          "red"
-        );
-      }
-    },
-
-    onSelectBackup: function (target, stock) {
-      const stateName = this.gamedatas.gamestate.name;
-
-      const column = target.split(":")[1];
-
-      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
-        this.removeActionButtons();
-
-        if (stock.getSelectedItems().length > 0) {
-          const item = stock.getSelectedItems()[0].id;
-
-          this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} may select an action with this species"
-          );
-          this.updatePageTitle();
-
-          this.addActionButton(
-            "manage_backup_species_btn",
-            _("Look at and discard/quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onLookAtBackup(column, item);
-            }
-          );
-          return;
-        }
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
-        this.addPlayerTurnButtons();
-        return;
-      }
-
-      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
-        this.removeActionButtons();
-        if (stock.getSelectedItems().length > 0) {
-          const item = stock.getSelectedItems()[0].id;
-
-          this.addActionButton(
-            "manage_backup_species_btn",
-            _("Look at and discard/quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onLookAtBackup(column, item);
-            }
-          );
-          return;
-        }
-
-        this.removeActionButtons();
-
-        this.addActionButton(
-          "cancel_btn",
-          _("Cancel"),
-          () => {
-            stock.unselectAll();
-            this.onCancelMngSpecies(item);
-          },
-          null,
-          null,
-          "red"
-        );
-      }
-    },
-
     onSaveSpecies: function (speciesId) {
       const action = "saveSpecies";
 
@@ -1297,6 +1376,24 @@ define([
 
     onSelectAssignedKeeper: function (event) {
       const action = "selectAssignedKeeper";
+
+      const position = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
+      }
+    },
+
+    onSaveQuarantined: function (speciesId) {
+      const action = "saveQuarantined";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      }
+    },
+
+    onSelectQuarantinedKeeper: function (event) {
+      const action = "selectQuarantinedKeeper";
 
       const position = event.currentTarget.id.split(":")[1];
 
@@ -1395,6 +1492,7 @@ define([
       dojo.subscribe("collectResources", this, "notif_collectResources");
       dojo.subscribe("returnResources", this, "notif_returnResources");
       dojo.subscribe("saveSpecies", this, "notif_saveSpecies");
+      dojo.subscribe("saveQuarantined", this, "notif_saveQuarantined");
       dojo.subscribe("discardSpecies", this, "notif_discardSpecies");
       this.notifqueue.setSynchronous("discardSpecies", 1000);
       dojo.subscribe("quarantineSpecies", this, "notif_quarantineSpecies");
@@ -1574,6 +1672,34 @@ define([
 
       this.displayScoring(
         `zkp_visible_shop`,
+        notif.args.player_color,
+        notif.args.species_points
+      );
+
+      this[destinationKey].addToStockWithId(
+        `species_${species_id}`,
+        `species_${species_id}`,
+        originElement
+      );
+
+      this.updateSpeciesCounters(notif.args.species_counters);
+      this[originKey].removeFromStockById(species_id);
+    },
+
+    notif_saveQuarantined: function (notif) {
+      this.savedSpecies = notif.args.saved_species;
+
+      const player_id = notif.args.player_id;
+      const board_position = notif.args.board_position;
+      const quarantine = notif.args.quarantine;
+      const species_id = notif.args.species_id;
+
+      const originKey = `quarantine_${player_id}:${quarantine}`;
+      const destinationKey = `board_${player_id}:${board_position}`;
+      const originElement = `zkp_${originKey}_item_${species_id}`;
+
+      this.displayScoring(
+        `zkp_${originKey}`,
         notif.args.player_color,
         notif.args.species_points
       );

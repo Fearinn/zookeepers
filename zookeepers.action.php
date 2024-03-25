@@ -161,6 +161,22 @@ class action_zookeepers extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function saveQuarantined()
+  {
+    self::setAjaxMode();
+    $species_id = self::getArg("species_id", AT_posint, true);
+    $this->game->saveQuarantined($species_id);
+    self::ajaxResponse();
+  }
+
+  public function selectQuarantinedKeeper()
+  {
+    self::setAjaxMode();
+    $board_position = self::getArg("board_position", AT_posint, true);
+    $this->game->selectQuarantinedKeeper($board_position);
+    self::ajaxResponse();
+  }
+
   public function discardSpecies()
   {
     self::setAjaxMode();

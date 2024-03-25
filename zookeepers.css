@@ -271,11 +271,7 @@
   box-shadow: none;
 }
 
-.stockitem:not(
-    .zkp_visible_species > .stockitem,
-    .zkp_backup_column > .stockitem,
-    .zkp_hired_keeper
-  ) {
+.stockitem:not(:first-child, .zkp_backup_column > .stockitem) {
   pointer-events: none;
 }
 

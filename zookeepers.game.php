@@ -212,6 +212,8 @@ class Zookeepers extends Table
         $result["visibleSpecies"] = $this->getVisibleSpecies();
         $result["savableSpecies"] = $this->getSavableSpecies();
         $result["savableWithFund"] = $this->getSavableWithFund();
+        $result["savableQuarantined"] = $this->getSavableQuarantined();
+        $result["savableQuarantinedWithFund"] = $this->getSavableQuarantinedWithFund();
         $result["allQuarantines"] = $this->quarantines;
         $result["quarantinableSpecies"] = $this->getQuarantinableSpecies();
         $result["savedSpecies"] = $this->getSavedSpecies();
@@ -420,6 +422,68 @@ class Zookeepers extends Table
         }
 
         return $savable_with_fund;
+    }
+
+    function getSavableQuarantined()
+    {
+        $savable_quarantined = array();
+        $players = self::loadPlayersBasicInfos();
+
+        foreach ($players as $player_id => $player) {
+            $savable_quarantined[$player_id] = array();
+            foreach ($this->quarantines as $quarantine) {
+                $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
+
+                $species_card = array_shift($cards_in_location);
+
+                if ($species_card === null) {
+                    continue;
+                }
+
+                $species_id = $species_card["type_arg"];
+
+                $can_assign = count($this->getAssignableKeepers($species_id)) > 0;
+                $can_pay_cost = $this->canPayCost($species_id);
+                $can_pay_with_fund = $this->canPayWithFund($species_id);
+
+                if ($can_assign && ($can_pay_cost || $can_pay_with_fund)) {
+                    $savable_quarantined[$player_id][$species_id] = $species_card;
+                }
+            }
+        }
+
+        return $savable_quarantined;
+    }
+
+    function getSavableQuarantinedWithFund()
+    {
+        $savable_quarantined = array();
+        $players = self::loadPlayersBasicInfos();
+
+        foreach ($players as $player_id => $player) {
+            $savable_quarantined[$player_id] = array();
+            foreach ($this->quarantines as $quarantine) {
+                $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
+
+                $species_card = array_shift($cards_in_location);
+
+                if ($species_card === null) {
+                    continue;
+                }
+
+                $species_id = $species_card["type_arg"];
+
+                $can_assign = count($this->getAssignableKeepers($species_id)) > 0;
+                $can_pay_cost = $this->canPayCost($species_id);
+                $can_pay_with_fund = $this->canPayWithFund($species_id);
+
+                if ($can_assign && !$can_pay_cost && $can_pay_with_fund) {
+                    $savable_with_fund[$player_id][$species_id] = $species_card;
+                }
+            }
+        }
+
+        return $savable_quarantined;
     }
 
     function canPayCost($species_id)
@@ -1425,6 +1489,164 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenExcessReturns");
     }
 
+    function saveQuarantined($species_id)
+    {
+        self::checkAction("saveQuarantined");
+
+        if (self::getGameStateValue("mainAction")) {
+            throw new BgaUserException(self::_("You already used a main action this turn"));
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $can_save = count($this->getSavableQuarantined()) > 0;
+
+        if (!$can_save) {
+            throw new BgaUserException(self::_("You can't save any of the available species"));
+        }
+
+        $species_card = null;
+
+        foreach ($this->quarantines as $quarantine) {
+            $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
+            $species_card = $this->findCardByTypeArg($cards_in_location, $species_id);
+
+            if ($species_card !==  null) {
+                break;
+            }
+        }
+
+        $savable_species = array_keys($this->getSavableQuarantined()[$player_id]);
+
+        if ($species_card === null) {
+            throw new BgaUserException("Species not found");
+        }
+
+        if (!in_array($species_id, $savable_species)) {
+            throw new BgaUserException(self::_("You don't have the required resources or keepers to save this species"));
+        }
+
+        self::setGameStateValue("selectedSpecies", $species_card["id"]);
+        $this->gamestate->nextState("selectQuarantinedKeeper");
+    }
+
+    function selectQuarantinedKeeper($board_position)
+    {
+        self::checkAction("selectQuarantinedKeeper");
+
+        if ($board_position < 1 || $board_position > 4) {
+            throw new BgaUserException("Invalid board position");
+        }
+
+        $player_id = self::getActivePlayerId();
+
+        $species = $this->species->getCard(self::getGameStateValue("selectedSpecies"));
+
+        if (!$species) {
+            throw new BgaUserException(self::_("Species not found"));
+        }
+
+        $species_id = $species["type_arg"];
+
+        $keeper = null;
+        $keeper_id = null;
+        foreach ($this->keepers->getCardsInLocation("board:" . $board_position, $player_id) as $card) {
+            $keeper = $card;
+            $keeper_id = $card["type_arg"];
+        }
+
+        $assignable_keepers = array_keys($this->getAssignableKeepers($species_id));
+
+        if (!in_array($keeper_id, $assignable_keepers)) {
+            throw new BgaUserException(self::_("You can't assign this species to this keeper"));
+        }
+
+        $this->species->moveCard(
+            $species["id"],
+            "board:" . $board_position,
+            $player_id
+        );
+
+        $returned_cost = $this->returnCost($species_id);
+
+        foreach ($returned_cost as $type => $cost) {
+            if ($cost > 0) {
+                $this->notifyAllPlayers(
+                    "returnResources",
+                    clienttranslate('${player_name} uses ${returned_nbr} of ${type} to save the ${species_name}'),
+                    array(
+                        "player_name" => $this->getActivePlayerName(),
+                        "player_id" => $player_id,
+                        "returned_nbr" => $cost,
+                        "type" => $type,
+                        "resource_counters" => $this->getResourceCounters(),
+                        "species_name" => $species["type"]
+                    )
+                );
+            }
+        }
+
+        $points = $this->species_info[$species_id]["points"] + 2;
+
+        $quarantine = explode(":", $species["location"])[1];
+        $quarantine_label = $quarantine === "ALL" ? "generic" : $quarantine;
+
+        $this->notifyAllPlayers(
+            "saveQuarantined",
+            clienttranslate('${player_name} saves the ${species_name} from their ${quarantine_label} quarantine and assigns it to ${keeper_name}, 
+            scoring ${species_points} point(s)'),
+            array(
+                "player_name" => self::getActivePlayerName(),
+                "player_id" => $player_id,
+                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "species_name" => $species["type"],
+                "species_id" => $species["type_arg"],
+                "species_points" => $points,
+                "shop_position" => $species["location_arg"],
+                "keeper_name" => $keeper["type"],
+                "board_position" => $board_position,
+                "saved_species" => $this->getSavedSpecies(),
+                "quarantine" => $quarantine,
+                "quarantine_label" => $quarantine_label,
+                "assignable_keepers" => $assignable_keepers,
+                "species_counters" => $this->getSpeciesCounters(),
+            )
+        );
+
+        $this->updateScore($player_id, $points);
+
+        $completed_card = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_card !== null) {
+            $completed_id = $completed_card["type_arg"];
+
+            if ($keeper_id == $completed_id) {
+                $keeper_level = $this->keepers_info[$keeper_id]["level"];
+
+                $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
+                    "player_name" => self::getActivePlayerName(),
+                    "player_id" => $player_id,
+                    "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                    "keeper_id" => $keeper_id,
+                    "keeper_name" => $keeper["type"],
+                    "keeper_level" => $keeper_level,
+                    "board_position" => $board_position,
+                    "completed_keepers" => $this->getCompletedKeepers(),
+                ));
+
+                $this->updateScore($player_id, $keeper_level);
+            }
+        }
+
+        $this->revealSpecies($species["location_arg"]);
+
+        $this->updateHighestSaved($player_id);
+
+        self::setGameStateValue("mainAction", 2);
+
+        $this->gamestate->nextState("betweenActions");
+    }
+
     function saveSpecies($shop_position)
     {
         self::checkAction("saveSpecies");
@@ -1444,15 +1666,15 @@ class Zookeepers extends Table
         }
 
         $species_id = null;
-        $species_card = null;
+        $species_card_id = null;
         foreach ($this->species->getCardsInLocation("shop_visible", $shop_position) as $card) {
             $species_id = $card["type_arg"];
-            $species_card = $card["id"];
+            $species_card_id = $card["id"];
         }
 
         $savable_species_ids = array_keys($this->getSavableSpecies());
 
-        if ($species_id === null || $species_card === null) {
+        if ($species_id === null || $species_card_id === null) {
             throw new BgaUserException(self::_("This species is not available to be saved"));
         }
 
@@ -1460,7 +1682,7 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("You don't have the required resources or keepers to save this species"));
         }
 
-        self::setGameStateValue("selectedSpecies", $species_card);
+        self::setGameStateValue("selectedSpecies", $species_card_id);
         $this->gamestate->nextState("selectAssignedKeeper");
     }
 
@@ -1925,6 +2147,7 @@ class Zookeepers extends Table
             && $this->gamestate->state()["name"] !== "mngSecondSpecies"
         ) {
             self::setGameStateValue("secondStep", 0);
+            self::setGameStateValue("mainAction", 3);
             $this->gamestate->nextState("cancelSecond");
             return;
         }
@@ -1951,6 +2174,8 @@ class Zookeepers extends Table
             "keepers_on_boards" => $this->getKeepersOnBoards(),
             "savable_species" => $this->getSavableSpecies(),
             "savable_with_fund" => $this->getSavableWithFund(),
+            "savable_quarantined" => $this->getSavableQuarantined(),
+            "savable_quarantined_with_fund" => $this->getSavableQuarantinedWithFund(),
             "quarantinable_species" => $this->getQuarantinableSpecies(),
         );
     }
