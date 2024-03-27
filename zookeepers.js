@@ -96,8 +96,6 @@ define([
       );
       this.savableQuarantined = gamedatas.savableQuarantined;
       this.savableQuarantinedWithFund = gamedatas.savableQuarantinedWithFund;
-      console.log("setup", this.savableQuarantinedWithFund);
-
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
@@ -677,17 +675,26 @@ define([
         });
       }
 
-      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
-        this.addActionButton(
-          "cancel_btn",
-          _("Cancel"),
-          () => {
-            this.onCancelMngSpecies();
-          },
-          null,
-          null,
-          "red"
-        );
+      if (stateName === "mngSecondSpecies") {
+        if (this.isCurrentPlayerActive()) {
+          if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+            this.addActionButton(
+              "new_species_btn",
+              _("New Species"),
+              "onNewSpecies"
+            );
+          }
+          this.addActionButton(
+            "cancel_btn",
+            _("Cancel"),
+            () => {
+              this.onCancelMngSpecies();
+            },
+            null,
+            null,
+            "red"
+          );
+        }
       }
 
       if (stateName === "betweenActions") {
@@ -773,8 +780,7 @@ define([
       }
 
       if (this.isCurrentPlayerActive()) {
-        console.log(this.emptyColumnNbr);
-        if (this.emptyColumnNbr >= 2) {
+        if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
           this.addActionButton(
             "new_species_btn",
             _("New Species"),
@@ -1212,8 +1218,6 @@ define([
             );
             this.updatePageTitle();
 
-            console.log(this.savableQuarantinedWithFund);
-
             if (this.savableQuarantinedWithFund[playerId][item]) {
               this.addActionButton(
                 "save_species_btn",
@@ -1559,6 +1563,7 @@ define([
         "notif_discardAllKeptSpecies"
       );
       dojo.subscribe("newSpecies", this, "notif_newSpecies");
+      dojo.subscribe("newVisibleSpecies", this, "notif_newVisibleSpecies");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
     },
@@ -2036,10 +2041,29 @@ define([
     },
 
     notif_newSpecies(notif) {
-      this.emptyColumnNbr = notif.args.empty_column_nbr;
       this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;
+
+      const deckElement = "zkp_species_deck";
+      for (let column = 1; column <= 4; column++) {
+        const backupKey = `backupShop_${column}`;
+        const visibleKey = `visibleShop_${column}`;
+
+        this[backupKey].removeAllTo(deckElement);
+        this[visibleKey].removeAllTo(deckElement);
+
+        for (let backup = 1; backup <= 2; backup++) {
+          this[backupKey].addToStockWithId(0, backup, deckElement);
+        }
+
+        const speciesId = this.visibleSpecies[column]?.type_arg;
+        if (speciesId) {
+          this[visibleKey].addToStockWithId(speciesId, speciesId, deckElement);
+        }
+      }
     },
+
+    notif_newVisibleSpecies(notif) {},
 
     notif_newScores: function (notif) {
       if (this.isRealTimeScoreTracking || notif.args.final_scores_calc) {

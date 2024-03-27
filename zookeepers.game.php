@@ -379,9 +379,9 @@ class Zookeepers extends Table
     function getVisibleSpecies()
     {
         $visible_species = array();
-        for ($i = 1; $i <= 4; $i++) {
-            $species = $this->species->getCardsInLocation("shop_visible", $i);
-            $visible_species[$i] = array_shift($species);
+        for ($position = 1; $position <= 4; $position++) {
+            $species = $this->species->getCardsInLocation("shop_visible", $position);
+            $visible_species[$position] = array_shift($species);
         }
 
         return $visible_species;
@@ -948,13 +948,12 @@ class Zookeepers extends Table
     {
 
         $empty_column_nbr = $this->getEmptyColumnNbr();
-        if ($empty_column_nbr  < 2) {
+        if ($empty_column_nbr < 2) {
             throw new BgaUserException("You can't draw new species until there are 2 or more empty species columns");
         }
 
         $backup_species = $this->species->getCardsInLocation("shop_backup");
         $visible_species = $this->species->getCardsInLocation("shop_visible");
-
 
         foreach ($backup_species as $card_id => $species) {
             $this->species->insertCardOnExtremePosition($card_id, "deck", false);
@@ -965,20 +964,29 @@ class Zookeepers extends Table
         }
 
         for ($position = 1; $position <= 4; $position++) {
-            $this->species->pickCardsForLocation(2, "shop_backup", $position);
-            $this->species->pickCardForLocation("shop_visible", $position);
+            $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
+            $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
         $this->notifyAllPlayers(
             "newSpecies",
-            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws new species'),
+            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws 12 new species'),
             array(
                 "player_name" => self::getActivePlayerName(),
-                "empty_column_nbr" => $this->getEmptyColumnNbr(),
                 "visible_species" => $this->getVisibleSpecies(),
                 "backup_species" => $this->getBackupSpecies(),
             )
         );
+
+        for ($position = 1; $position <= 4; $position++) {
+            foreach ($this->species->getCardsInLocation("shop_visible", $position) as $species) {
+                $this->notifyAllPlayers(
+                    "newVisibleSpecies",
+                    clienttranslate('${species_name} is the new face up species in column ${shop_position}'),
+                    array("species_name" => $species["type"], "shop_position" => $position)
+                );
+            }
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////////
