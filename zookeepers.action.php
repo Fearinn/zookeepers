@@ -250,4 +250,11 @@ class action_zookeepers extends APP_GameAction
     $this->game->cancelMngSpecies();
     self::ajaxResponse();
   }
+
+  public function newSpecies()
+  {
+    self::setAjaxMode();
+    $this->game->newSpecies();
+    self::ajaxResponse();
+  }
 }

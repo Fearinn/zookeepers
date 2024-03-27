@@ -220,6 +220,7 @@ class Zookeepers extends Table
         $result["quarantinedSpecies"] = $this->getQuarantinedSpecies();
         $result["completedKeepers"] = $this->getCompletedKeepers();
         $result["speciesCounters"] = $this->getSpeciesCounters();
+        $result["emptyColumnNbr"] = $this->getEmptyColumnNbr();
 
         $players = self::loadPlayersBasicInfos();
 
@@ -925,6 +926,59 @@ class Zookeepers extends Table
         }
 
         self::notifyAllPlayers("newScores", '', array('player_id' => $player_id, 'new_scores' => $new_scores));
+    }
+
+    function getEmptyColumnNbr()
+    {
+        $empty_column_nbr = 0;
+
+        for ($position = 1; $position <= 4; $position++) {
+            $backup_species_nbr = $this->species->countCardsInLocation("shop_backup", $position);
+            $visible_species_nbr = $this->species->countCardsInLocation("shop_visible", $position);
+
+            if ($backup_species_nbr + $visible_species_nbr == 0) {
+                $empty_column_nbr++;
+            }
+        }
+
+        return $empty_column_nbr;
+    }
+
+    function drawNewSpecies()
+    {
+
+        $empty_column_nbr = $this->getEmptyColumnNbr();
+        if ($empty_column_nbr  < 2) {
+            throw new BgaUserException("You can't draw new species until there are 2 or more empty species columns");
+        }
+
+        $backup_species = $this->species->getCardsInLocation("shop_backup");
+        $visible_species = $this->species->getCardsInLocation("shop_visible");
+
+
+        foreach ($backup_species as $card_id => $species) {
+            $this->species->insertCardOnExtremePosition($card_id, "deck", false);
+        }
+
+        foreach ($visible_species as $card_id => $species) {
+            $this->species->insertCardOnExtremePosition($card_id, "deck", false);
+        }
+
+        for ($position = 1; $position <= 4; $position++) {
+            $this->species->pickCardsForLocation(2, "shop_backup", $position);
+            $this->species->pickCardForLocation("shop_visible", $position);
+        }
+
+        $this->notifyAllPlayers(
+            "newSpecies",
+            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws new species'),
+            array(
+                "player_name" => self::getActivePlayerName(),
+                "empty_column_nbr" => $this->getEmptyColumnNbr(),
+                "visible_species" => $this->getVisibleSpecies(),
+                "backup_species" => $this->getBackupSpecies(),
+            )
+        );
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2158,6 +2212,21 @@ class Zookeepers extends Table
         $this->gamestate->nextState("cancel");
     }
 
+    function newSpecies()
+    {
+        self::checkAction("newSpecies");
+
+        $this->drawNewSpecies();
+
+        self::setGameStateValue("freeAction", 1);
+
+        if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
+            $this->gamestate->nextState("mngSecondSpecies");
+            return;
+        }
+
+        $this->gamestate->nextState("betweenActions");
+    }
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state arguments
@@ -2180,6 +2249,7 @@ class Zookeepers extends Table
             "savable_quarantined" => $this->getSavableQuarantined(),
             "savable_quarantined_with_fund" => $this->getSavableQuarantinedWithFund(),
             "quarantinable_species" => $this->getQuarantinableSpecies(),
+            "empty_column_nbr" => $this->getEmptyColumnNbr()
         );
     }
 

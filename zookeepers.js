@@ -43,7 +43,6 @@ define([
       this.freeAction = 0;
       this.resourceCounters = {};
       this.bagCounters = {};
-      this.isBagEmpty = false;
       this.allKeepers = {};
       this.pileCounters = {};
       this.pilesTops = {};
@@ -60,6 +59,8 @@ define([
       this.quarantinedSpecies = {};
       this.completedKeepers = {};
       this.speciesCounters = {};
+      this.emptyColumnNbr = 0;
+      this.isBagEmpty = false;
     },
 
     /*
@@ -102,6 +103,7 @@ define([
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
+      this.emptyColumnNbr = gamedatas.emptyColumnNbr;
 
       for (const player_id in gamedatas.players) {
         const player = gamedatas.players[player_id];
@@ -455,11 +457,10 @@ define([
         this.savableQuarantined = args.args.savable_quarantined;
         this.savableQuarantinedWithFund =
           args.args.savable_quarantined_with_fund;
-        console.log(this.savableQuarantinedWithFund, "playerTurn");
-
         this.keepersOnBoards = this.formatKeepersOnBoards(
           args.args.keepers_on_boards
         );
+        this.emptyColumnNbr = args.args.empty_column_nbr;
 
         this.addPlayerTurnButtons();
       }
@@ -759,7 +760,7 @@ define([
     ///////////////////////////////////////////////////
     //// Utility methods
 
-    addPlayerTurnButtons: function (args) {
+    addPlayerTurnButtons: function () {
       const playerId = this.getActivePlayerId();
 
       let openBoardPosition = 0;
@@ -772,6 +773,15 @@ define([
       }
 
       if (this.isCurrentPlayerActive()) {
+        console.log(this.emptyColumnNbr);
+        if (this.emptyColumnNbr >= 2) {
+          this.addActionButton(
+            "new_species_btn",
+            _("New Species"),
+            "onNewSpecies"
+          );
+        }
+
         if (this.mainAction < 1) {
           if (openBoardPosition > 0) {
             this.addActionButton(
@@ -1500,6 +1510,14 @@ define([
       }
     },
 
+    onNewSpecies: function () {
+      const action = "newSpecies";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action);
+      }
+    },
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -1540,6 +1558,7 @@ define([
         this,
         "notif_discardAllKeptSpecies"
       );
+      dojo.subscribe("newSpecies", this, "notif_newSpecies");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
     },
@@ -2014,6 +2033,12 @@ define([
 
         this.completedKeepers = notif.args.completed_keepers;
       }
+    },
+
+    notif_newSpecies(notif) {
+      this.emptyColumnNbr = notif.args.empty_column_nbr;
+      this.backupSpecies = notif.args.backup_species;
+      this.visibleSpecies = notif.args.visible_species;
     },
 
     notif_newScores: function (notif) {
