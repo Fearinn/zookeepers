@@ -1958,9 +1958,10 @@ define([
       const revealed_id = notif.args.revealed_id;
 
       const originKey = `backupShop_${column}`;
-      const lastInColumn = this[originKey].count();
+      const stockItems = this[originKey].getAllItems();
+      const backupId = stockItems[0].id;
       const destinationKey = `visibleShop_${column}`;
-      const originElement = `zkp_backup_column:${column}_item_${lastInColumn}`;
+      const originElement = `zkp_backup_column:${column}_item_${backupId}`;
 
       this[destinationKey].addToStockWithId(
         revealed_id,
@@ -1968,9 +1969,7 @@ define([
         originElement
       );
 
-      if (lastInColumn > 0) {
-        this[originKey].removeFromStockById(lastInColumn);
-      }
+      this[originKey].removeFromStockById(backupId);
 
       this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;
