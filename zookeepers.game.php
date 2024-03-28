@@ -520,7 +520,7 @@ class Zookeepers extends Table
         $kit_cost = $cost["kit"];
         $available_kits_nbr = $kit_nbr - $kit_cost;
 
-        if ($available_kits_nbr <= 0) {
+        if ($available_kits_nbr == 0) {
             return null;
         }
 
@@ -722,7 +722,7 @@ class Zookeepers extends Table
     function revealSpecies()
     {
         for ($position = 1; $position <= 4; $position++) {
-            if ($this->species->countCardsInLocation("shop_visible", $position) <= 0) {
+            if ($this->species->countCardsInLocation("shop_visible", $position) == 0) {
                 $species_in_location = $this->species->getCardsInLocation("shop_backup", $position);
                 $species = array_shift($species_in_location);
 
@@ -2346,7 +2346,17 @@ class Zookeepers extends Table
         }
 
         $this->revealSpecies();
+
+        $backup_species_nbr = $this->species->countCardsInLocation("shop_backup");
+        $visible_species_nbr = $this->species->countCardsInLocation("shop_visible");
+
+
         self::activeNextPlayer();
+
+        if ($backup_species_nbr + $visible_species_nbr == 0) {
+            $this->drawNewSpecies();
+        }
+
         $next_player_id = self::getActivePlayerId();
         $this->giveExtraTime($next_player_id);
 
