@@ -719,25 +719,28 @@ class Zookeepers extends Table
         return $returned_cost;
     }
 
-    function revealSpecies($shop_position)
+    function revealSpecies()
     {
-        $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
-        $species = array_shift($species_in_location);
+        for ($position = 1; $position <= 4; $position++) {
+            if ($this->species->countCardsInLocation("shop_visible", $position) <= 0) {
+                $species_in_location = $this->species->getCardsInLocation("shop_backup", $position);
+                $species = array_shift($species_in_location);
 
-        if ($species) {
-            $this->species->moveCard($species["id"], "shop_visible", $shop_position);
-
-            $this->notifyAllPlayers(
-                "revealSpecies",
-                clienttranslate('A new species, ${species_name}, is revealed in column ${shop_position}'),
-                array(
-                    "shop_position" => $shop_position,
-                    "species_name" => $species["type"],
-                    "revealed_id" => $species["type_arg"],
-                    "backup_species" => $this->getBackupSpecies(),
-                    "visible_species" => $this->getVisibleSpecies(),
-                )
-            );
+                if ($species) {
+                    $this->species->moveCard($species["id"], "shop_visible", $position);
+                    $this->notifyAllPlayers(
+                        "revealSpecies",
+                        clienttranslate('A new species, ${species_name}, is revealed in column ${shop_position}'),
+                        array(
+                            "shop_position" => $position,
+                            "species_name" => $species["type"],
+                            "revealed_id" => $species["type_arg"],
+                            "backup_species" => $this->getBackupSpecies(),
+                            "visible_species" => $this->getVisibleSpecies(),
+                        )
+                    );
+                }
+            }
         }
     }
 
@@ -1699,8 +1702,6 @@ class Zookeepers extends Table
             }
         }
 
-        $this->revealSpecies($species["location_arg"]);
-
         $this->updateHighestSaved($player_id);
 
         self::setGameStateValue("mainAction", 2);
@@ -1853,8 +1854,6 @@ class Zookeepers extends Table
                 $this->updateScore($player_id, $keeper_level);
             }
         }
-
-        $this->revealSpecies($species["location_arg"]);
 
         $this->updateHighestSaved($player_id);
 
@@ -2098,8 +2097,6 @@ class Zookeepers extends Table
             ),
         );
 
-        $this->revealSpecies($shop_position);
-
         if (self::getGameStateValue("secondStep") > 0) {
             self::setGameStateValue("mainAction", 4);
             $this->gamestate->nextState("betweenActions");
@@ -2182,7 +2179,6 @@ class Zookeepers extends Table
         );
 
         $this->updateScore($player_id, -2);
-        $this->revealSpecies($species["location_arg"]);
 
         if (self::getGameStateValue("secondStep") == 0) {
             self::setGameStateValue("secondStep", 1);
@@ -2344,11 +2340,12 @@ class Zookeepers extends Table
             self::setGameStateValue("lastTurn", $last_turn);
         }
 
-        if (self::getGameStateValue("lastTurn") === count(self::loadPlayersBasicInfos())) {
+        if (self::getGameStateValue("lastTurn") == count(self::loadPlayersBasicInfos())) {
             $this->gamestate->nextState("finalScoresCalc");
             return;
         }
 
+        $this->revealSpecies();
         self::activeNextPlayer();
         $next_player_id = self::getActivePlayerId();
         $this->giveExtraTime($next_player_id);
