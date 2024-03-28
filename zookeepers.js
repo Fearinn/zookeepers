@@ -230,6 +230,8 @@ define([
             }
           }
 
+          this[stockKey].image_items_per_row = 7;
+
           const completedKeeper = this.completedKeepers[player_id][position];
 
           if (completedKeeper) {
@@ -1728,11 +1730,13 @@ define([
         notif.args.species_points
       );
 
+      this[destinationKey].image_items_per_row = 10;
       this[destinationKey].addToStockWithId(
         `species_${species_id}`,
         `species_${species_id}`,
         originElement
       );
+      this[destinationKey].image_items_per_row = 7;
 
       this.updateSpeciesCounters(notif.args.species_counters);
       this[originKey].removeFromStockById(species_id);
@@ -1856,7 +1860,6 @@ define([
       this[stockKey].removeFromStockById(backup_id);
 
       this[stockKey].image_items_per_row = 10;
-
       this[stockKey].addItemType(
         species_id,
         backup_id == 1 ? -1 : 1,
