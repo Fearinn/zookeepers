@@ -992,6 +992,16 @@ class Zookeepers extends Table
         }
     }
 
+    function autoDrawNewSpecies()
+    {
+        $backup_species_nbr = $this->species->countCardsInLocation("shop_backup");
+        $visible_species_nbr = $this->species->countCardsInLocation("shop_visible");
+
+        if ($backup_species_nbr + $visible_species_nbr == 0) {
+            $this->drawNewSpecies();
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
     //////////// 
@@ -1967,6 +1977,8 @@ class Zookeepers extends Table
         self::setGameStateValue("selectedPosition", 0);
         self::setGameStateValue("secondStep", 1);
 
+        $this->autoDrawNewSpecies();
+
         $this->gamestate->nextState("mngSecondSpecies");
     }
 
@@ -2052,6 +2064,7 @@ class Zookeepers extends Table
         $this->updateScore($player_id, -2);
 
         if (self::getGameStateValue("secondStep") == 0) {
+            $this->autoDrawNewSpecies();
             self::setGameStateValue("secondStep", 1);
             self::setGameStateValue("selectedSpecies", 0);
             $this->gamestate->nextState("mngSecondSpecies");
@@ -2103,10 +2116,10 @@ class Zookeepers extends Table
             return;
         }
 
+        $this->autoDrawNewSpecies();
         self::setGameStateValue("secondStep", 1);
         $this->gamestate->nextState("mngSecondSpecies");
     }
-
 
     function quarantineSpecies($species_id)
     {
@@ -2181,6 +2194,7 @@ class Zookeepers extends Table
         $this->updateScore($player_id, -2);
 
         if (self::getGameStateValue("secondStep") == 0) {
+            $this->autoDrawNewSpecies();
             self::setGameStateValue("secondStep", 1);
             self::setGameStateValue("selectedSpecies", 0);
             $this->gamestate->nextState("mngSecondSpecies");
@@ -2315,6 +2329,8 @@ class Zookeepers extends Table
         self::setGameStateValue("selectedBackup", 0);
         self::setGameStateValue("secondStep", 0);
 
+        $this->autoDrawNewSpecies();
+
         $this->gamestate->nextState("nextAction");
     }
 
@@ -2352,16 +2368,7 @@ class Zookeepers extends Table
 
         $this->revealSpecies();
 
-        $backup_species_nbr = $this->species->countCardsInLocation("shop_backup");
-        $visible_species_nbr = $this->species->countCardsInLocation("shop_visible");
-
-
         self::activeNextPlayer();
-
-        if ($backup_species_nbr + $visible_species_nbr == 0) {
-            $this->drawNewSpecies();
-        }
-
         $next_player_id = self::getActivePlayerId();
         $this->giveExtraTime($next_player_id);
 
