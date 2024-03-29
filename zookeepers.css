@@ -179,7 +179,7 @@
 
 .zkp_playmats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 666.7px);
+  grid-template-columns: repeat(auto-fit, 620px);
   justify-content: center;
   gap: 8px;
   width: 100%;
@@ -191,7 +191,7 @@
   justify-content: space-between;
   margin: 0;
   padding: 8px;
-  width: 666.7px;
+  width: 100%;
 }
 
 .zkp_playmat {
