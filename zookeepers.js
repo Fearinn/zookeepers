@@ -1962,7 +1962,8 @@ define([
 
       const originKey = `backupShop_${column}`;
       const stockItems = this[originKey].getAllItems();
-      const backupId = stockItems[0].id;
+      const lastInColumn = stockItems.length - 1;
+      const backupId = stockItems[lastInColumn].id;
       const destinationKey = `visibleShop_${column}`;
       const originElement = `zkp_backup_column:${column}_item_${backupId}`;
 
