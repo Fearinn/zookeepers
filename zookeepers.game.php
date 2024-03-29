@@ -730,7 +730,7 @@ class Zookeepers extends Table
                     $this->species->moveCard($species["id"], "shop_visible", $position);
                     $this->notifyAllPlayers(
                         "revealSpecies",
-                        clienttranslate('A new species, ${species_name}, is revealed in column ${shop_position}'),
+                        clienttranslate('The ${species_name} is flipped over and revealed'),
                         array(
                             "shop_position" => $position,
                             "species_name" => $species["type"],
@@ -947,7 +947,7 @@ class Zookeepers extends Table
         return $empty_column_nbr;
     }
 
-    function drawNewSpecies()
+    function drawNewSpecies($auto = false)
     {
 
         $empty_column_nbr = $this->getEmptyColumnNbr();
@@ -971,9 +971,12 @@ class Zookeepers extends Table
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
+        $message = $auto ? 'The grid is refilled with 12 new species' :
+            '${player_name} moves all species from the grid to the bottom of the deck and draws 12 new species';
+
         $this->notifyAllPlayers(
             "newSpecies",
-            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws 12 new species'),
+            clienttranslate($message),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "visible_species" => $this->getVisibleSpecies(),
@@ -981,15 +984,15 @@ class Zookeepers extends Table
             )
         );
 
-        for ($position = 1; $position <= 4; $position++) {
-            foreach ($this->species->getCardsInLocation("shop_visible", $position) as $species) {
-                $this->notifyAllPlayers(
-                    "newVisibleSpecies",
-                    clienttranslate('${species_name} is the new face up species in column ${shop_position}'),
-                    array("species_name" => $species["type"], "shop_position" => $position)
-                );
-            }
-        }
+        // for ($position = 1; $position <= 4; $position++) {
+        //     foreach ($this->species->getCardsInLocation("shop_visible", $position) as $species) {
+        //         $this->notifyAllPlayers(
+        //             "newVisibleSpecies",
+        //             clienttranslate('${species_name} is a new face-up species'),
+        //             array("species_name" => $species["type"], "shop_position" => $position)
+        //         );
+        //     }
+        // }
     }
 
     function autoDrawNewSpecies()
@@ -998,7 +1001,7 @@ class Zookeepers extends Table
         $visible_species_nbr = $this->species->countCardsInLocation("shop_visible");
 
         if ($backup_species_nbr + $visible_species_nbr == 0) {
-            $this->drawNewSpecies();
+            $this->drawNewSpecies(true);
         }
     }
 
@@ -1074,7 +1077,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. Keepers left in the deck: ${left_in_pile}'),
+            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. ${left_in_pile} keeper(s) remain in the pile'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -1160,7 +1163,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -1222,7 +1225,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. Number of keepers in the pile: ${left_in_pile}'),
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),
@@ -1401,8 +1404,9 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "collectResources",
-            clienttranslate('${player_name} collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
-            meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}'),
+            clienttranslate('${player_name} collects ${collected_nbr} resource(s)
+            : ${collected_plant_nbr} plant(s), 
+           ${collected_meat_nbr} meat/fish; ${collected_kit_nbr} medical kit(s)'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
@@ -1458,8 +1462,8 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "collectResources",
-            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resources. Plant: ${collected_plant_nbr}; 
-            meat/fish: ${collected_meat_nbr}; medical kit: ${collected_kit_nbr}. They must return ${return_nbr} resources to the bag'),
+            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
+            ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s). ${return_nbr} resources must be returned to the bag'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
@@ -1505,7 +1509,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} resources of ${type}'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type}(s)'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
@@ -1544,7 +1548,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} resources of ${type} as excess'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type}(s) as excess'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
@@ -1647,7 +1651,7 @@ class Zookeepers extends Table
             if ($cost > 0) {
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} uses ${returned_nbr} of ${type} to save the ${species_name}'),
+                    clienttranslate('${player_name} uses ${returned_nbr} ${type}(s) to save the ${species_name}'),
                     array(
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
@@ -1667,7 +1671,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "saveQuarantined",
-            clienttranslate('${player_name} saves the ${species_name} from their ${quarantine_label} quarantine and assigns it to ${keeper_name}, 
+            clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}, 
             scoring ${species_points} point(s)'),
             array(
                 "player_name" => self::getActivePlayerName(),
@@ -1804,7 +1808,7 @@ class Zookeepers extends Table
             if ($cost > 0) {
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} uses ${returned_nbr} of ${type} to save the ${species_name}'),
+                    clienttranslate('${player_name} uses ${returned_nbr} ${type}(s) to save the ${species_name}'),
                     array(
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
@@ -1900,7 +1904,7 @@ class Zookeepers extends Table
         $this->notifyPlayer(
             $player_id,
             "lookAtBackup",
-            clienttranslate('You look at a face down species and... It is the ${species_name}!'),
+            clienttranslate('You look at a face-down species and... It is the ${species_name}!'),
             array(
                 "player_id" => $player_id,
                 "species_id" => $species_id,
@@ -1957,7 +1961,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "discardBackup",
-            clienttranslate('${player_name} moves a face down species from the column ${shop_position} to the bottom of the deck'),
+            clienttranslate('${player_name} moves a face-down species to the bottom of the deck'),
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
@@ -2045,7 +2049,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "quarantineBackup",
-            clienttranslate('${player_name} puts ${species_name} in their ${quarantine_label} quarantine'),
+            clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
@@ -2176,7 +2180,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "quarantineSpecies",
-            clienttranslate('${player_name} puts ${species_name} in their ${quarantine_label} quarantine'),
+            clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
             array(
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
@@ -2351,7 +2355,7 @@ class Zookeepers extends Table
             return;
         }
 
-        $this->notifyAllPlayers("pass", clienttranslate('${player_name} finishes their turn and passes'), array(
+        $this->notifyAllPlayers("pass", clienttranslate('${player_name} finishes his turn and passes'), array(
             "player_name" => self::getActivePlayerName(),
         ));
 
@@ -2390,7 +2394,7 @@ class Zookeepers extends Table
 
             $this->notifyAllPlayers(
                 "returnResources",
-                clienttranslate('${player_name} returns ${returned_nbr} of kits as excess'),
+                clienttranslate('${player_name} returns ${returned_nbr} kit(s) as excess'),
                 array(
                     "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,

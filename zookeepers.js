@@ -772,6 +772,19 @@ define([
     //// Utility methods
 
     addPlayerTurnButtons: function () {
+      if (this.mainAction > 0) {
+        this.gamedatas.gamestate.description =
+          "${actplayer} has already used a main action, but can still do any available free actions";
+        this.gamedatas.gamestate.descriptionmyturn =
+          "${you} have already used a main action, but can still do any available free actions";
+      } else {
+        this.gamedatas.gamestate.description =
+          "${actplayer} can select a card and/or do any available actions, limited to one of the four main ones";
+        this.gamedatas.gamestate.descriptionmyturn =
+          "${you} can select a card and/or do any available actions, limited to one of the four main ones";
+      }
+      this.updatePageTitle();
+
       const playerId = this.getActivePlayerId();
 
       let openBoardPosition = 0;
@@ -1042,10 +1055,6 @@ define([
           return;
         }
 
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
         this.addPlayerTurnButtons();
       }
     },
@@ -1095,10 +1104,6 @@ define([
           );
           return;
         }
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
         this.addPlayerTurnButtons();
         return;
       }
@@ -1166,10 +1171,6 @@ define([
           );
           return;
         }
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
         this.addPlayerTurnButtons();
         return;
       }
@@ -1242,10 +1243,6 @@ define([
           }
         }
 
-        this.gamedatas.gamestate.descriptionmyturn = _(
-          "${you} can do any free actions and one of the four main actions"
-        );
-        this.updatePageTitle();
         this.addPlayerTurnButtons();
       }
     },

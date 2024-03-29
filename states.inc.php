@@ -64,8 +64,8 @@ $machinestates = array(
 
     2 => array(
         "name" => "playerTurn",
-        "description" => clienttranslate('${actplayer} can do any free actions and one of the four main actions'),
-        "descriptionmyturn" => clienttranslate('${you} can do any free actions and one of the four main actions'),
+        "description" => clienttranslate('${actplayer} can select a card and/or do any available actions, limited to one of the four main ones'),
+        "descriptionmyturn" => clienttranslate('${you} can select a card and/or do any available actions, limited to one of the four main ones'),
         "type" => "activeplayer",
         "possibleactions" => array(
             "saveSpecies", "saveQuarantined", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange",
@@ -82,8 +82,8 @@ $machinestates = array(
 
     21 => array(
         "name" => "exchangeCollection",
-        "description" => clienttranslate('${actplayer} can choose how many resources they wants from the conservartion fund'),
-        "descriptionmyturn" => clienttranslate('${you} can choose how many resources you want from the conservartion fund'),
+        "description" => clienttranslate('${actplayer} can choose the number of resources to get from the conservation fund'),
+        "descriptionmyturn" => clienttranslate('${you} can choose the number of resources to get from the conservation fund'),
         "type" => "activeplayer",
         "args" => "argExchangeCollection",
         "possibleactions" => array("collectFromExchange", "cancelExchange"),
@@ -92,8 +92,8 @@ $machinestates = array(
 
     22 => array(
         "name" => "exchangeReturn",
-        "description" => clienttranslate('${actplayer} must return ${to_return} resources to the bag'),
-        "descriptionmyturn" => clienttranslate('${you} must return ${to_return} resources to the bag'),
+        "description" => clienttranslate('${actplayer} must return ${to_return} resource(s) to the bag'),
+        "descriptionmyturn" => clienttranslate('${you} must return ${to_return} resource(s) to the bag'),
         "type" => "activeplayer",
         "args" => "argExchangeReturn",
         "possibleactions" => array("returnFromExchange"),
@@ -166,8 +166,8 @@ $machinestates = array(
 
     30 => array(
         "name" => "mngBackup",
-        "description" => clienttranslate('${actplayer} looked at a face down species and must choose to discard or quarantine this species'),
-        "descriptionmyturn" => clienttranslate('${you} must choose to discard or quarantine the species they looked at'),
+        "description" => clienttranslate('${actplayer} looked at a face-down species and must choose to discard or quarantine it'),
+        "descriptionmyturn" => clienttranslate('${you} must choose to discard or quarantine the species you looked at'),
         "type" => "activeplayer",
         "possibleactions" => array("discardBackup", "quarantineBackup"),
         "transitions" => array("selectBackupQuarantine" => 31, "mngSecondSpecies" => 29, "betweenActions" => 7)
