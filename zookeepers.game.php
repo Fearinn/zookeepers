@@ -2276,6 +2276,11 @@ class Zookeepers extends Table
         return array("to_return" => self::getGameStateValue("totalToReturn") - self::getGameStateValue("previouslyReturned"));
     }
 
+    function argMngSecondSpecies()
+    {
+        return array("empty_column_nbr" => $this->getEmptyColumnNbr());
+    }
+
     function argBetweenActions()
     {
         $mainAction = self::getGameStateValue("mainAction");

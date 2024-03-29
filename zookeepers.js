@@ -678,6 +678,8 @@ define([
       }
 
       if (stateName === "mngSecondSpecies") {
+        this.emptyColumnNbr = args.args.empty_column_nbr;
+
         if (this.isCurrentPlayerActive()) {
           if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
             this.addActionButton(
