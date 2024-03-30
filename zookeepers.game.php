@@ -135,7 +135,7 @@ class Zookeepers extends Table
         $this->keepers->createCards($other_keepers, "deck");
         $this->keepers->shuffle("deck");
         for ($pile = 1; $pile <= 4; $pile++) {
-            $location = "deck:" . strval($pile);
+            $location = "deck:" . $pile;
             $this->keepers->pickCardsForLocation(5, "deck", $location);
             self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
             $this->keepers->shuffle($location);
@@ -293,7 +293,7 @@ class Zookeepers extends Table
         $tops = array();
 
         for ($pile = 1; $pile <= 4; $pile++) {
-            $topCard = $this->keepers->getCardOnTop("deck:" . strval($pile));
+            $topCard = $this->keepers->getCardOnTop("deck:" . $pile);
 
             if ($topCard) {
                 $keeper_info = $this->keepers_info[$topCard["type_arg"]];
@@ -311,7 +311,7 @@ class Zookeepers extends Table
         $counters = array();
 
         for ($pile = 1; $pile <= 4; $pile++) {
-            $counters[$pile] = $this->keepers->countCardsInLocation("deck:" . strval($pile));
+            $counters[$pile] = $this->keepers->countCardsInLocation("deck:" . $pile);
         }
 
         return $counters;
@@ -367,7 +367,7 @@ class Zookeepers extends Table
         $keepers = array();
         foreach ($players as $player_id => $player) {
             for ($i = 1; $i <= 4; $i++) {
-                $location = "board:" . strval($i);
+                $location = "board:" . $i;
                 $sql = "SELECT pile, card_id, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
                 $keepers[$player_id][$i] = self::getCollectionFromDb($sql);
             }
@@ -952,7 +952,7 @@ class Zookeepers extends Table
 
         $empty_column_nbr = $this->getEmptyColumnNbr();
         if ($empty_column_nbr < 2) {
-            throw new BgaUserException("You can't draw new species until there are 2 or more empty species columns");
+            throw new BgaVisibleSystemException("You can't draw new species until there are 2 or more empty species columns");
         }
 
         $backup_species = $this->species->getCardsInLocation("shop_backup");
@@ -971,8 +971,8 @@ class Zookeepers extends Table
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
-        $message = $auto ? 'The grid is refilled with 12 new species' :
-            '${player_name} moves all species from the grid to the bottom of the deck and draws 12 new species';
+        $message = $auto ? clienttranslate('The grid is refilled with 12 new species') :
+            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws 12 new species');
 
         $this->notifyAllPlayers(
             "newSpecies",
@@ -1034,11 +1034,11 @@ class Zookeepers extends Table
         $keepers_on_board_nbr = 0;
 
         for ($i = 1; $i <= 4; $i++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . strval($i), $player_id);
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $i, $player_id);
         }
 
         if ($keepers_on_board_nbr >= 4) {
-            throw new BgaUserException("You can't have more than 4 keepers in play");
+            throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
         }
 
         $this->gamestate->nextState("selectHiredPile");
@@ -1053,17 +1053,17 @@ class Zookeepers extends Table
         $board_position = 0;
 
         for ($position = 1; $position <= 4; $position++) {
-            if ($this->keepers->countCardsInLocation("board:" . strval($position), $player_id) < 1) {
+            if ($this->keepers->countCardsInLocation("board:" . $position, $player_id) < 1) {
                 $board_position = $position;
                 break;
             }
         }
 
         if ($board_position === 0) {
-            throw new BgaUserException(self::_("You can't have more than 4 keepers in play"));
+            throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
         }
 
-        $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . strval($board_position), $player_id);
+        $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
         if ($keeper === null) {
             throw new BgaUserException(self::_("The selected pile is out of cards"));
@@ -1105,7 +1105,7 @@ class Zookeepers extends Table
         }
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid board position");
+            throw new BgaVisibleSystemException("Invalid board position");
         }
 
         $player_id = self::getActivePlayerId();
@@ -1113,11 +1113,11 @@ class Zookeepers extends Table
         $keepers_on_board_nbr = 0;
 
         for ($i = 1; $i <= 4; $i++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . strval($i), $player_id);
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $i, $player_id);
         }
 
         if ($keepers_on_board_nbr === 0) {
-            throw new BgaUserException("You don't have any keeper to dismiss");
+            throw new BgaVisibleSystemException("You don't have any keeper to dismiss");
         }
 
         $pile = 0;
@@ -1133,7 +1133,7 @@ class Zookeepers extends Table
         }
 
         if ($keeper === null) {
-            throw new BgaUserException("Keeper not found");
+            throw new BgaVisibleSystemException("Keeper not found");
         }
 
         if ($pile == 0 && $keeper_level === 1) {
@@ -1143,11 +1143,11 @@ class Zookeepers extends Table
         }
 
         if ($pile == 0) {
-            throw new BgaUserException("This keeper isn't hired by you");
+            throw new BgaVisibleSystemException("This keeper isn't hired by you");
         }
 
         if ($pile < 0 || $pile > 4) {
-            throw new BgaUserException("Invalid keeper pile");
+            throw new BgaVisibleSystemException("Invalid keeper pile");
         }
 
         $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
@@ -1191,11 +1191,11 @@ class Zookeepers extends Table
         $board_position = self::getGameStateValue("selectedPosition");
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid board position");
+            throw new BgaVisibleSystemException("Invalid board position");
         }
 
         if ($pile < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid keeper pile");
+            throw new BgaVisibleSystemException("Invalid keeper pile");
         }
 
         $player_id = self::getActivePlayerId();
@@ -1209,7 +1209,7 @@ class Zookeepers extends Table
         }
 
         if ($keeper === null) {
-            throw new BgaUserException("Keeper not found");
+            throw new BgaVisibleSystemException("Keeper not found");
         }
 
         $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
@@ -1262,15 +1262,15 @@ class Zookeepers extends Table
         $keepers_on_board_nbr = 0;
 
         for ($position = 1; $position <= 4; $position++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . strval($position), $player_id);
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
         if ($keepers_on_board_nbr === 0) {
-            throw new BgaUserException("You don't have any keeper to replace");
+            throw new BgaVisibleSystemException("You don't have any keeper to replace");
         }
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid board position");
+            throw new BgaVisibleSystemException("Invalid board position");
         }
 
         $keeper = null;
@@ -1280,7 +1280,7 @@ class Zookeepers extends Table
         }
 
         if ($keeper === null) {
-            throw new BgaUserException("Keeper not found");
+            throw new BgaVisibleSystemException("Keeper not found");
         }
 
         self::setGameStateValue("selectedPosition", $board_position);
@@ -1303,10 +1303,10 @@ class Zookeepers extends Table
         }
 
         if ($replaced_keeper === null) {
-            throw new BgaUserException("Keeper not found");
+            throw new BgaVisibleSystemException("Keeper not found");
         }
 
-        $hired_keeper = $this->keepers->pickCardForLocation("deck:" . strval($pile), "board:" . strval($board_position), $player_id);
+        $hired_keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
         if ($hired_keeper === null) {
             throw new BgaUserException(self::_("The selected pile is out of cards"));
@@ -1323,7 +1323,7 @@ class Zookeepers extends Table
 
         $replaced_card_id = $replaced_keeper["card_id"];
         self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_card_id");
-        $this->keepers->insertCardOnExtremePosition($replaced_card_id, "deck:" . strval($pile), false);;
+        $this->keepers->insertCardOnExtremePosition($replaced_card_id, "deck:" . $pile, false);;
 
         $this->notifyAllPlayers(
             "hireKeeper",
@@ -1597,7 +1597,7 @@ class Zookeepers extends Table
         $savable_species = array_keys($this->getSavableQuarantined()[$player_id]);
 
         if ($species_card === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         if (!in_array($species_id, $savable_species)) {
@@ -1613,7 +1613,7 @@ class Zookeepers extends Table
         self::checkAction("selectQuarantinedKeeper");
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid board position");
+            throw new BgaVisibleSystemException("Invalid board position");
         }
 
         $player_id = self::getActivePlayerId();
@@ -1621,7 +1621,7 @@ class Zookeepers extends Table
         $species = $this->species->getCard(self::getGameStateValue("selectedSpecies"));
 
         if (!$species) {
-            throw new BgaUserException(self::_("Species not found"));
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $species_id = $species["type_arg"];
@@ -1738,7 +1738,7 @@ class Zookeepers extends Table
         }
 
         if ($shop_position < 1 || $shop_position > 4) {
-            throw new BgaUserException("Invalid shop position");
+            throw new BgaVisibleSystemException("Invalid shop position");
         }
 
         $species_id = null;
@@ -1751,7 +1751,7 @@ class Zookeepers extends Table
         $savable_species_ids = array_keys($this->getSavableSpecies());
 
         if ($species_id === null || $species_card_id === null) {
-            throw new BgaUserException(self::_("This species is not available to be saved"));
+            throw new BgaVisibleSystemException("This species is not available to be saved");
         }
 
         if (!in_array($species_id, $savable_species_ids)) {
@@ -1767,7 +1767,7 @@ class Zookeepers extends Table
         self::checkAction("selectAssignedKeeper");
 
         if ($board_position < 1 || $board_position > 4) {
-            throw new BgaUserException("Invalid board position");
+            throw new BgaVisibleSystemException("Invalid board position");
         }
 
         $player_id = self::getActivePlayerId();
@@ -1775,7 +1775,7 @@ class Zookeepers extends Table
         $species = $this->species->getCard(self::getGameStateValue("selectedSpecies"));
 
         if (!$species) {
-            throw new BgaUserException(self::_("Species not found"));
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $species_id = $species["type_arg"];
@@ -1889,14 +1889,14 @@ class Zookeepers extends Table
         $player_id = self::getActivePlayerId();
 
         if ($shop_position < 0 || $shop_position > 4) {
-            throw new BgaUserException("Invalid shop position");
+            throw new BgaVisibleSystemException("Invalid shop position");
         }
 
         $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
         $species = array_shift($species_in_location);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $species_id = $species["type_arg"];
@@ -1940,7 +1940,7 @@ class Zookeepers extends Table
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
@@ -2001,7 +2001,7 @@ class Zookeepers extends Table
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $is_quarantinable = false;
@@ -2014,7 +2014,7 @@ class Zookeepers extends Table
         }
 
         if (!$is_quarantinable) {
-            throw new BgaUserException("You can't quarantine this species");
+            throw new BgaUserException(self::_("You can't quarantine this species"));
         }
 
         self::setGameStateValue("selectedSpecies", $species_id);
@@ -2033,7 +2033,7 @@ class Zookeepers extends Table
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
@@ -2094,7 +2094,7 @@ class Zookeepers extends Table
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $shop_position = $species["location_arg"];
@@ -2139,13 +2139,13 @@ class Zookeepers extends Table
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
 
         if (!in_array($species_id, $quarantinable_species)) {
-            throw new BgaUserException("You can't quarantine this species");
+            throw new BgaUserException(self::_("You can't quarantine this species"));
         }
 
         self::setGameStateValue("selectedSpecies", $species_id);
@@ -2164,7 +2164,7 @@ class Zookeepers extends Table
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
         if ($species === null) {
-            throw new BgaUserException("Species not found");
+            throw new BgaSystemException("Species not found");
         }
 
         if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
