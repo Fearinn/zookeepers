@@ -1032,10 +1032,12 @@ define([
 
     // stock selections
     onSelectKeeper: function (stock) {
-      if (
-        this.gamedatas.gamestate.name === "playerTurn" &&
-        this.isCurrentPlayerActive()
-      ) {
+      if (!this.isCurrentPlayerActive()) {
+        this.showMessage("It is not your turn", "error");
+        return;
+      }
+
+      if (this.gamedatas.gamestate.name === "playerTurn") {
         this.removeActionButtons();
 
         if (stock.getSelectedItems().length > 0) {
@@ -1070,7 +1072,12 @@ define([
     onSelectSpecies: function (stock) {
       const stateName = this.gamedatas.gamestate.name;
 
-      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+      if (!this.isCurrentPlayerActive()) {
+        this.showMessage("It is not your turn", "error");
+        return;
+      }
+
+      if (stateName === "playerTurn") {
         this.removeActionButtons();
 
         if (stock.getSelectedItems().length > 0) {
@@ -1116,7 +1123,7 @@ define([
         return;
       }
 
-      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+      if (stateName === "mngSecondSpecies") {
         this.removeActionButtons();
         if (stock.getSelectedItems().length > 0) {
           const item = stock.getSelectedItems()[0].id;
@@ -1154,11 +1161,15 @@ define([
     },
 
     onSelectBackup: function (target, stock) {
-      const stateName = this.gamedatas.gamestate.name;
+      if (!this.isCurrentPlayerActive()) {
+        this.showMessage("It is not your turn", "error");
+        return;
+      }
 
+      const stateName = this.gamedatas.gamestate.name;
       const column = target.split(":")[1];
 
-      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+      if (stateName === "playerTurn") {
         this.removeActionButtons();
 
         if (stock.getSelectedItems().length > 0) {
@@ -1183,7 +1194,7 @@ define([
         return;
       }
 
-      if (stateName === "mngSecondSpecies" && this.isCurrentPlayerActive()) {
+      if (stateName === "mngSecondSpecies") {
         this.removeActionButtons();
         if (stock.getSelectedItems().length > 0) {
           const item = stock.getSelectedItems()[0].id;
@@ -1212,14 +1223,20 @@ define([
           null,
           "red"
         );
+        return;
       }
     },
 
     onSelectQuarantined: function (stock) {
+      if (!this.isCurrentPlayerActive()) {
+        this.showMessage("It is not your turn", "error");
+        return;
+      }
+
       const stateName = this.gamedatas.gamestate.name;
       const playerId = this.getActivePlayerId();
 
-      if (stateName === "playerTurn" && this.isCurrentPlayerActive()) {
+      if (stateName === "playerTurn") {
         this.removeActionButtons();
 
         if (stock.getSelectedItems().length > 0) {
