@@ -886,7 +886,7 @@ define([
         }
 
         if (!result.isOwner) {
-          this.showMessage("You don't own this keeper", "error");
+          this.showMessage(_("You don't own this keeper"), "error");
         }
 
         return result;
@@ -898,7 +898,7 @@ define([
           .split(":")[0];
 
         if (targetPlayerId != playerId) {
-          this.showMessage("You don't own this keeper");
+          this.showMessage(_("You don't own this keeper"), "error");
           result = { isOwner: false, position: 0 };
         } else {
           result = { isOwner: true, position: 0 };
@@ -924,7 +924,7 @@ define([
       }
 
       if (!isOwner) {
-        this.showMessage("This quarantine is not yours", "error");
+        this.showMessage(_("This quarantine is not yours"), "error");
       }
 
       return isOwner;
@@ -1033,7 +1033,7 @@ define([
     // stock selections
     onSelectKeeper: function (stock) {
       if (!this.isCurrentPlayerActive()) {
-        this.showMessage("It is not your turn", "error");
+        this.showMessage(_("It is not your turn"), "error");
         return;
       }
 
@@ -1073,7 +1073,7 @@ define([
       const stateName = this.gamedatas.gamestate.name;
 
       if (!this.isCurrentPlayerActive()) {
-        this.showMessage("It is not your turn", "error");
+        this.showMessage(_("It is not your turn"), "error");
         return;
       }
 
@@ -1162,7 +1162,7 @@ define([
 
     onSelectBackup: function (target, stock) {
       if (!this.isCurrentPlayerActive()) {
-        this.showMessage("It is not your turn", "error");
+        this.showMessage(_("It is not your turn"), "error");
         return;
       }
 
@@ -1229,7 +1229,7 @@ define([
 
     onSelectQuarantined: function (stock) {
       if (!this.isCurrentPlayerActive()) {
-        this.showMessage("It is not your turn", "error");
+        this.showMessage(_("It is not your turn"), "error");
         return;
       }
 
