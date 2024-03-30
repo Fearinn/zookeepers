@@ -178,7 +178,7 @@ define([
             this.onSelectKeeper(this[stockKey]);
           });
 
-          this[stockKey].extraClasses = "zkp_card zkp_hired_keeper";
+          this[stockKey].extraClasses = "zkp_card";
           this[stockKey].image_items_per_row = 7;
 
           for (const keeper_id in this.allKeepers) {
@@ -230,14 +230,27 @@ define([
 
           const savedSpecies = this.savedSpecies[player_id][position];
           if (savedSpecies) {
-            for (const speciesId in savedSpecies) {
+            for (const species_id in savedSpecies) {
               this[stockKey].addToStockWithId(
-                `species_${speciesId}`,
-                `species_${speciesId}`
+                `species_${species_id}`,
+                `species_${species_id}`
+              );
+
+              const speciesName = this.allSpecies[species_id].name;
+              const speciesSciName =
+                this.allSpecies[species_id].scientific_name;
+
+              console.log(speciesName, speciesSciName);
+              console.log(
+                `zkp_keeper_${player_id}:${position}_item_species_${species_id}`
+              );
+              this.addTooltip(
+                `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
+                `${speciesName} (${speciesSciName})`,
+                ""
               );
             }
           }
-
           this[stockKey].image_items_per_row = 7;
 
           const completedKeeper = this.completedKeepers[player_id][position];
@@ -280,10 +293,11 @@ define([
 
       for (let column = 1; column <= 4; column++) {
         const stockKey = `visibleShop_${column}`;
+        const container = `zkp_visible_species_${column}`;
         this[stockKey] = new ebg.stock();
         this[stockKey].create(
           this,
-          $("zkp_visible_species_" + column),
+          $(container),
           this.cardWidth,
           this.cardHeight
         );
@@ -304,10 +318,7 @@ define([
             species_id - 1
           );
         }
-      }
 
-      for (const column in this.visibleSpecies) {
-        const stockKey = `visibleShop_${column}`;
         const species_id = this.visibleSpecies[column]?.type_arg;
 
         if (species_id) {
@@ -315,6 +326,14 @@ define([
             species_id,
             species_id,
             "zkp_species_deck"
+          );
+
+          const speciesName = this.allSpecies[species_id].name;
+          const speciesSciName = this.allSpecies[species_id].scientific_name;
+          this.addTooltip(
+            `${container}_item_${species_id}`,
+            _(`${speciesName} (${speciesSciName})`),
+            ""
           );
         }
       }
@@ -958,9 +977,11 @@ define([
       });
 
       if (itemSelector) {
-        const query = dojo.query(`${containerSelector} > ${itemSelector}`);
+        const query = dojo.query(
+          `${containerSelector} > ${itemSelector}:first-child`
+        );
         query.style({
-          border: "none",
+          border: "0 solid red",
           ["pointer-events"]: "all",
         });
       }
@@ -1762,6 +1783,14 @@ define([
       );
       this[destinationKey].image_items_per_row = 7;
 
+      const speciesName = this.allSpecies[species_id].name;
+      const speciesSciName = this.allSpecies[species_id].scientific_name;
+      this.addTooltip(
+        `zkp_keeper_${player_id}:${board_position}_item_species_${species_id}`,
+        `${speciesName} (${speciesSciName})`,
+        ""
+      );
+
       this.updateSpeciesCounters(notif.args.species_counters);
       this[originKey].removeFromStockById(species_id);
     },
@@ -1893,6 +1922,14 @@ define([
 
       this[stockKey].addToStockWithId(species_id, `species_${species_id}`);
 
+      const speciesName = this.allSpecies[species_id].name;
+      const speciesSciName = this.allSpecies[species_id].scientific_name;
+      this.addTooltip(
+        `zkp_backup_column:${column}_item_species_${species_id}`,
+        `${speciesName} (${speciesSciName})`,
+        ""
+      );
+
       dojo.removeClass(
         `zkp_backup_column:${column}_item_species_${species_id}`,
         "zkp_background_contain"
@@ -1997,6 +2034,14 @@ define([
         originElement
       );
 
+      const speciesName = this.allSpecies[revealed_id].name;
+      const speciesSciName = this.allSpecies[revealed_id].scientific_name;
+      this.addTooltip(
+        `zkp_visible_species_${column}_item_${revealed_id}`,
+        `${speciesName} (${speciesSciName})`,
+        ""
+      );
+
       this[originKey].removeFromStockById(backupId);
 
       this.backupSpecies = notif.args.backup_species;
@@ -2090,7 +2135,18 @@ define([
       }
     },
 
-    notif_newVisibleSpecies(notif) {},
+    notif_newVisibleSpecies(notif) {
+      const species_id = notif.args.species_id;
+      const column = notif.args.shop_position;
+      const speciesName = this.allSpecies[species_id].name;
+      const speciesSciName = this.allSpecies[species_id].scientific_name;
+
+      this.addTooltip(
+        `zkp_visible_species_${column}_item_${species_id}`,
+        `${speciesName} (${speciesSciName})`,
+        ""
+      );
+    },
 
     notif_newScores: function (notif) {
       if (this.isRealTimeScoreTracking || notif.args.final_scores_calc) {

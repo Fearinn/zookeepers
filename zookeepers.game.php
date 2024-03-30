@@ -984,15 +984,15 @@ class Zookeepers extends Table
             )
         );
 
-        // for ($position = 1; $position <= 4; $position++) {
-        //     foreach ($this->species->getCardsInLocation("shop_visible", $position) as $species) {
-        //         $this->notifyAllPlayers(
-        //             "newVisibleSpecies",
-        //             clienttranslate('${species_name} is a new face-up species'),
-        //             array("species_name" => $species["type"], "shop_position" => $position)
-        //         );
-        //     }
-        // }
+        for ($position = 1; $position <= 4; $position++) {
+            foreach ($this->species->getCardsInLocation("shop_visible", $position) as $species) {
+                $this->notifyAllPlayers(
+                    "newVisibleSpecies",
+                    "",
+                    array("species_id" => $species["type_arg"], "shop_position" => $position)
+                );
+            }
+        }
     }
 
     function autoDrawNewSpecies()
