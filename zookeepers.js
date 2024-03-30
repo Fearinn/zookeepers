@@ -113,13 +113,13 @@ define([
         );
 
         const plantCounter = new ebg.counter();
-        plantCounter.create("plant_count_p" + player_id);
+        plantCounter.create(`plant_count_${player_id}`);
 
         const meatCounter = new ebg.counter();
-        meatCounter.create("meat_count_p" + player_id);
+        meatCounter.create(`meat_count_${player_id}`);
 
         const kitCounter = new ebg.counter();
-        kitCounter.create("kit_count_p" + player_id);
+        kitCounter.create(`kit_count_${player_id}`);
 
         this.resourceCounters = {
           ...this.resourceCounters,
@@ -134,6 +134,10 @@ define([
           gamedatas.resourceCounters[player_id],
           player_id
         );
+
+        this.addTooltip(`zkp_plant_icon_${player_id}`, _("plant"), "");
+        this.addTooltip(`zkp_meat_icon_${player_id}`, _("meat/fish"), "");
+        this.addTooltip(`zkp_kit_icon_${player_id}`, _("medical kit"), "");
       }
 
       const plantBagCounter = new ebg.counter();
@@ -152,6 +156,10 @@ define([
       };
 
       this.updateBagCounters(gamedatas.bagCounters);
+
+      this.addTooltip("zkp_bag_plant_icon", _("plant"), "");
+      this.addTooltip("zkp_bag_meat_icon", _("meat/fish"), "");
+      this.addTooltip("zkp_bag_kit_icon", _("medical kit"), "");
 
       // keepers
       for (const player_id in gamedatas.players) {
