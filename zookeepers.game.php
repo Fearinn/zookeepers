@@ -828,6 +828,28 @@ class Zookeepers extends Table
         return $backup_species;
     }
 
+    function getLookedBackup($player_id)
+    {
+
+        if (!$this->gamestate->isPlayerActive($player_id)) {
+            return null;
+        }
+
+        $backup_id = self::getGameStateValue("selectedBackup");
+        $species_id = self::getGameStateValue("selectedSpecies");
+
+        $backup_species = $this->species->getCardsInLocation("shop_backup");
+
+        $species = $this->findCardByTypeArg($backup_species, $species_id);
+
+        if ($species === null) {
+            return null;
+        }
+
+        $species["backup_id"] = $backup_id;
+        return $species;
+    }
+
     function getOpenQuarantines()
     {
         $players = self::loadPlayersBasicInfos();
@@ -2297,6 +2319,12 @@ class Zookeepers extends Table
     function argMngSecondSpecies()
     {
         return array("empty_column_nbr" => $this->getEmptyColumnNbr());
+    }
+
+    function argMngBackup()
+    {
+        $current_player_id = $this->getCurrentPlayerId();
+        return array("looked_backup" => $this->getLookedBackup($current_player_id));
     }
 
     function argBetweenActions()

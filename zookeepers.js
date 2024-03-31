@@ -49,6 +49,7 @@ define([
       this.keepersOnBoards = {};
       this.allSpecies = {};
       this.backupSpecies = {};
+      this.lookedBackup = {};
       this.visibleSpecies = {};
       this.savableSpecies = {};
       this.savableWithFund = {};
@@ -694,14 +695,32 @@ define([
         }
       }
 
-      if (stateName === "mngBackup" && this.isCurrentPlayerActive()) {
-        this.addActionButton("discard_backup_btn", _("Discard"), () => {
-          this.onDiscardBackup();
-        });
+      if (stateName === "mngBackup") {
+        const looked_backup = args.args.looked_backup;
 
-        this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
-          this.onQuarantineBackup();
-        });
+        if (this.isCurrentPlayerActive() && looked_backup) {
+          const species_id = looked_backup.type_arg;
+          const column = looked_backup.location_arg;
+          const stockKey = `backupShop_${column}`;
+
+          const backup_id = looked_backup.backup_id;
+
+          this.lookAtBackup({
+            column: column,
+            backup_id: backup_id,
+            species_id: species_id,
+          });
+        }
+
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton("discard_backup_btn", _("Discard"), () => {
+            this.onDiscardBackup();
+          });
+
+          this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
+            this.onQuarantineBackup();
+          });
+        }
       }
 
       if (stateName === "mngSecondSpecies") {
@@ -1035,6 +1054,37 @@ define([
         return null;
       }
       return species;
+    },
+
+    lookAtBackup: function ({ column, backup_id, species_id }) {
+      const stockKey = `backupShop_${column}`;
+      this[stockKey].removeFromStockById(backup_id);
+
+      this[stockKey].image_items_per_row = 10;
+      this[stockKey].addItemType(
+        `species_${species_id}`,
+        backup_id == 1 ? -1 : 1,
+        g_gamethemeurl + "img/species.png",
+        species_id - 1
+      );
+      this[stockKey].addToStockWithId(
+        `species_${species_id}`,
+        `species_${species_id}`
+      );
+      this[stockKey].image_items_per_row = 1;
+
+      const speciesName = this.allSpecies[species_id].name;
+      const speciesSciName = this.allSpecies[species_id].scientific_name;
+      this.addTooltip(
+        `zkp_backup_column:${column}_item_species_${species_id}`,
+        `${speciesName} (${speciesSciName})`,
+        ""
+      );
+
+      dojo.removeClass(
+        `zkp_backup_column:${column}_item_species_${species_id}`,
+        "zkp_background_contain"
+      );
     },
 
     ///////////////////////////////////////////////////
@@ -1908,34 +1958,11 @@ define([
       const backup_id = notif.args.backup_id;
       const species_id = notif.args.species_id;
 
-      const stockKey = `backupShop_${column}`;
-
-      this[stockKey].removeFromStockById(backup_id);
-
-      this[stockKey].image_items_per_row = 10;
-      this[stockKey].addItemType(
-        species_id,
-        backup_id == 1 ? -1 : 1,
-        g_gamethemeurl + "img/species.png",
-        species_id - 1
-      );
-
-      this[stockKey].addToStockWithId(species_id, `species_${species_id}`);
-
-      const speciesName = this.allSpecies[species_id].name;
-      const speciesSciName = this.allSpecies[species_id].scientific_name;
-      this.addTooltip(
-        `zkp_backup_column:${column}_item_species_${species_id}`,
-        `${speciesName} (${speciesSciName})`,
-        ""
-      );
-
-      dojo.removeClass(
-        `zkp_backup_column:${column}_item_species_${species_id}`,
-        "zkp_background_contain"
-      );
-
-      this[stockKey].image_items_per_row = 1;
+      this.lookAtBackup({
+        column: column,
+        backup_id: backup_id,
+        species_id: species_id,
+      });
     },
 
     notif_discardBackup: function (notif) {
