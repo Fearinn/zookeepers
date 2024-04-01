@@ -829,13 +829,8 @@ class Zookeepers extends Table
         return $backup_species;
     }
 
-    function getLookedBackup($player_id)
+    function getLookedBackup()
     {
-
-        if (!$this->gamestate->isPlayerActive($player_id)) {
-            return null;
-        }
-
         $backup_id = self::getGameStateValue("selectedBackup");
         $species_id = self::getGameStateValue("selectedSpecies");
 
@@ -2331,8 +2326,7 @@ class Zookeepers extends Table
 
     function argMngBackup()
     {
-        $current_player_id = $this->getCurrentPlayerId();
-        return array("looked_backup" => $this->getLookedBackup($current_player_id));
+        return array("_private" => array("active" => array("looked_backup" => $this->getLookedBackup())));
     }
 
     function argBetweenActions()

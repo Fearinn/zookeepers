@@ -49,7 +49,6 @@ define([
       this.keepersOnBoards = {};
       this.allSpecies = {};
       this.backupSpecies = {};
-      this.lookedBackup = {};
       this.visibleSpecies = {};
       this.savableSpecies = {};
       this.savableWithFund = {};
@@ -701,12 +700,11 @@ define([
       }
 
       if (stateName === "mngBackup") {
-        const looked_backup = args.args.looked_backup;
+        const looked_backup = args.args._private?.looked_backup;
 
         if (this.isCurrentPlayerActive() && looked_backup) {
           const species_id = looked_backup.type_arg;
           const column = looked_backup.location_arg;
-          const stockKey = `backupShop_${column}`;
 
           const backup_id = looked_backup.backup_id;
 
