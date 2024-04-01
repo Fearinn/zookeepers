@@ -413,6 +413,11 @@ define([
         this.speciesCounters[player_id].create(
           `zkp_species_count_${player_id}`
         );
+        this.addTooltip(
+          `zkp_species_icon_${player_id}`,
+          _("saved species"),
+          ""
+        );
       }
       this.updateSpeciesCounters(gamedatas.speciesCounters);
 
@@ -935,11 +940,13 @@ define([
           .split("keeper_")[1]
           .split(":")[0];
 
+        const position = event.currentTarget.id.split(":")[1];
+
         if (targetPlayerId != playerId) {
           this.showMessage(_("You don't own this keeper"), "error");
           result = { isOwner: false, position: 0 };
         } else {
-          result = { isOwner: true, position: 0 };
+          result = { isOwner: true, position: position };
         }
       }
 
@@ -1516,10 +1523,13 @@ define([
     onSelectAssignedKeeper: function (event) {
       const action = "selectAssignedKeeper";
 
-      const position = event.currentTarget.id.split(":")[1];
+      // const position = event.currentTarget.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        const { isOwner, position } = this.checkKeeperOwner(null, event);
+        if (isOwner) {
+          this.sendAjaxCall(action, { board_position: parseInt(position) });
+        }
       }
     },
 

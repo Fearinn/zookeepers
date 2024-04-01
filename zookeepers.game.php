@@ -730,7 +730,7 @@ class Zookeepers extends Table
                     $this->species->moveCard($species["id"], "shop_visible", $position);
                     $this->notifyAllPlayers(
                         "revealSpecies",
-                        clienttranslate('The ${species_name} is flipped over and revealed'),
+                        clienttranslate('The ${species_name} is flipped over and revealed to all players'),
                         array(
                             "i18n" => array("species_name"),
                             "shop_position" => $position,
