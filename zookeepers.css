@@ -45,8 +45,13 @@
 /* Note: you must not use any @import directive */
 
 /********* You can start writing your CSS below this line: **********/
-#game_play_area *:not(.zkp_card) {
+.zkp_gameplay_area *:not(.zkp_card) {
   box-sizing: border-box;
+}
+
+.zkp_gameplay_area .whiteblock {
+  border-radius: 12px;
+  margin: 0;
 }
 
 .zkp_background_contain {
@@ -55,9 +60,16 @@
 
 .zkp_card {
   border-radius: 12px;
-  box-shadow: 0 0 8px 2px black;
+  box-shadow: 1px 1px 3px black;
   height: 165px;
   width: 120px;
+}
+
+.zkp_simple_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 .zkp_board {
@@ -111,7 +123,7 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   width: 100%;
 }
 
@@ -140,8 +152,8 @@
 
 .zkp_keeper_piles {
   display: grid;
-  grid-template-columns: repeat(2, 125px);
-  gap: 8px;
+  grid-template-columns: repeat(2, 122px);
+  gap: 4px;
 }
 
 .zkp_keeper_pile {
@@ -156,7 +168,7 @@
 .zkp_species_shop {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 .zkp_backup_shop {
