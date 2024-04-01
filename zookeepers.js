@@ -1110,20 +1110,35 @@ define([
 
     // stock selections
     onSelectKeeper: function (stock) {
-      if (!this.isCurrentPlayerActive()) {
-        this.showMessage(_("It is not your turn"), "error");
-        return;
-      }
+      const stockItemsNbr = stock.getSelectedItems().length;
 
-      if (this.mainAction > 0) {
-        this.showMessage("You can't do anything with this keeper now", "error");
-        return;
+      if (stockItemsNbr > 0) {
+        const itemId = stock.getSelectedItems()[0].id;
+        if (!this.checkKeeperOwner(itemId).isOwner) {
+          stock.unselectAll();
+          return;
+        }
+
+        if (!this.isCurrentPlayerActive()) {
+          this.showMessage(_("It is not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+
+        if (this.mainAction > 0) {
+          this.showMessage(
+            "You can't do anything with this keeper now",
+            "error"
+          );
+          stock.unselectAll();
+          return;
+        }
       }
 
       if (this.gamedatas.gamestate.name === "playerTurn") {
         this.removeActionButtons();
 
-        if (stock.getSelectedItems().length > 0) {
+        if (stockItemsNbr > 0) {
           const itemId = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
@@ -1131,19 +1146,15 @@ define([
           );
           this.updatePageTitle();
 
-          if (this.checkKeeperOwner(itemId).isOwner) {
-            this.addActionButton("replace_keeper_btn", _("Replace"), () => {
-              stock.unselectAll();
-              this.onReplaceKeeper(itemId);
-            });
-
-            this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
-              stock.unselectAll();
-              this.onDismissKeeper(itemId);
-            });
-          } else {
+          this.addActionButton("replace_keeper_btn", _("Replace"), () => {
             stock.unselectAll();
-          }
+            this.onReplaceKeeper(itemId);
+          });
+
+          this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
+            stock.unselectAll();
+            this.onDismissKeeper(itemId);
+          });
 
           return;
         }
@@ -1155,23 +1166,29 @@ define([
     onSelectSpecies: function (stock) {
       const stateName = this.gamedatas.gamestate.name;
 
-      if (!this.isCurrentPlayerActive()) {
-        this.showMessage(_("It is not your turn"), "error");
-        return;
-      }
+      const stockItemsNbr = stock.getSelectedItems().length;
 
-      if (this.mainAction > 0) {
-        this.showMessage(
-          "You can't do anything with this species now",
-          "error"
-        );
-        return;
+      if (stockItemsNbr > 0) {
+        if (!this.isCurrentPlayerActive()) {
+          this.showMessage(_("It is not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+
+        if (this.mainAction > 0) {
+          this.showMessage(
+            "You can't do anything with this species now",
+            "error"
+          );
+          stock.unselectAll();
+          return;
+        }
       }
 
       if (stateName === "playerTurn") {
         this.removeActionButtons();
 
-        if (stock.getSelectedItems().length > 0) {
+        if (stockItemsNbr > 0) {
           const item = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
@@ -1252,17 +1269,23 @@ define([
     },
 
     onSelectBackup: function (target, stock) {
-      if (!this.isCurrentPlayerActive()) {
-        this.showMessage(_("It is not your turn"), "error");
-        return;
-      }
+      const stockItemsNbr = stock.getSelectedItems().length;
 
-      if (this.mainAction > 0) {
-        this.showMessage(
-          "You can't do anything with this species now",
-          "error"
-        );
-        return;
+      if (stockItemsNbr > 0) {
+        if (!this.isCurrentPlayerActive()) {
+          this.showMessage(_("It is not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+
+        if (this.mainAction > 0) {
+          this.showMessage(
+            "You can't do anything with this species now",
+            "error"
+          );
+          stock.unselectAll();
+          return;
+        }
       }
 
       const stateName = this.gamedatas.gamestate.name;
@@ -1327,17 +1350,23 @@ define([
     },
 
     onSelectQuarantined: function (stock) {
-      if (!this.isCurrentPlayerActive()) {
-        this.showMessage(_("It is not your turn"), "error");
-        return;
-      }
+      const stockItemsNbr = stock.getSelectedItems().length;
 
-      if (this.mainAction > 0) {
-        this.showMessage(
-          "You can't do anything with this species now",
-          "error"
-        );
-        return;
+      if (stockItemsNbr > 0) {
+        if (!this.isCurrentPlayerActive()) {
+          this.showMessage(_("It is not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+
+        if (this.mainAction > 0) {
+          this.showMessage(
+            "You can't do anything with this species now",
+            "error"
+          );
+          stock.unselectAll();
+          return;
+        }
       }
 
       const stateName = this.gamedatas.gamestate.name;
