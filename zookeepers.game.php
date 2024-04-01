@@ -1427,9 +1427,8 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "collectResources",
-            clienttranslate('${player_name} collects ${collected_nbr} resource(s)
-            : ${collected_plant_nbr} plant(s), 
-           ${collected_meat_nbr} meat/fish; ${collected_kit_nbr} medical kit(s)'),
+            clienttranslate('${player_name} collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
+           ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s)'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,

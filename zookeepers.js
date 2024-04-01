@@ -1115,6 +1115,11 @@ define([
         return;
       }
 
+      if (this.mainAction > 0) {
+        this.showMessage("You can't do anything with this keeper now", "error");
+        return;
+      }
+
       if (this.gamedatas.gamestate.name === "playerTurn") {
         this.removeActionButtons();
 
@@ -1152,6 +1157,14 @@ define([
 
       if (!this.isCurrentPlayerActive()) {
         this.showMessage(_("It is not your turn"), "error");
+        return;
+      }
+
+      if (this.mainAction > 0) {
+        this.showMessage(
+          "You can't do anything with this species now",
+          "error"
+        );
         return;
       }
 
@@ -1244,6 +1257,14 @@ define([
         return;
       }
 
+      if (this.mainAction > 0) {
+        this.showMessage(
+          "You can't do anything with this species now",
+          "error"
+        );
+        return;
+      }
+
       const stateName = this.gamedatas.gamestate.name;
       const column = target.split(":")[1];
 
@@ -1308,6 +1329,14 @@ define([
     onSelectQuarantined: function (stock) {
       if (!this.isCurrentPlayerActive()) {
         this.showMessage(_("It is not your turn"), "error");
+        return;
+      }
+
+      if (this.mainAction > 0) {
+        this.showMessage(
+          "You can't do anything with this species now",
+          "error"
+        );
         return;
       }
 
