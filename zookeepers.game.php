@@ -732,6 +732,7 @@ class Zookeepers extends Table
                         "revealSpecies",
                         clienttranslate('The ${species_name} is flipped over and revealed'),
                         array(
+                            "i18n" => array("species_name"),
                             "shop_position" => $position,
                             "species_name" => $species["type"],
                             "revealed_id" => $species["type_arg"],
@@ -1675,6 +1676,7 @@ class Zookeepers extends Table
                     "returnResources",
                     clienttranslate('${player_name} uses ${returned_nbr} ${type}(s) to save the ${species_name}'),
                     array(
+                        "i18n" => array("species_name"),
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
@@ -1696,6 +1698,7 @@ class Zookeepers extends Table
             clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}, 
             scoring ${species_points} point(s)'),
             array(
+                "i18n" => array("species_name"),
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
@@ -1832,6 +1835,7 @@ class Zookeepers extends Table
                     "returnResources",
                     clienttranslate('${player_name} uses ${returned_nbr} ${type}(s) to save the ${species_name}'),
                     array(
+                        "i18n" => array("species_name"),
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
@@ -1849,6 +1853,7 @@ class Zookeepers extends Table
             "saveSpecies",
             clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
             array(
+                "i18n" => array("species_name"),
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
@@ -1928,6 +1933,7 @@ class Zookeepers extends Table
             "lookAtBackup",
             clienttranslate('You look at a face-down species and... It is the ${species_name}!'),
             array(
+                "i18n" => array("species_name"),
                 "player_id" => $player_id,
                 "species_id" => $species_id,
                 "species_name" => $species["type"],
@@ -2073,6 +2079,7 @@ class Zookeepers extends Table
             "quarantineBackup",
             clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
             array(
+                "i18n" => array("species_name"),
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
@@ -2127,6 +2134,7 @@ class Zookeepers extends Table
             "discardSpecies",
             clienttranslate('${player_name} moves ${species_name} to the bottom of the deck'),
             array(
+                "i18n" => array("species_name"),
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
                 "species_id" => $species_id,
@@ -2204,6 +2212,7 @@ class Zookeepers extends Table
             "quarantineSpecies",
             clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
             array(
+                "i18n" => array("species_name"),
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
