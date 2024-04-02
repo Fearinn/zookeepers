@@ -1264,7 +1264,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is sent the bottom of pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
             array(
                 "player_id" => self::getActivePlayerId(),
                 "player_name" => self::getActivePlayerName(),

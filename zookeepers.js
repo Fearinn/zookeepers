@@ -1140,7 +1140,7 @@ define([
           const itemId = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
-            "${you} can select an action with this keeper"
+            "${you} can dismiss or replace this keeper. If you do, all species kept by them will be discarded"
           );
           this.updatePageTitle();
 
