@@ -1483,6 +1483,10 @@ class Zookeepers extends Table
 
         $player_id = self::getActivePlayerId();
 
+        if ($choosen_nbr >= $this->resources->countCardsInLocation("hand", $player_id)) {
+            throw new BgaVisibleSystemException("You can't collect more resources from the fund than what you have in hand");
+        }
+
         $collected_resources = $this->resources->pickCards($choosen_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
