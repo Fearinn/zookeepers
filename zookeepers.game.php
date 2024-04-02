@@ -1023,6 +1023,27 @@ class Zookeepers extends Table
         }
     }
 
+    function isOutOfActions($notify = true)
+    {
+        $player_id = self::getActivePlayerId();
+
+        $used_main_action = self::getGameStateValue("mainAction") > 0;
+        $can_new_species = $this->getEmptyColumnNbr() >= 2;
+        $used_free_action = self::getGameStateValue("freeAction") > 0;
+        $can_conservation_fund = $this->resources->countCardsInLocation("hand", $player_id) > 0 && !$used_main_action && !$used_free_action;
+
+        if ($used_main_action && !$can_conservation_fund && !$can_new_species) {
+            if ($notify) {
+                $this->notifyAllPlayers("outOfActions", clienttranslate('${player_name} is out of actions. The turn is automatically finished'), array(
+                    "player_name" => self::getActivePlayerName()
+                ));
+            }
+            return true;
+        }
+
+        return false;
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Player actions
     //////////// 
@@ -2247,12 +2268,14 @@ class Zookeepers extends Table
             && $this->gamestate->state()["name"] !== "mngSecondSpecies"
         ) {
             self::setGameStateValue("mainAction", 3);
-            $this->gamestate->nextState("cancelSecond");
+            $this->gamestate->nextState("cancelQuarantine");
             return;
         }
 
         if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
             self::setGameStateValue("mainAction", 3);
+            $this->gamestate->nextState("betweenActions");
+            return;
         }
 
         self::setGameStateValue("secondStep", 0);
@@ -2364,6 +2387,13 @@ class Zookeepers extends Table
         self::setGameStateValue("secondStep", 0);
 
         $this->autoDrawNewSpecies();
+
+        $out_of_actions = $this->isOutOfActions();
+
+        if ($out_of_actions) {
+            $this->gamestate->nextState("betweenPlayers");
+            return;
+        }
 
         $this->gamestate->nextState("nextAction");
     }

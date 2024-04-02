@@ -1727,6 +1727,7 @@ define([
       );
       dojo.subscribe("newSpecies", this, "notif_newSpecies");
       dojo.subscribe("newVisibleSpecies", this, "notif_newVisibleSpecies");
+      dojo.subscribe("outOfActions", this, "notif_outOfActions");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
     },
@@ -2246,6 +2247,8 @@ define([
         this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
       }
     },
+
+    notif_outOfActions: function (notif) {},
 
     notif_pass: function (notif) {},
   });
