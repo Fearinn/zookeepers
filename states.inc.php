@@ -76,7 +76,7 @@ $machinestates = array(
         "transitions" => array(
             "betweenActions" => 7, "pass" => 8,
             "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedPile" => 25, "selectReplacedPile" => 26,
-            "selectAssignedKeeper" => 27, "selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30, "selectQuarantinedKeeper" => 32
+            "selectAssignedKeeper" => 27, "selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30, "selectQuarantinedKeeper" => 32, "selectZoo" => 33
         )
     ),
 
@@ -190,6 +190,33 @@ $machinestates = array(
         "type" => "activeplayer",
         "possibleactions" => array("selectQuarantinedKeeper", "cancelMngSpecies"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2)
+    ),
+
+    33 => array(
+        "name" => "selectZoo",
+        "description" => clienttranslate('${actplayer} can select a zoo to ask help for'),
+        "descriptionmyturn" => clienttranslate('${you} can select a zoo to ask help for'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectZoo", "cancelMngSpecies"),
+        "transitions" => array("activateZoo" => 34, "cancel" => 2),
+    ),
+
+    34 => array(
+        "name" => "activateZoo",
+        "description" => "",
+        "descriptionmyturn" => "",
+        "type" => "game",
+        "action" => "stActivateZoo",
+        "transitions" => array("selectHelpQuarantine" => 35),
+    ),
+
+    35 => array(
+        "name" => "selectHelpQuarantine",
+        "description" => clienttranslate('${actplayer} must select a quarantine to put the species in'),
+        "descriptionmyturn" => clienttranslate('${you} must select a quarantine to put the species in'),
+        "type" => "activeplayer",
+        "possibleactions" => array("selectHelpQuarantine"),
+        "transitions" => array("activatePrevZoo" => 34),
     ),
 
     7 => array(

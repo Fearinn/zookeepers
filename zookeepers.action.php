@@ -257,4 +257,34 @@ class action_zookeepers extends APP_GameAction
     $this->game->newSpecies();
     self::ajaxResponse();
   }
+
+  public function zooHelp()
+  {
+    self::setAjaxMode();
+    $species_id = self::getArg("species_id", AT_posint, true);
+    $this->game->zooHelp($species_id);
+    self::ajaxResponse();
+  }
+
+  public function selectZoo()
+  {
+    self::setAjaxMode();
+    $player_id = self::getArg("player_id", AT_posint, true);
+    $this->game->selectZoo($player_id);
+    self::ajaxResponse();
+  }
+
+  public function selectHelpQuarantine()
+  {
+    self::setAjaxMode();
+    $quarantine = self::getArg(
+      "quarantine",
+      AT_enum,
+      true,
+      null,
+      array("ALL", "TEM", "SAV", "PRA", "DES", "AQU", "TRO")
+    );
+    $this->game->selectHelpQuarantine($quarantine);
+    self::ajaxResponse();
+  }
 }

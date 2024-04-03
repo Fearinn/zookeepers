@@ -60,9 +60,9 @@
 
   <div id="zkp_playmats" class="zkp_playmats">
     <!-- BEGIN playmatblock -->
-    <div class="zkp_playmat_container whiteblock">
+    <div id="zkp_playmat_container:{PLAYER_ID}" class="zkp_playmat_container whiteblock">
       <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
-      <div id="zkp_playmat_{PLAYER_ID}" class="zkp_playmat">
+      <div id="zkp_playmat:{PLAYER_ID}" class="zkp_playmat">
         <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
           <div id="zkp_keeper_{PLAYER_ID}:1" class="zkp_keeper_{PLAYER_ID}"></div>
           <div id="zkp_keeper_{PLAYER_ID}:2" class="zkp_keeper_{PLAYER_ID}"></div>

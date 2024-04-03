@@ -40,9 +40,11 @@ class Zookeepers extends Table
             "selectedPosition" => 14,
             "selectedSpecies" => 15,
             "selectedBackup" => 16,
-            "highestSaved" => 17,
+            "selectedZoo" => 17,
             "secondStep" => 18,
-            "lastTurn" => 19,
+
+            "highestSaved" => 80,
+            "lastTurn" => 81,
 
             "scoreTracking" => 100
         ));
@@ -175,6 +177,7 @@ class Zookeepers extends Table
         self::setGameStateInitialValue("selectedPosition", 0);
         self::setGameStateInitialValue("selectedSpecies", 0);
         self::setGameStateInitialValue("selectedBackup", 0);
+        self::setGameStateInitialValue("selectedZoo", 0);
         self::setGameStateInitialValue("secondStep", 0);
         self::setGameStateInitialValue("lastTurn", 0);
 
@@ -2305,6 +2308,33 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
+    function zooHelp($species_id)
+    {
+        self::checkAction("zooHelp");
+
+        self::setGameStateInitialValue("selectedSpecies", $species_id);
+
+        $this->gamestate->nextState("selectZoo");
+    }
+
+    function selectZoo($player_id)
+    {
+        self::checkAction("selectZoo");
+
+        $player_ids = array_keys(self::loadPlayersBasicInfos());
+
+        if (!in_array($player_id, $player_ids)) {
+            throw new BgaVisibleSystemException("This player is not in the table");
+        }
+
+        if ($player_id === self::getActivePlayerId()) {
+            throw new BgaUserException(self::_("You can't select your own zoo"));
+        }
+
+        self::setGameStateValue("selectedZoo", $player_id);
+        $this->gamestate->nextState("activateZoo");
+    }
+
     //////////////////////////////////////////////////////////////////////////////
     //////////// Game state arguments
     ////////////
@@ -2382,6 +2412,14 @@ class Zookeepers extends Table
     function stBetweenExcessReturns()
     {
         $this->gamestate->nextState("nextReturn");
+    }
+
+    function stActivateZoo()
+    {
+        $player_id = self::getGameStateValue("selectedZoo");
+
+        $this->gamestate->changeActivePlayer($player_id);
+        $this->gamestate->nextState("selectHelpQuarantine");
     }
 
     function stBetweenActions()

@@ -434,6 +434,10 @@ define([
         this.onSelectReplacedPile(event);
       });
 
+      dojo.query(`.zkp_playmat_container`).connect("onclick", this, (event) => {
+        this.onSelectZoo(event);
+      });
+
       for (const player_id in gamedatas.players) {
         dojo
           .query(`.zkp_keeper_${player_id}`)
@@ -740,13 +744,26 @@ define([
           this.addActionButton(
             "cancel_btn",
             _("Cancel"),
-            () => {
-              this.onCancelMngSpecies();
-            },
+            "onCancelMngSpecies",
             null,
             null,
             "red"
           );
+        }
+      }
+
+      if (stateName === "selectZoo") {
+        if (this.isCurrentPlayerActive()) {
+          this.addActionButton(
+            "cancel_btn",
+            _("Cancel"),
+            "onCancelMngSpecies",
+            null,
+            null,
+            "red"
+          );
+
+          this.addSelectableStyle(`.zkp_playmat_container`);
         }
       }
 
@@ -1175,7 +1192,7 @@ define([
 
         if (this.mainAction > 0) {
           this.showMessage(
-            "You can't do anything with this species now",
+            _("You can't do anything with this species now"),
             "error"
           );
           stock.unselectAll();
@@ -1187,32 +1204,32 @@ define([
         this.removeActionButtons();
 
         if (stockItemsNbr > 0) {
-          const item = stock.getSelectedItems()[0].id;
+          const itemId = stock.getSelectedItems()[0].id;
 
           this.gamedatas.gamestate.descriptionmyturn = _(
             "${you} can select an action with this species"
           );
           this.updatePageTitle();
 
-          if (this.savableWithFund && this.savableWithFund[item]) {
+          if (this.savableWithFund && this.savableWithFund[itemId]) {
             this.addActionButton(
               "save_species_btn",
               _("Save (with conservation fund)"),
               () => {
                 stock.unselectAll();
-                this.onSaveSpecies(item);
+                this.onSaveSpecies(itemId);
               }
             );
-          } else if (this.savableSpecies && this.savableSpecies[item]) {
+          } else if (this.savableSpecies && this.savableSpecies[itemId]) {
             this.addActionButton("save_species_btn", _("Save"), () => {
               stock.unselectAll();
-              this.onSaveSpecies(item);
+              this.onSaveSpecies(itemId);
             });
           }
 
           this.addActionButton("discard_species_btn", _("Discard"), () => {
             stock.unselectAll();
-            this.onDiscardSpecies(item);
+            this.onDiscardSpecies(itemId);
           });
 
           this.addActionButton(
@@ -1220,9 +1237,15 @@ define([
             _("Quarantine"),
             () => {
               stock.unselectAll();
-              this.onQuarantineSpecies(item);
+              this.onQuarantineSpecies(itemId);
             }
           );
+
+          this.addActionButton("zoo_help_btn", _("Zoo Help"), () => {
+            stock.unselectAll();
+            this.onZooHelp(itemId);
+          });
+
           return;
         }
         this.addPlayerTurnButtons();
@@ -1682,6 +1705,34 @@ define([
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action);
+      }
+    },
+
+    onZooHelp: function (speciesId) {
+      const action = "zooHelp";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      }
+    },
+
+    onSelectZoo: function (event) {
+      const action = "selectZoo";
+
+      const playerId = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { player_id: parseInt(playerId) });
+      }
+    },
+
+    onSelectHelpQuarantine: function (event) {
+      const action = "zooHelp";
+
+      const quarantine = event.currentTarget.id.split(":")[1];
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action, { quarantine: quarantine });
       }
     },
 
