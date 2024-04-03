@@ -216,7 +216,16 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must select a quarantine to put the species in'),
         "type" => "activeplayer",
         "possibleactions" => array("selectHelpQuarantine"),
-        "transitions" => array("activatePrevZoo" => 34),
+        "transitions" => array("activatePrevZoo" => 36),
+    ),
+
+    36 => array(
+        "name" => "activatePrevZoo",
+        "description" => "",
+        "descriptionmyturn" => "",
+        "type" => "game",
+        "action" => "stActivatePrevZoo",
+        "transitions" => array("betweenActions" => 7),
     ),
 
     7 => array(

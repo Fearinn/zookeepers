@@ -2312,7 +2312,33 @@ class Zookeepers extends Table
     {
         self::checkAction("zooHelp");
 
+        if (self::getGameStateValue("mainAction") != 2) {
+            throw new BgaVisibleSystemException("The bonus action is only available after you save a species");
+        }
+
+        $players = self::loadPlayersBasicInfos();
+
         self::setGameStateInitialValue("selectedSpecies", $species_id);
+
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaVisibleSystemException("Species not found");
+        }
+
+        $can_quarantine = false;
+        foreach ($players as $player_id => $player) {
+            $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
+            if (in_array($species_id, $quarantinable_species) && !$this->gamestate->isPlayerActive($player_id)) {
+                $can_quarantine = true;
+                break;
+            }
+        }
+
+        if (!$can_quarantine) {
+            throw new BgaUserException(self::_("No zoo can help with this species"));
+        }
 
         $this->gamestate->nextState("selectZoo");
     }
@@ -2327,12 +2353,80 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("This player is not in the table");
         }
 
-        if ($player_id === self::getActivePlayerId()) {
+        if ($this->gamestate->isPlayerActive($player_id)) {
             throw new BgaUserException(self::_("You can't select your own zoo"));
         }
 
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaVisibleSystemException("Species not found");
+        }
+
+        $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
+        if (!in_array($species_id, $quarantinable_species)) {
+            throw new BgaUserException(self::_("This zoo can't put this species in quarantine"));
+        }
+
+        $this->notifyAllPlayers(
+            "zooHelp",
+            clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name} '),
+            array(
+                "i18n" => array("species_name"),
+                "selected_zoo_name" => self::loadPlayersBasicInfos()[$player_id]["player_name"],
+                "active_zoo_name" => self::getActivePlayerName(),
+                "species_name" => $species["type"]
+            )
+        );
+
         self::setGameStateValue("selectedZoo", $player_id);
+
         $this->gamestate->nextState("activateZoo");
+    }
+
+    function selectHelpQuarantine($quarantine)
+    {
+        self::checkAction("selectHelpQuarantine");
+
+        $player_id = self::getActivePlayerId();
+        $species_id = self::getGameStateValue("selectedSpecies");
+
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        if ($species === null) {
+            throw new BgaVisibleSystemException("Species not found");
+        }
+
+        if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
+            throw new BgaUserException(self::_("This species can't live in that quarantine"));
+        }
+
+        $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
+
+        $quarantine_label = $quarantine === "ALL" ? "generic" : $quarantine;
+
+        $this->notifyAllPlayers(
+            "quarantineSpecies",
+            clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
+            array(
+                "i18n" => array("species_name"),
+                "player_id" => $player_id,
+                "player_name" => self::getActivePlayerName(),
+                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "species_id" => $species_id,
+                "species_name" => $species["type"],
+                "shop_position" => $species["location_arg"],
+                "quarantine" => $quarantine,
+                "quarantine_label" => $quarantine_label,
+                "quarantined_species" => $this->getQuarantinedSpecies(),
+                "visible_species" => $this->getVisibleSpecies(),
+            )
+        );
+
+        $this->gamestate->nextState("activatePrevZoo");
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2416,10 +2510,21 @@ class Zookeepers extends Table
 
     function stActivateZoo()
     {
-        $player_id = self::getGameStateValue("selectedZoo");
+        $prev_zoo = self::getActivePlayerId();
+        $selected_zoo = self::getGameStateValue("selectedZoo");
 
-        $this->gamestate->changeActivePlayer($player_id);
+        $this->gamestate->changeActivePlayer($selected_zoo);
+        self::setGameStateValue("selectedZoo", $prev_zoo);
+
         $this->gamestate->nextState("selectHelpQuarantine");
+    }
+
+    function stActivatePrevZoo()
+    {
+        $prev_zoo = self::getGameStateValue("selectedZoo");
+
+        $this->gamestate->changeActivePlayer($prev_zoo);
+        $this->gamestate->nextState("betweenActions");
     }
 
     function stBetweenActions()
@@ -2429,13 +2534,12 @@ class Zookeepers extends Table
         self::setGameStateValue("selectedPosition", 0);
         self::setGameStateValue("selectedSpecies", 0);
         self::setGameStateValue("selectedBackup", 0);
+        self::setGameStateValue("selectedZoo", 0);
         self::setGameStateValue("secondStep", 0);
 
         $this->autoDrawNewSpecies();
 
-        $out_of_actions = $this->isOutOfActions();
-
-        if ($out_of_actions) {
+        if ($this->isOutOfActions()) {
             $this->gamestate->nextState("betweenPlayers");
             return;
         }

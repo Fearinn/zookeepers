@@ -462,6 +462,12 @@ define([
           .connect("onclick", this, (event) => {
             this.onSelectBackupQuarantine(event);
           });
+
+        dojo
+          .query(`.zkp_quarantine_${player_id}`)
+          .connect("onclick", this, (event) => {
+            this.onSelectHelpQuarantine(event);
+          });
       }
 
       // Setup game notifications to handle (see "setupNotifications" method below)
@@ -763,7 +769,13 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(`.zkp_playmat_container`);
+          this.addSelectableStyle(".zkp_playmat_container");
+        }
+      }
+
+      if (stateName === "selectHelpQuarantine") {
+        if (this.isCurrentPlayerActive()) {
+          this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
         }
       }
 
@@ -789,40 +801,59 @@ define([
 
       if (stateName === "selectHiredPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
+        return;
       }
 
       if (stateName === "selectDismissedKeeper") {
         const playerId = this.getActivePlayerId();
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        return;
       }
 
       if (stateName === "selectDismissedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
+        return;
       }
 
       if (stateName === "selectReplacedKeeper") {
         const playerId = this.getActivePlayerId();
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        return;
       }
 
       if (stateName === "selectReplacedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
+        return;
       }
 
       if (stateName === "selectAssignedKeeper") {
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        return;
       }
 
       if (stateName === "selectQuarantinedKeeper") {
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        return;
       }
 
       if (stateName === "selectQuarantine") {
         this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+        return;
       }
 
       if (stateName === "selectBackupQuarantine") {
         this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+        return;
+      }
+
+      if (stateName === "selectZoo") {
+        this.removeSelectableStyle(".zkp_playmat_container");
+        return;
+      }
+
+      if (stateName === "selectHelpQuarantine") {
+        this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+        return;
       }
     },
 
@@ -1190,7 +1221,7 @@ define([
           return;
         }
 
-        if (this.mainAction > 0) {
+        if (this.mainAction > 0 && this.mainAction != 2) {
           this.showMessage(
             _("You can't do anything with this species now"),
             "error"
@@ -1205,6 +1236,19 @@ define([
 
         if (stockItemsNbr > 0) {
           const itemId = stock.getSelectedItems()[0].id;
+
+          if (this.mainAction == 2) {
+            this.gamedatas.gamestate.descriptionmyturn = _(
+              "${you} can ask a zoo for help with this species"
+            );
+            this.updatePageTitle();
+
+            this.addActionButton("zoo_help_btn", _("Zoo Help"), () => {
+              stock.unselectAll();
+              this.onZooHelp(itemId);
+            });
+            return;
+          }
 
           this.gamedatas.gamestate.descriptionmyturn = _(
             "${you} can select an action with this species"
@@ -1240,12 +1284,6 @@ define([
               this.onQuarantineSpecies(itemId);
             }
           );
-
-          this.addActionButton("zoo_help_btn", _("Zoo Help"), () => {
-            stock.unselectAll();
-            this.onZooHelp(itemId);
-          });
-
           return;
         }
         this.addPlayerTurnButtons();
@@ -1727,7 +1765,7 @@ define([
     },
 
     onSelectHelpQuarantine: function (event) {
-      const action = "zooHelp";
+      const action = "selectHelpQuarantine";
 
       const quarantine = event.currentTarget.id.split(":")[1];
 

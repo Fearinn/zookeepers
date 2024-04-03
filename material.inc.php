@@ -28,11 +28,12 @@ $this->mainActions = array(
   5 => array("name" => "hireKeeper", "update_scores" => false),
   6 => array("name" => "dismissKeeper", "update_scores" => true),
   7 => array("name" => "replaceKeeper", "update_scores" => true),
+  8 => array("name" => "zooHelp", "update_scores" => true),
 );
 
 $this->freeActions = array(
-  2 => array("name" => "newSpecies", "update_scores" => false),
-  1 => array("name" => "zooHelp", "update_scores" => true),
+  1 => array("name" => "newSpecies", "update_scores" => false),
+  // 2 => array("name" => "zooHelp", "update_scores" => true),
   3 => array("name" => "exchangeResources", "update_scores" => false),
   4 => array("name" => "collectFromExchange", "update_scores" => false),
   5 => array("name" => "returnFromExchange", "update_scores" => false),
