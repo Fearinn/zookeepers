@@ -55,6 +55,9 @@ class Zookeepers extends Table
 
         $this->species = self::getNew("module.common.deck");
         $this->species->init("species");
+
+        // experimental flag to prevent deadlocks
+        $this->bSelectGlobalsForUpdate = true;
     }
 
     protected function getGameName()
