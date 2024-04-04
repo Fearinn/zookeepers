@@ -74,9 +74,19 @@ $machinestates = array(
         ),
         "args" => "argPlayerTurn",
         "transitions" => array(
-            "betweenActions" => 7, "pass" => 8,
-            "exchangeCollection" => 21, "selectHiredPile" => 24, "selectDismissedPile" => 25, "selectReplacedPile" => 26,
-            "selectAssignedKeeper" => 27, "selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30, "selectQuarantinedKeeper" => 32, "selectZoo" => 33
+            "betweenActions" => 7,
+            "pass" => 8,
+            "zombiePass" => 8,
+            "exchangeCollection" => 21,
+            "selectHiredPile" => 24,
+            "selectDismissedPile" => 25,
+            "selectReplacedPile" => 26,
+            "selectAssignedKeeper" => 27,
+            "selectQuarantine" => 28,
+            "mngSecondSpecies" => 29,
+            "mngBackup" => 30,
+            "selectQuarantinedKeeper" => 32,
+            "selectZoo" => 33
         )
     ),
 
@@ -87,7 +97,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argExchangeCollection",
         "possibleactions" => array("collectFromExchange", "cancelExchange"),
-        "transitions" => array("exchangeReturn" => 22, "cancel" => 2)
+        "transitions" => array("exchangeReturn" => 22, "cancel" => 2, "zombiePass" => 8,)
     ),
 
     22 => array(
@@ -97,7 +107,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argExchangeReturn",
         "possibleactions" => array("returnFromExchange"),
-        "transitions" => array("betweenExchangeReturns" => 23, "betweenActions" => 7)
+        "transitions" => array("betweenExchangeReturns" => 23, "betweenActions" => 7, "zombiePass" => 8,)
     ),
 
     23 => array(
@@ -106,7 +116,7 @@ $machinestates = array(
         "descriptionmyturn" => "",
         "type" => "activeplayer",
         "action" => "stBetweenExchangeReturns",
-        "transitions" => array("nextReturn" => 22, "betweenActions" => 7)
+        "transitions" => array("nextReturn" => 22, "betweenActions" => 7, "zombiePass" => 8,)
     ),
 
     24 => array(
@@ -115,7 +125,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
         "possibleactions" => array("selectHiredPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8,)
     ),
 
     25 => array(
@@ -124,7 +134,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile to send the dismissed keeper to'),
         "type" => "activeplayer",
         "possibleactions" => array("selectDismissedPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8,)
     ),
 
     26 => array(
@@ -133,7 +143,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
         "type" => "activeplayer",
         "possibleactions" => array("selectReplacedPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     27 => array(
@@ -142,7 +152,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),
         "type" => "activeplayer",
         "possibleactions" => array("selectAssignedKeeper", "cancelMngSpecies"),
-        "transitions" => array("betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     28 => array(
@@ -151,7 +161,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a quarantine to put the species in'),
         "type" => "activeplayer",
         "possibleactions" => array("selectQuarantine", "cancelMngSpecies"),
-        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2, "cancelQuarantine" => 29)
+        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2, "cancelQuarantine" => 29, "zombiePass" => 8)
     ),
 
     29 => array(
@@ -161,7 +171,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argMngSecondSpecies",
         "possibleactions" => array("discardSpecies", "quarantineSpecies", "lookAtBackup", "newSpecies", "cancelMngSpecies"),
-        "transitions" => array("selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30, "betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30, "betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     30 => array(
@@ -171,7 +181,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argMngBackup",
         "possibleactions" => array("discardBackup", "quarantineBackup"),
-        "transitions" => array("selectBackupQuarantine" => 31, "mngSecondSpecies" => 29, "betweenActions" => 7)
+        "transitions" => array("selectBackupQuarantine" => 31, "mngSecondSpecies" => 29, "betweenActions" => 7, "zombiePass" => 8)
     ),
 
     31 => array(
@@ -180,7 +190,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a quarantine to put the species in'),
         "type" => "activeplayer",
         "possibleactions" => array("selectBackupQuarantine", "cancelMngSpecies"),
-        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 30, "cancelQuarantine" => 29)
+        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 30, "cancelQuarantine" => 29, "zombiePass" => 8)
     ),
 
     32 => array(
@@ -189,7 +199,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),
         "type" => "activeplayer",
         "possibleactions" => array("selectQuarantinedKeeper", "cancelMngSpecies"),
-        "transitions" => array("betweenActions" => 7, "cancel" => 2)
+        "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     33 => array(
@@ -199,7 +209,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argSelectZoo",
         "possibleactions" => array("selectZoo", "cancelMngSpecies"),
-        "transitions" => array("activateZoo" => 34, "cancel" => 2),
+        "transitions" => array("activateZoo" => 34, "cancel" => 2, "zombiePass" => 8),
     ),
 
     34 => array(
@@ -218,7 +228,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argSelectHelpQuarantine",
         "possibleactions" => array("selectHelpQuarantine"),
-        "transitions" => array("activatePrevZoo" => 36),
+        "transitions" => array("activatePrevZoo" => 36, "zombiePass" => 8),
     ),
 
     36 => array(
@@ -266,7 +276,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argReturnExcess",
         "possibleactions" => array("returnExcess"),
-        "transitions" => array("betweenExcessReturns" => 83, "betweenPlayers" => 8)
+        "transitions" => array("betweenExcessReturns" => 83, "betweenPlayers" => 8, "zombiePass" => 8)
     ),
 
     83 => array(

@@ -1946,12 +1946,18 @@ define([
 
             this.placeOnObject(`zkp_${type}_cube_${i}`, "zkp_bag_img");
 
-            this.slideToObjectAndDestroy(
+            const animation = this.slideToObject(
               `zkp_${type}_cube_${i}`,
               "overall_player_board_" + player_id,
               500,
               (loopIterator - 1) * 100
             );
+
+            dojo.connect(animation, "onEnd", () => {
+              dojo.destroy(`zkp_${type}_cube_${i}`);
+            });
+
+            animation.play();
           }
         }
       }
@@ -1982,12 +1988,18 @@ define([
             "overall_player_board_" + player_id
           );
 
-          this.slideToObjectAndDestroy(
+          const animation = this.slideToObject(
             `zkp_${type}_cube_${i}`,
             "zkp_bag_img",
             500,
-            (i - 1) * 100
+            (i- 1) * 100
           );
+
+          dojo.connect(animation, "onEnd", () => {
+            dojo.destroy(`zkp_${type}_cube_${i}`);
+          });
+
+          animation.play();
         }
       }
       this.updateResourceCounters(newResourcesCounter, notif.args.player_id);

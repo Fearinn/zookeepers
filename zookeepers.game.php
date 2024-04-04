@@ -1458,7 +1458,7 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("You can't collect any resources until you save a species"));
         }
 
-        $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
+        $collected_resources = $this->resources->pickCards(8, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
         $collected_plant = $this->filterByResourceType($collected_resources, 1);
@@ -1636,6 +1636,32 @@ class Zookeepers extends Table
         }
 
         $this->gamestate->nextState("betweenExcessReturns");
+    }
+
+    function zombieReturnResources()
+    {
+        $players = self::loadPlayersBasicInfos();
+
+        foreach ($players as $player_id => $player) {
+            if ($player["player_zombie"] == 1) {
+                $this->resources->moveAllCardsInLocation("hand", "deck", $player_id);
+
+                foreach ($this->getResourceCounters()[$player_id] as $type => $counter) {
+                    $this->notifyAllPlayers(
+                        "returnResources",
+                        "",
+                        array(
+                            "player_name" => self::getActivePlayerName(),
+                            "player_id" => $player_id,
+                            "returned_nbr" => $counter,
+                            "type" => $type,
+                            "resource_counters" => $this->getResourceCounters(),
+                            "bag_counters" => $this->getBagCounters(),
+                        )
+                    );
+                }
+            }
+        }
     }
 
     function saveQuarantined($species_id)
@@ -2604,10 +2630,11 @@ class Zookeepers extends Table
         self::setGameStateValue("freeAction", 0);
         self::setGameStateValue("zooHelp", 0);
 
-        $current_player_id = self::getActivePlayerId();
+        $active_player_id = self::getActivePlayerId();
 
-        $resources_nbr = $this->resources->countCardsInLocation("hand", $current_player_id);
-        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $current_player_id));
+        $this->zombieReturnResources();
+        $resources_nbr = $this->resources->countCardsInLocation("hand", $active_player_id);
+        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $active_player_id));
 
         if ($resources_nbr > 12 || $kit_nbr > 5) {
             $this->gamestate->nextState("excessResources");
@@ -2715,15 +2742,10 @@ class Zookeepers extends Table
 
     function zombieTurn($state, $active_player)
     {
-        $statename = $state['name'];
+        $stateName = $state['name'];
 
         if ($state['type'] === "activeplayer") {
-            switch ($statename) {
-                default:
-                    $this->gamestate->nextState("zombiePass");
-                    break;
-            }
-
+            $this->gamestate->nextState("zombiePass");
             return;
         }
 
@@ -2734,7 +2756,7 @@ class Zookeepers extends Table
             return;
         }
 
-        throw new feException("Zombie mode not supported at this game state: " . $statename);
+        throw new feException("Zombie mode not supported at this game state: " . $stateName);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////:
