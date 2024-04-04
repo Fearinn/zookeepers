@@ -238,17 +238,13 @@ define([
                 `species_${species_id}`
               );
 
-              const speciesName = this.allSpecies[species_id].name;
+              const speciesName = _(this.allSpecies[species_id].name);
               const speciesSciName =
                 this.allSpecies[species_id].scientific_name;
 
-              console.log(speciesName, speciesSciName);
-              console.log(
-                `zkp_keeper_${player_id}:${position}_item_species_${species_id}`
-              );
               this.addTooltip(
                 `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
-                `${speciesName} (${speciesSciName})`,
+                _(`${speciesName} (${speciesSciName})`),
                 ""
               );
             }
@@ -330,7 +326,7 @@ define([
             "zkp_species_deck"
           );
 
-          const speciesName = this.allSpecies[species_id].name;
+          const speciesName = _(this.allSpecies[species_id].name);
           const speciesSciName = this.allSpecies[species_id].scientific_name;
           this.addTooltip(
             `${container}_item_${species_id}`,
@@ -1160,11 +1156,11 @@ define([
       );
       this[stockKey].image_items_per_row = 1;
 
-      const speciesName = this.allSpecies[species_id].name;
+      const speciesName = _(this.allSpecies[species_id].name);
       const speciesSciName = this.allSpecies[species_id].scientific_name;
       this.addTooltip(
         `zkp_backup_column:${column}_item_species_${species_id}`,
-        `${speciesName} (${speciesSciName})`,
+        _(`${speciesName} (${speciesSciName})`),
         ""
       );
 
@@ -2024,11 +2020,11 @@ define([
       );
       this[destinationKey].image_items_per_row = 7;
 
-      const speciesName = this.allSpecies[species_id].name;
+      const speciesName = _(this.allSpecies[species_id].name);
       const speciesSciName = this.allSpecies[species_id].scientific_name;
       this.addTooltip(
         `zkp_keeper_${player_id}:${board_position}_item_species_${species_id}`,
-        `${speciesName} (${speciesSciName})`,
+        _(`${speciesName} (${speciesSciName})`),
         ""
       );
 
@@ -2264,7 +2260,7 @@ define([
       const speciesSciName = this.allSpecies[revealed_id].scientific_name;
       this.addTooltip(
         `zkp_visible_species_${column}_item_${revealed_id}`,
-        `${speciesName} (${speciesSciName})`,
+        _(`${speciesName} (${speciesSciName})`),
         ""
       );
 
@@ -2366,12 +2362,12 @@ define([
     notif_newVisibleSpecies(notif) {
       const species_id = notif.args.species_id;
       const column = notif.args.shop_position;
-      const speciesName = this.allSpecies[species_id].name;
+      const speciesName = _(this.allSpecies[species_id].name);
       const speciesSciName = this.allSpecies[species_id].scientific_name;
 
       this.addTooltip(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `${speciesName} (${speciesSciName})`,
+        _(`${speciesName} (${speciesSciName})`),
         ""
       );
     },
