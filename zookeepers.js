@@ -1992,7 +1992,7 @@ define([
             `zkp_${type}_cube_${i}`,
             "zkp_bag_img",
             500,
-            (i- 1) * 100
+            (i - 1) * 100
           );
 
           dojo.connect(animation, "onEnd", () => {
@@ -2059,6 +2059,7 @@ define([
       const board_position = notif.args.board_position;
       const quarantine = notif.args.quarantine;
       const species_id = notif.args.species_id;
+      console.log(species_id);
 
       const originKey = `quarantine_${player_id}:${quarantine}`;
       const destinationKey = `board_${player_id}:${board_position}`;
@@ -2070,11 +2071,13 @@ define([
         notif.args.species_points
       );
 
+      this[destinationKey].image_items_per_row = 10;
       this[destinationKey].addToStockWithId(
         `species_${species_id}`,
         `species_${species_id}`,
         originElement
       );
+      this[destinationKey].image_items_per_row = 7;
 
       this.updateSpeciesCounters(notif.args.species_counters);
       this[originKey].removeFromStockById(species_id);

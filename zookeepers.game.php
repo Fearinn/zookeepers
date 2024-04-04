@@ -1721,7 +1721,7 @@ class Zookeepers extends Table
 
         $species = $this->species->getCard(self::getGameStateValue("selectedSpecies"));
 
-        if (!$species) {
+        if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
         }
 
@@ -1781,7 +1781,7 @@ class Zookeepers extends Table
                 "player_id" => $player_id,
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_name" => $species["type"],
-                "species_id" => $species["type_arg"],
+                "species_id" => $species_id,
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
                 "keeper_name" => $keeper["type"],
