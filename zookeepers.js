@@ -59,8 +59,10 @@ define([
       this.quarantinedSpecies = {};
       this.completedKeepers = {};
       this.speciesCounters = {};
+      this.possibleZoos = {};
       this.emptyColumnNbr = 0;
       this.isBagEmpty = false;
+      this.canZooHelp = false;
     },
 
     /*
@@ -503,6 +505,7 @@ define([
           args.args.keepers_on_boards
         );
         this.emptyColumnNbr = args.args.empty_column_nbr;
+        this.possibleZoos = args.args.possible_zoos;
 
         this.addPlayerTurnButtons();
       }
@@ -1237,7 +1240,7 @@ define([
         if (stockItemsNbr > 0) {
           const itemId = stock.getSelectedItems()[0].id;
 
-          if (this.mainAction == 2) {
+          if (this.canZooHelp) {
             this.gamedatas.gamestate.descriptionmyturn = _(
               "${you} can ask a zoo for help with this species"
             );
@@ -1997,6 +2000,14 @@ define([
         ""
       );
 
+      this.canZooHelp = notif.args.can_zoo_help;
+      console.log(this.canZooHelp, "help");
+      if (player_id == this.getCurrentPlayerId() && this.canZooHelp) {
+        this.showMessage(
+          _("By saving a species, you enable the bonus action 'zoo help'"),
+          "info"
+        );
+      }
       this.updateSpeciesCounters(notif.args.species_counters);
       this[originKey].removeFromStockById(species_id);
     },

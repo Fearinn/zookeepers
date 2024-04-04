@@ -42,6 +42,7 @@ class Zookeepers extends Table
             "selectedBackup" => 16,
             "selectedZoo" => 17,
             "secondStep" => 18,
+            "zooHelp" => 19,
 
             "highestSaved" => 80,
             "lastTurn" => 81,
@@ -178,6 +179,7 @@ class Zookeepers extends Table
         self::setGameStateInitialValue("selectedSpecies", 0);
         self::setGameStateInitialValue("selectedBackup", 0);
         self::setGameStateInitialValue("selectedZoo", 0);
+        self::setGameStateInitialValue("zooHelp", 0);
         self::setGameStateInitialValue("secondStep", 0);
         self::setGameStateInitialValue("lastTurn", 0);
 
@@ -1037,8 +1039,9 @@ class Zookeepers extends Table
         $can_new_species = $this->getEmptyColumnNbr() >= 2;
         $used_free_action = self::getGameStateValue("freeAction") > 0;
         $can_conservation_fund = $this->resources->countCardsInLocation("hand", $player_id) > 0 && !$used_main_action && !$used_free_action;
+        $can_zoo_help = $this->canZooHelp();
 
-        if ($used_main_action && !$can_conservation_fund && !$can_new_species) {
+        if ($used_main_action && !$can_conservation_fund && !$can_new_species && !$can_zoo_help) {
             if ($notify) {
                 $this->notifyAllPlayers("outOfActions", clienttranslate('${player_name} is out of actions. The turn is automatically finished'), array(
                     "player_name" => self::getActivePlayerName()
@@ -1048,6 +1051,29 @@ class Zookeepers extends Table
         }
 
         return false;
+    }
+
+    function getPossibleZoos()
+    {
+        $possible_zoos = array();
+        $species_counters = $this->getSpeciesCounters();
+
+        $active_player_id = self::getActivePlayerId();
+        $active_counter = $species_counters[$active_player_id];
+
+        foreach ($species_counters as $player_id => $counter) {
+            if ($active_counter <= $counter && $active_player_id != $player_id) {
+                $possible_zoos[$player_id] = $player_id;
+            }
+        }
+
+        self::warn(json_encode($possible_zoos));
+        return $possible_zoos;
+    }
+
+    function canZooHelp()
+    {
+        return count($this->getPossibleZoos()) > 0 && self::getGameStateValue("mainAction") == 2 && self::getGameStateValue("zooHelp") == 0;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1845,6 +1871,8 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("You can't assign this species to this keeper"));
         }
 
+        self::setGameStateValue("mainAction", 2);
+
         $this->species->moveAllCardsInLocation(
             $species["location"],
             "board:" . $board_position,
@@ -1893,6 +1921,7 @@ class Zookeepers extends Table
                 "saved_species" => $this->getSavedSpecies(),
                 "assignable_keepers" => $assignable_keepers,
                 "species_counters" => $this->getSpeciesCounters(),
+                "can_zoo_help" => $this->canZooHelp()
             )
         );
 
@@ -1922,8 +1951,6 @@ class Zookeepers extends Table
         }
 
         $this->updateHighestSaved($player_id);
-
-        self::setGameStateValue("mainAction", 2);
 
         $this->gamestate->nextState("betweenActions");
     }
@@ -2313,7 +2340,15 @@ class Zookeepers extends Table
         self::checkAction("zooHelp");
 
         if (self::getGameStateValue("mainAction") != 2) {
-            throw new BgaVisibleSystemException("The bonus action is only available after you save a species");
+            throw new BgaVisibleSystemException("The bonus action is only available after you save a species in the turn");
+        }
+
+        if (self::getGameStateValue("zooHelp")) {
+            throw new BgaVisibleSystemException("You already asked a zoo for help this turn");
+        }
+
+        if (!$this->canZooHelp()) {
+            throw new BgaVisibleSystemException("No zoo can help with this species now");
         }
 
         $players = self::loadPlayersBasicInfos();
@@ -2343,17 +2378,17 @@ class Zookeepers extends Table
         $this->gamestate->nextState("selectZoo");
     }
 
-    function selectZoo($player_id)
+    function selectZoo($selected_zoo)
     {
         self::checkAction("selectZoo");
 
-        $player_ids = array_keys(self::loadPlayersBasicInfos());
+        $players_ids = array_keys(self::loadPlayersBasicInfos());
 
-        if (!in_array($player_id, $player_ids)) {
+        if (!in_array($selected_zoo, $players_ids)) {
             throw new BgaVisibleSystemException("This player is not in the table");
         }
 
-        if ($this->gamestate->isPlayerActive($player_id)) {
+        if ($this->gamestate->isPlayerActive($selected_zoo)) {
             throw new BgaUserException(self::_("You can't select your own zoo"));
         }
 
@@ -2365,9 +2400,8 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Species not found");
         }
 
-        $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
-        if (!in_array($species_id, $quarantinable_species)) {
-            throw new BgaUserException(self::_("This zoo can't put this species in quarantine"));
+        if (!in_array($selected_zoo, $this->getPossibleZoos())) {
+            throw new BgaUserException(self::_("You can't ask this zoo for help"));
         }
 
         $this->notifyAllPlayers(
@@ -2375,13 +2409,14 @@ class Zookeepers extends Table
             clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name} '),
             array(
                 "i18n" => array("species_name"),
-                "selected_zoo_name" => self::loadPlayersBasicInfos()[$player_id]["player_name"],
+                "selected_zoo_name" => self::loadPlayersBasicInfos()[$selected_zoo]["player_name"],
                 "active_zoo_name" => self::getActivePlayerName(),
                 "species_name" => $species["type"]
             )
         );
 
-        self::setGameStateValue("selectedZoo", $player_id);
+        self::setGameStateValue("selectedZoo", $selected_zoo);
+        self::setGameStateValue("zooHelp", 1);
 
         $this->gamestate->nextState("activateZoo");
     }
@@ -2450,7 +2485,9 @@ class Zookeepers extends Table
             "savable_quarantined" => $this->getSavableQuarantined(),
             "savable_quarantined_with_fund" => $this->getSavableQuarantinedWithFund(),
             "quarantinable_species" => $this->getQuarantinableSpecies(),
-            "empty_column_nbr" => $this->getEmptyColumnNbr()
+            "empty_column_nbr" => $this->getEmptyColumnNbr(),
+            "can_zoo_help" => $this->canZooHelp(),
+            "possible_zoos" => $this->getPossibleZoos()
         );
     }
 
@@ -2553,6 +2590,7 @@ class Zookeepers extends Table
         self::setGameStateValue("previouslyReturned", 0);
         self::setGameStateValue("mainAction", 0);
         self::setGameStateValue("freeAction", 0);
+        self::setGameStateValue("zooHelp", 0);
 
         $current_player_id = self::getActivePlayerId();
 
