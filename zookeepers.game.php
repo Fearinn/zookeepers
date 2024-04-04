@@ -1921,7 +1921,7 @@ class Zookeepers extends Table
                 "saved_species" => $this->getSavedSpecies(),
                 "assignable_keepers" => $assignable_keepers,
                 "species_counters" => $this->getSpeciesCounters(),
-                "can_zoo_help" => $this->canZooHelp()
+                "can_zoo_help" => $this->canZooHelp(),
             )
         );
 
@@ -2518,6 +2518,21 @@ class Zookeepers extends Table
     function argMngBackup()
     {
         return array("_private" => array("active" => array("looked_backup" => $this->getLookedBackup())));
+    }
+
+    function argSelectZoo()
+    {
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"], "possible_zoos" => $this->getPossibleZoos(),);
+    }
+
+
+    function argSelectHelpQuarantine()
+    {
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
     }
 
     function argBetweenActions()

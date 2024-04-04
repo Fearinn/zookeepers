@@ -194,9 +194,10 @@ $machinestates = array(
 
     33 => array(
         "name" => "selectZoo",
-        "description" => clienttranslate('${actplayer} can select a zoo to ask help for'),
+        "description" => clienttranslate('${actplayer} can select a zoo to ask help for with the ${species_name}'),
         "descriptionmyturn" => clienttranslate('${you} can select a zoo to ask help for'),
         "type" => "activeplayer",
+        "args" => "argSelectZoo",
         "possibleactions" => array("selectZoo", "cancelMngSpecies"),
         "transitions" => array("activateZoo" => 34, "cancel" => 2),
     ),
@@ -212,9 +213,10 @@ $machinestates = array(
 
     35 => array(
         "name" => "selectHelpQuarantine",
-        "description" => clienttranslate('${actplayer} must select a quarantine to put the species in'),
-        "descriptionmyturn" => clienttranslate('${you} must select a quarantine to put the species in'),
+        "description" => clienttranslate('${actplayer} must select a quarantine to put the ${species_name} in'),
+        "descriptionmyturn" => clienttranslate('${you} must select a quarantine to put the ${species_name} in'),
         "type" => "activeplayer",
+        "args" => "argSelectHelpQuarantine",
         "possibleactions" => array("selectHelpQuarantine"),
         "transitions" => array("activatePrevZoo" => 36),
     ),

@@ -505,7 +505,7 @@ define([
           args.args.keepers_on_boards
         );
         this.emptyColumnNbr = args.args.empty_column_nbr;
-        this.possibleZoos = args.args.possible_zoos;
+        this.canZooHelp = args.args.can_zoo_help;
 
         this.addPlayerTurnButtons();
       }
@@ -762,6 +762,8 @@ define([
       }
 
       if (stateName === "selectZoo") {
+        this.possibleZoos = args.args.possible_zoos;
+
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
             "cancel_btn",
@@ -772,7 +774,9 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(".zkp_playmat_container");
+          this.addSelectableStyle(".zkp_playmat_container", null, (element) => {
+            return !!this.possibleZoos[element.id.split(":")[1]];
+          });
         }
       }
 
@@ -877,7 +881,16 @@ define([
           "${actplayer} has already used a main action, but can still do any available free actions";
         this.gamedatas.gamestate.descriptionmyturn =
           "${you} have already used a main action, but can still do any available free actions";
-      } else {
+      }
+
+      if (this.mainAction == 2 && this.canZooHelp) {
+        this.gamedatas.gamestate.description =
+          "${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
+        this.gamedatas.gamestate.descriptionmyturn =
+          "${you} have already used a main action, but can still do the bonus action or any available free actions";
+      }
+
+      if (this.mainAction == 0) {
         this.gamedatas.gamestate.description =
           "${actplayer} can select a card and/or do any available actions, limited to one of the four main ones";
         this.gamedatas.gamestate.descriptionmyturn =
@@ -1024,8 +1037,24 @@ define([
       return isOwner;
     },
 
-    addSelectableStyle: function (containerSelector, itemSelector = null) {
+    addSelectableStyle: function (
+      containerSelector,
+      itemSelector = null,
+      condition = null
+    ) {
       const border = "3px solid green";
+
+      if (condition) {
+        dojo.query(containerSelector).forEach((element) => {
+          if (condition(element)) {
+            dojo.setStyle(element, {
+              border: itemSelector ? "none" : border,
+              cursor: "pointer",
+            });
+          }
+        });
+        return;
+      }
 
       dojo.query(containerSelector).style({
         border: itemSelector ? "none" : border,
@@ -1033,7 +1062,9 @@ define([
       });
 
       if (itemSelector) {
-        const query = dojo.query(`${containerSelector} > ${itemSelector}`);
+        const query = dojo.query(
+          `${containerSelector} > ${itemSelector}:first-child`
+        );
         query.style({
           ["pointer-events"]: "none",
         });
@@ -1817,6 +1848,7 @@ define([
         this,
         "notif_discardAllKeptSpecies"
       );
+      dojo.subscribe("zooHelp", this, "notif_zooHelp");
       dojo.subscribe("newSpecies", this, "notif_newSpecies");
       dojo.subscribe("newVisibleSpecies", this, "notif_newVisibleSpecies");
       dojo.subscribe("outOfActions", this, "notif_outOfActions");
@@ -2001,10 +2033,10 @@ define([
       );
 
       this.canZooHelp = notif.args.can_zoo_help;
-      console.log(this.canZooHelp, "help");
+      this.possibleZoos = notif.args.possible_zoos;
       if (player_id == this.getCurrentPlayerId() && this.canZooHelp) {
         this.showMessage(
-          _("By saving a species, you enable the bonus action 'zoo help'"),
+          _("You've just enabled the bonus action 'zoo help'"),
           "info"
         );
       }
@@ -2305,6 +2337,8 @@ define([
         this.completedKeepers = notif.args.completed_keepers;
       }
     },
+
+    notif_zooHelp(notif) {},
 
     notif_newSpecies(notif) {
       this.backupSpecies = notif.args.backup_species;
