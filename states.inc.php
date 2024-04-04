@@ -246,7 +246,8 @@ $machinestates = array(
         "descriptionmyturn" => "",
         "type" => "game",
         "action" => "stBetweenPlayers",
-        "transitions" => array("nextPlayer" => 2, "excessResources" => 81, "finalScoresCalc" => 98)
+        "transitions" => array("nextPlayer" => 2, "excessResources" => 81, "finalScoresCalc" => 98),
+        "updateGameProgression" => true
     ),
 
     81 => array(

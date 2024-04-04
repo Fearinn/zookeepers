@@ -247,11 +247,8 @@ class Zookeepers extends Table
     */
     function getGameProgression()
     {
-        // TODO: compute and return the game progression
-
-        return 0;
+        return 10 * self::getGameStateValue("highestSaved");
     }
-
 
     //////////////////////////////////////////////////////////////////////////////
     //////////// Utility functions
@@ -823,6 +820,7 @@ class Zookeepers extends Table
                 $score -= $this->species_info[$species["type_arg"]]["points"];
             }
             $this->updateScore($player_id, $score);
+            $this->updateHighestSaved();
         }
     }
 
@@ -931,18 +929,17 @@ class Zookeepers extends Table
         return $counters;
     }
 
-    function updateHighestSaved($player_id)
+    function updateHighestSaved()
     {
-        $previous_highest = self::getGameStateValue("highestSaved");
-        $saved_nbr = 0;
-
-        for ($position = 1; $position <= 4; $position++) {
-            $saved_nbr += $this->species->countCardsInLocation("board:" . $position, $player_id);
+        $highest = 0;
+        foreach ($this->getSpeciesCounters() as $counter) {
+            if ($counter > $highest) {
+                $highest = $counter;
+            }
         }
 
-        if ($saved_nbr > $previous_highest) {
-            self::setGameStateValue("highestSaved", $saved_nbr);
-        }
+        self::setGameStateValue("highestSaved", $highest);
+        return $highest;
     }
 
     function updateScore($player_id, $score)
@@ -1792,7 +1789,7 @@ class Zookeepers extends Table
             }
         }
 
-        $this->updateHighestSaved($player_id);
+        $this->updateHighestSaved();
 
         self::setGameStateValue("mainAction", 2);
 
@@ -1950,7 +1947,7 @@ class Zookeepers extends Table
             }
         }
 
-        $this->updateHighestSaved($player_id);
+        $this->updateHighestSaved();
 
         $this->gamestate->nextState("betweenActions");
     }
