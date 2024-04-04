@@ -1458,7 +1458,7 @@ class Zookeepers extends Table
             throw new BgaUserException(self::_("You can't collect any resources until you save a species"));
         }
 
-        $collected_resources = $this->resources->pickCards(8, "deck", $player_id);
+        $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
         $collected_plant = $this->filterByResourceType($collected_resources, 1);
