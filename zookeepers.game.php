@@ -1516,6 +1516,10 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("You can't collect more resources from the fund than what you have in hand");
         }
 
+        if ($choosen_nbr > 5) {
+            throw new BgaVisibleSystemException("You can't collect more than 5 resources from the fund");
+        }
+
         $collected_resources = $this->resources->pickCards($choosen_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 

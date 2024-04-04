@@ -567,7 +567,7 @@ define([
             null,
             "red"
           );
-          for (let i = 1; i < args.args.resources_in_hand_nbr; i++) {
+          for (let i = 1; i <= 5; i++) {
             this.addActionButton(
               "exchange_resources_option_" + i,
               i.toString(),
