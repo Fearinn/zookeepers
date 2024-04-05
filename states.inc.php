@@ -121,8 +121,8 @@ $machinestates = array(
 
     24 => array(
         "name" => "selectHiredPile",
-        "description" => clienttranslate('${actplayer} can select a pile of keepers to hire from'),
-        "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
+        "description" => clienttranslate('${actplayer} can pick a pile to hire from'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a pile to hire from'),
         "type" => "activeplayer",
         "possibleactions" => array("selectHiredPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8,)
@@ -130,36 +130,40 @@ $machinestates = array(
 
     25 => array(
         "name" => "selectDismissedPile",
-        "description" => clienttranslate('${actplayer} can select a pile to send the dismissed keeper to'),
-        "descriptionmyturn" => clienttranslate('${you} can select a pile to send the dismissed keeper to'),
+        "description" => clienttranslate('${actplayer} can pick a pile to send ${keeper_name} to'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a pile to send ${keeper_name} to'),
         "type" => "activeplayer",
+        "args" => "argSelectDismissedPile",
         "possibleactions" => array("selectDismissedPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8,)
     ),
 
     26 => array(
         "name" => "selectReplacedPile",
-        "description" => clienttranslate('${actplayer} you can select a pile of keepers to hire from'),
-        "descriptionmyturn" => clienttranslate('${you} can select a pile of keepers to hire from'),
+        "description" => clienttranslate('${actplayer} can pick a pile to replace ${keeper_name}'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a pile to replace ${keeper_name}'),
         "type" => "activeplayer",
+        "args" => "argSelectReplacedPile",
         "possibleactions" => array("selectReplacedPile", "cancelMngKeepers"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     27 => array(
         "name" => "selectAssignedKeeper",
-        "description" => clienttranslate('${actplayer} can select a keeper to keep the species'),
-        "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),
+        "description" => clienttranslate('${actplayer} can pick a keeper to keep the ${species_name}'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a keeper to keep the ${species_name}'),
         "type" => "activeplayer",
+        "args" => "argSelectAssignedKeeper",
         "possibleactions" => array("selectAssignedKeeper", "cancelMngSpecies"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     28 => array(
         "name" => "selectQuarantine",
-        "description" => clienttranslate('${actplayer} can select a quarantine to put the species in'),
-        "descriptionmyturn" => clienttranslate('${you} can select a quarantine to put the species in'),
+        "description" => clienttranslate('${actplayer} can pick a quarantine to put the ${species_name} in'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a quarantine to put the ${species_name} in'),
         "type" => "activeplayer",
+        "args" => "argSelectQuarantine",
         "possibleactions" => array("selectQuarantine", "cancelMngSpecies"),
         "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2, "cancelQuarantine" => 29, "zombiePass" => 8)
     ),
@@ -177,7 +181,7 @@ $machinestates = array(
     30 => array(
         "name" => "mngBackup",
         "description" => clienttranslate('${actplayer} looked at a face-down species and must choose to discard or quarantine it'),
-        "descriptionmyturn" => clienttranslate('${you} must choose to discard or quarantine the species you looked at'),
+        "descriptionmyturn" => clienttranslate('${you} must choose to discard or quarantine the ${_private.species_name}'),
         "type" => "activeplayer",
         "args" => "argMngBackup",
         "possibleactions" => array("discardBackup", "quarantineBackup"),
@@ -186,26 +190,28 @@ $machinestates = array(
 
     31 => array(
         "name" => "selectBackupQuarantine",
-        "description" => clienttranslate('${actplayer} can select a quarantine to put the species in'),
-        "descriptionmyturn" => clienttranslate('${you} can select a quarantine to put the species in'),
+        "description" => clienttranslate('${actplayer} can pick a quarantine to put the ${species_name} in'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a quarantine to put the ${species_name} in'),
         "type" => "activeplayer",
+        "args" => "argSelectBackupQuarantine",
         "possibleactions" => array("selectBackupQuarantine", "cancelMngSpecies"),
         "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 30, "cancelQuarantine" => 29, "zombiePass" => 8)
     ),
 
     32 => array(
         "name" => "selectQuarantinedKeeper",
-        "description" => clienttranslate('${actplayer} can select a keeper to keep the species'),
-        "descriptionmyturn" => clienttranslate('${you} can select a keeper to keep the species'),
+        "description" => clienttranslate('${actplayer} can pick a keeper to keep the ${species_name}'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a keeper to keep the ${species_name}'),
         "type" => "activeplayer",
+        "args" => "argSelectQuarantinedKeeper",
         "possibleactions" => array("selectQuarantinedKeeper", "cancelMngSpecies"),
         "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
     ),
 
     33 => array(
         "name" => "selectZoo",
-        "description" => clienttranslate('${actplayer} can select a zoo to ask help for with the ${species_name}'),
-        "descriptionmyturn" => clienttranslate('${you} can select a zoo to ask help for'),
+        "description" => clienttranslate('${actplayer} can pick a zoo to ask help for with the ${species_name}'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a zoo to ask help for'),
         "type" => "activeplayer",
         "args" => "argSelectZoo",
         "possibleactions" => array("selectZoo", "cancelMngSpecies"),

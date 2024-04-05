@@ -2544,7 +2544,72 @@ class Zookeepers extends Table
 
     function argMngBackup()
     {
-        return array("_private" => array("active" => array("looked_backup" => $this->getLookedBackup())));
+        $looked_backup = $this->getLookedBackup();
+        return array(
+            "_private" => array(
+                "active" => array(
+                    "i18n" => "species_name",
+                    "looked_backup" => $looked_backup,
+                    "species_name" => $looked_backup["type"]
+                )
+            )
+        );
+    }
+
+    function argSelectDismissedPile()
+    {
+        $player_id = self::getActivePlayerId();
+        $position = self::getGameStateValue("selectedPosition");
+
+        $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
+        $keeper = array_shift($keepers_in_location);
+
+        return array("i18n" => array("species_name"), "keeper_name" => $keeper["type"]);
+    }
+
+    function argSelectReplacedPile()
+    {
+        $player_id = self::getActivePlayerId();
+        $position = self::getGameStateValue("selectedPosition");
+
+        $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
+        $keeper = array_shift($keepers_in_location);
+
+        return array("i18n" => array("species_name"), "keeper_name" => $keeper["type"]);
+    }
+    function argSelectAssignedKeeper()
+    {
+        $species_card_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->species->getCard($species_card_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+    }
+
+    function argSelectQuarantinedKeeper()
+    {
+        $species_card_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->species->getCard($species_card_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+    }
+
+    function argSelectQuarantine()
+    {
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+    }
+
+    function argSelectBackupQuarantine()
+    {
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_backup"), $species_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+    }
+
+    function argSelectHelpQuarantine()
+    {
+        $species_id = self::getGameStateValue("selectedSpecies");
+        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
+        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
     }
 
     function argSelectZoo()
@@ -2552,14 +2617,6 @@ class Zookeepers extends Table
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
         return array("i18n" => array("species_name"), "species_name" => $species["type"], "possible_zoos" => $this->getPossibleZoos(),);
-    }
-
-
-    function argSelectHelpQuarantine()
-    {
-        $species_id = self::getGameStateValue("selectedSpecies");
-        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
     }
 
     function argBetweenActions()
