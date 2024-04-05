@@ -1902,6 +1902,8 @@ define([
       const animation = this.slideToObject("zkp_dismissed_keeper", pileElement);
 
       dojo.connect(animation, "onEnd", () => {
+        dojo.destroy("zkp_dismissed_keeper");
+
         this[stockKey].removeFromStockById(keeper_id, pileElement);
         const top = this.pilesTops[pile];
         dojo.style(pileElement, "backgroundPosition", this.topsPositions[top]);

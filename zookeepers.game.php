@@ -1247,7 +1247,7 @@ class Zookeepers extends Table
 
         $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
-        self::setGameStateValue("selectedPosition", $board_position);
+        self::setGameStateValue("mainAction", 6);
 
         $this->gamestate->nextState("betweenActions");
     }
