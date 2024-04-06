@@ -100,13 +100,13 @@ class Zookeepers extends Table
         $players = self::loadPlayersBasicInfos();
 
         $resources_deck = array();
-        foreach ($this->resource_types as $type => $resource) {
-            $resources_deck[] = array("type" => $resource["label"], "type_arg" => $type, "nbr" => ($resource["total"] - $resource["per_player"] * count($players)));
+        foreach ($this->resource_types as $code => $resource) {
+            $resources_deck[] = array("type" => $code, "type_arg" => 0, "nbr" => ($resource["total"] - $resource["per_player"] * count($players)));
         }
 
         $resources_to_players = array();
-        foreach ($this->resource_types as $type_arg => $resource) {
-            $resources_to_players[] = array("type" => $resource["label"], "type_arg" => $type_arg, "nbr" => $resource["per_player"]);
+        foreach ($this->resource_types as $code => $resource) {
+            $resources_to_players[] = array("type" => $code, "type_arg" => 0, "nbr" => $resource["per_player"]);
         }
 
         foreach ($players as $player_id => $player) {
@@ -119,7 +119,6 @@ class Zookeepers extends Table
         $keepers_info = $this->keepers_info;
         ksort($keepers_info);
 
-        // temporary data, tests only
         $starting_keepers = array();
 
         foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
@@ -150,11 +149,9 @@ class Zookeepers extends Table
         $species_deck = array();
         $species_info = $this->species_info;
 
-        ksort($species_info, 1);
-
         foreach ($species_info as $species_id => $species) {
             $species_deck[] = array(
-                "type" => $species["name"],
+                "type" => $species["scientific_name"],
                 "type_arg" => $species_id,
                 "nbr" => 1,
             );
@@ -259,10 +256,10 @@ class Zookeepers extends Table
         return self::getGameStateValue("scoreTracking") == 2;
     }
 
-    function filterByResourceType($resources, $type_arg)
+    function filterByResourceType($type, $resources)
     {
-        $filtered_resources = array_filter($resources, function ($resource) use ($type_arg) {
-            return $resource["type_arg"] == $type_arg;
+        $filtered_resources = array_filter($resources, function ($resource) use ($type) {
+            return $resource["type"] == $type;
         });
 
         return $filtered_resources;
@@ -329,13 +326,13 @@ class Zookeepers extends Table
         $counters = array();
 
         foreach ($players as $player_id => $player) {
-            $plants = $this->resources->getCardsOfTypeInLocation("plant", 1, "hand", $player_id);
+            $plants = $this->resources->getCardsOfTypeInLocation("plant", null, "hand", $player_id);
             $plants_nbr = count($plants);
 
-            $meat = $this->resources->getCardsOfTypeInLocation("meat", 2, "hand", $player_id);
+            $meat = $this->resources->getCardsOfTypeInLocation("meat", null, "hand", $player_id);
             $meat_nbr = count($meat);
 
-            $kits = $this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $player_id);
+            $kits = $this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id);
             $kits_nbr = count($kits);
 
             $counters[$player_id] = array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr);
@@ -346,13 +343,13 @@ class Zookeepers extends Table
 
     function getBagCounters()
     {
-        $plants = $this->resources->getCardsOfTypeInLocation("plant", 1, "deck");
+        $plants = $this->resources->getCardsOfTypeInLocation("plant", null, "deck");
         $plants_nbr = count($plants);
 
-        $meat = $this->resources->getCardsOfTypeInLocation("meat", 2, "deck");
+        $meat = $this->resources->getCardsOfTypeInLocation("meat", null, "deck");
         $meat_nbr = count($meat);
 
-        $kits = $this->resources->getCardsOfTypeInLocation("kit", 3, "deck");
+        $kits = $this->resources->getCardsOfTypeInLocation("kit", null, "deck");
         $kits_nbr = count($kits);
 
         $counters = array("plant" => $plants_nbr, "meat" => $meat_nbr, "kit" => $kits_nbr);
@@ -739,7 +736,7 @@ class Zookeepers extends Table
                         array(
                             "i18n" => array("species_name"),
                             "shop_position" => $position,
-                            "species_name" => $species["type"],
+                            "species_name" => $this->species_info[$species["type_arg"]]["name"],
                             "revealed_id" => $species["type_arg"],
                             "backup_species" => $this->getBackupSpecies(),
                             "visible_species" => $this->getVisibleSpecies(),
@@ -1461,13 +1458,13 @@ class Zookeepers extends Table
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
-        $collected_plant = $this->filterByResourceType($collected_resources, 1);
+        $collected_plant = $this->filterByResourceType("plant", $collected_resources);
         $collected_plant_nbr = count($collected_plant);
 
-        $collected_meat = $this->filterByResourceType($collected_resources, 2);
+        $collected_meat = $this->filterByResourceType("meat", $collected_resources);
         $collected_meat_nbr = count($collected_meat);
 
-        $collected_kit = $this->filterByResourceType($collected_resources, 3);
+        $collected_kit = $this->filterByResourceType("kit", $collected_resources);
         $collected_kit_nbr = count($collected_kit);
 
         $this->notifyAllPlayers(
@@ -1526,13 +1523,13 @@ class Zookeepers extends Table
         $return_nbr = $collected_nbr * 2;
         self::setGameStateValue("totalToReturn", $return_nbr);
 
-        $collected_plant = $this->filterByResourceType($collected_resources, 1);
+        $collected_plant = $this->filterByResourceType("plant", $collected_resources);
         $collected_plant_nbr = count($collected_plant);
 
-        $collected_meat = $this->filterByResourceType($collected_resources, 2);
+        $collected_meat = $this->filterByResourceType("meat", $collected_resources);
         $collected_meat_nbr = count($collected_meat);
 
-        $collected_kit = $this->filterByResourceType($collected_resources, 3);
+        $collected_kit = $this->filterByResourceType("kit", $collected_resources);
         $collected_kit_nbr = count($collected_kit);
 
         $this->notifyAllPlayers(
@@ -1584,12 +1581,14 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} ${type}(s)'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) to the bag'),
             array(
+                "i18n" => array("type_label"),
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "returned_nbr" => $lastly_returned_nbr,
                 "type" => $type,
+                "type_label" => $this->resource_types[$type]["label"],
                 "resource_counters" => $this->getResourceCounters(),
                 "bag_counters" => $this->getBagCounters(),
             )
@@ -1623,12 +1622,14 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} ${type}(s) as excess'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) as excess'),
             array(
+                "i18n" => array("type_label"),
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "returned_nbr" => $lastly_returned_nbr,
                 "type" => $type,
+                "type_label" => $this->resource_types[$type]["label"],
                 "resource_counters" => $this->getResourceCounters(),
                 "bag_counters" => $this->getBagCounters(),
             )
@@ -1752,15 +1753,16 @@ class Zookeepers extends Table
             if ($cost > 0) {
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} uses ${returned_nbr} ${type}(s) to save the ${species_name}'),
+                    clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
                     array(
-                        "i18n" => array("species_name"),
+                        "i18n" => array("species_name", "type_label"),
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
+                        "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
-                        "species_name" => $species["type"]
+                        "species_name" => $this->species_info[$species_id]["name"]
                     )
                 );
             }
@@ -1780,7 +1782,7 @@ class Zookeepers extends Table
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "species_id" => $species_id,
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
@@ -1913,15 +1915,16 @@ class Zookeepers extends Table
             if ($cost > 0) {
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} uses ${returned_nbr} ${type}(s) to save the ${species_name}'),
+                    clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
                     array(
-                        "i18n" => array("species_name"),
+                        "i18n" => array("species_name", "type_label"),
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
+                        "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
-                        "species_name" => $species["type"]
+                        "species_name" => $this->species_info[$species_id]["name"]
                     )
                 );
             }
@@ -1937,7 +1940,7 @@ class Zookeepers extends Table
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "species_id" => $species["type_arg"],
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
@@ -2015,7 +2018,7 @@ class Zookeepers extends Table
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
                 "species_id" => $species_id,
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "shop_position" => $shop_position,
                 "backup_id" => $backup_id,
                 "backup_species" => $this->getBackupSpecies(),
@@ -2163,7 +2166,7 @@ class Zookeepers extends Table
                 "player_name" => self::getActivePlayerName(),
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "shop_position" => $species["location_arg"],
                 "backup_id" => self::getGameStateValue("selectedBackup"),
                 "quarantine" => $quarantine,
@@ -2217,7 +2220,7 @@ class Zookeepers extends Table
                 "player_id" => $player_id,
                 "player_name" => self::getActivePlayerName(),
                 "species_id" => $species_id,
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "shop_position" => $shop_position,
                 "visible_species" => $this->getVisibleSpecies(),
             ),
@@ -2296,7 +2299,7 @@ class Zookeepers extends Table
                 "player_name" => self::getActivePlayerName(),
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "shop_position" => $species["location_arg"],
                 "quarantine" => $quarantine,
                 "quarantine_label" => $quarantine_label,
@@ -2438,7 +2441,7 @@ class Zookeepers extends Table
                 "i18n" => array("species_name"),
                 "selected_zoo_name" => self::loadPlayersBasicInfos()[$selected_zoo]["player_name"],
                 "active_zoo_name" => self::getActivePlayerName(),
-                "species_name" => $species["type"]
+                "species_name" => $this->species_info[$species_id]["name"]
             )
         );
 
@@ -2479,7 +2482,7 @@ class Zookeepers extends Table
                 "player_name" => self::getActivePlayerName(),
                 "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
-                "species_name" => $species["type"],
+                "species_name" => $this->species_info[$species_id]["name"],
                 "shop_position" => $species["location_arg"],
                 "quarantine" => $quarantine,
                 "quarantine_label" => $quarantine_label,
@@ -2581,42 +2584,42 @@ class Zookeepers extends Table
     {
         $species_card_id = self::getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species["type_arg"]]["name"]);
     }
 
     function argSelectQuarantinedKeeper()
     {
         $species_card_id = self::getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species["type_arg"]]["name"]);
     }
 
     function argSelectQuarantine()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"]);
     }
 
     function argSelectBackupQuarantine()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_backup"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"]);
     }
 
     function argSelectHelpQuarantine()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"]);
+        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"]);
     }
 
     function argSelectZoo()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $species["type"], "possible_zoos" => $this->getPossibleZoos(),);
+        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"], "possible_zoos" => $this->getPossibleZoos(),);
     }
 
     function argBetweenActions()
@@ -2741,7 +2744,7 @@ class Zookeepers extends Table
 
             $this->notifyAllPlayers(
                 "returnResources",
-                clienttranslate('${player_name} returns ${returned_nbr} kit(s) as excess'),
+                clienttranslate('${player_name} returns ${returned_nbr} kit(s) to the bag as excess'),
                 array(
                     "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,

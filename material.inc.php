@@ -40,21 +40,18 @@ $this->freeActions = array(
 );
 
 $this->resource_types = array(
-  1 => array(
+  "plant" => array(
     "label" => clienttranslate("plant"),
-    "labeltr" => self::_("plant"),
     "total" => 20,
     "per_player" => 4
   ),
-  2 => array(
-    "label" => clienttranslate("meat"),
-    "labeltr" => self::_("meat"),
+  "meat" => array(
+    "label" => clienttranslate("meat/fish"),
     "total" => 20,
     "per_player" => 4,
   ),
-  3 => array(
-    "label" => clienttranslate("kit"),
-    "labeltr" => self::_("kit"),
+  "kit" => array(
+    "label" => clienttranslate("medical kit"),
     "total" => 15,
     "per_player" => 3,
   )
