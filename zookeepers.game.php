@@ -2506,8 +2506,11 @@ class Zookeepers extends Table
 
     function argPlayerTurn()
     {
+        $player_id = self::getActivePlayerId();
+
         return array(
-            "mainAction" => self::getGameStateValue("mainAction"), "freeAction" => self::getGameStateValue("freeAction"),
+            "mainAction" => self::getGameStateValue("mainAction"),
+            "freeAction" => self::getGameStateValue("freeAction"),
             "isBagEmpty" => $this->isBagEmpty(),
             "keepers_on_boards" => $this->getKeepersOnBoards(),
             "savable_species" => $this->getSavableSpecies(),
@@ -2517,7 +2520,8 @@ class Zookeepers extends Table
             "quarantinable_species" => $this->getQuarantinableSpecies(),
             "empty_column_nbr" => $this->getEmptyColumnNbr(),
             "can_zoo_help" => $this->canZooHelp(),
-            "possible_zoos" => $this->getPossibleZoos()
+            "possible_zoos" => $this->getPossibleZoos(),
+            "resources_in_hand_nbr" => $this->resources->countCardsInLocation("hand", $player_id)
         );
     }
 

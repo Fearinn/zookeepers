@@ -61,6 +61,7 @@ define([
       this.speciesCounters = {};
       this.possibleZoos = {};
       this.emptyColumnNbr = 0;
+      this.resourcesInHandNbr = 0;
       this.isBagEmpty = false;
       this.canZooHelp = false;
     },
@@ -501,6 +502,7 @@ define([
           args.args.keepers_on_boards
         );
         this.emptyColumnNbr = args.args.empty_column_nbr;
+        this.resourcesInHandNbr = args.args.resources_in_hand_nbr;
         this.canZooHelp = args.args.can_zoo_help;
 
         this.addPlayerTurnButtons();
@@ -567,7 +569,7 @@ define([
             null,
             "red"
           );
-          for (let i = 1; i <= 5; i++) {
+          for (let i = 1; i <= 5 && i < args.args.resources_in_hand_nbr; i++) {
             this.addActionButton(
               "exchange_resources_option_" + i,
               i.toString(),
@@ -934,7 +936,11 @@ define([
             );
           }
 
-          if (this.freeAction < 1 && !this.isBagEmpty) {
+          if (
+            this.resourcesInHandNbr > 1 &&
+            this.freeAction < 1 &&
+            !this.isBagEmpty
+          ) {
             this.addActionButton(
               "exchange_resources_btn",
               _("Conservation Fund"),
