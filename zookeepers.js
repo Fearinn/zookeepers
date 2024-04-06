@@ -65,6 +65,7 @@ define([
       this.resourcesInHandNbr = 0;
       this.isBagEmpty = false;
       this.canZooHelp = false;
+      this.isLastTurn = false;
     },
 
     /*
@@ -107,6 +108,7 @@ define([
 
       this.isBagEmpty = gamedatas.isBagEmpty;
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
+      this.isLastTurn = gamedatas.isLastTurn;
 
       for (const player_id in gamedatas.players) {
         const player = gamedatas.players[player_id];
@@ -498,20 +500,21 @@ define([
         this.freeAction = args.args.freeAction;
         this.isBagEmpty = args.args.isBagEmpty;
         this.savableSpecies = this.formatSavableSpecies(
-          args.args.savable_species
+          args.args.savableSpecies
         );
         this.savableWithFund = this.formatSavableSpecies(
-          args.args.savable_with_fund
+          args.args.savableWithFund
         );
-        this.savableQuarantined = args.args.savable_quarantined;
-        this.savableQuarantinedWithFund =
-          args.args.savable_quarantined_with_fund;
+        this.savableQuarantined = args.args.savableQuarantined;
+        this.savableQuarantinedWithFund = args.args.savableQuarantinedWithFund;
         this.keepersOnBoards = this.formatKeepersOnBoards(
-          args.args.keepers_on_boards
+          args.args.keepersOnBoards
         );
-        this.emptyColumnNbr = args.args.empty_column_nbr;
-        this.resourcesInHandNbr = args.args.resources_in_hand_nbr;
-        this.canZooHelp = args.args.can_zoo_help;
+        this.emptyColumnNbr = args.args.emptyColumnNbr;
+        this.resourcesInHandNbr = args.args.resourcesInHandNbr;
+        this.canZooHelp = args.args.canZooHelp;
+        this.isLastTurn = args.args.isLastTurn;
+        this.possibleZoos = args.args.possibleZoos;
 
         this.addPlayerTurnButtons();
       }
@@ -887,6 +890,13 @@ define([
           "${actplayer} has already used a main action, but can still do any available free actions";
         this.gamedatas.gamestate.descriptionmyturn =
           "${you} have already used a main action, but can still do any available free actions";
+
+        if (this.isLastTurn) {
+          this.gamedatas.gamestate.description =
+            "It is ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do any available free actions";
+          this.gamedatas.gamestate.descriptionmyturn =
+            "It is your last turn! ${you} have already used a main action, but can still do any available free actions";
+        }
       }
 
       if (this.mainAction == 2 && this.canZooHelp) {
@@ -894,6 +904,13 @@ define([
           "${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
         this.gamedatas.gamestate.descriptionmyturn =
           "${you} have already used a main action, but can still do the bonus action or any available free actions";
+
+        if (this.isLastTurn) {
+          this.gamedatas.gamestate.description =
+            "It is ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
+          this.gamedatas.gamestate.descriptionmyturn =
+            "It is your last turn! ${you} have already used a main action, but can still do the bonus action or any available free actions";
+        }
       }
 
       if (this.mainAction == 0) {
@@ -901,7 +918,15 @@ define([
           "${actplayer} can select a card and/or do any available actions, limited to one of the four main ones";
         this.gamedatas.gamestate.descriptionmyturn =
           "${you} can select a card and/or do any available actions, limited to one of the four main ones";
+
+        if (this.isLastTurn) {
+          this.gamedatas.gamestate.description =
+            "It is ${actplayer}'s last turn! ${actplayer} can select a card and/or do any available actions, limited to one of the four main ones";
+          this.gamedatas.gamestate.descriptionmyturn =
+            "It is your last turn! ${you} can select a card and/or do any available actions, limited to one of the four main ones";
+        }
       }
+
       this.updatePageTitle();
 
       const playerId = this.getActivePlayerId();
@@ -1868,6 +1893,7 @@ define([
       dojo.subscribe("outOfActions", this, "notif_outOfActions");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
+      dojo.subscribe("lastTurn", this, "notif_lastTurn");
     },
 
     notif_hireKeeper: function (notif) {
@@ -2416,5 +2442,15 @@ define([
     notif_outOfActions: function (notif) {},
 
     notif_pass: function (notif) {},
+
+    notif_lastTurn: function (notif) {
+      const player_name = notif.args.player_name;
+      this.showMessage(
+        _(
+          `${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends`
+        ),
+        "warning"
+      );
+    },
   });
 });

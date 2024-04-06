@@ -228,6 +228,7 @@ class Zookeepers extends Table
         $result["completedKeepers"] = $this->getCompletedKeepers();
         $result["speciesCounters"] = $this->getSpeciesCounters();
         $result["emptyColumnNbr"] = $this->getEmptyColumnNbr();
+        $result["isLastTurn"] = $this->isLastTurn();
 
         $players = self::loadPlayersBasicInfos();
 
@@ -353,7 +354,7 @@ class Zookeepers extends Table
         if ($this->isBagHidden()) {
             return null;
         }
-        
+
         $plants = $this->resources->getCardsOfTypeInLocation("plant", null, "deck");
         $plants_nbr = count($plants);
 
@@ -1079,6 +1080,11 @@ class Zookeepers extends Table
     function canZooHelp()
     {
         return count($this->getPossibleZoos()) > 0 && self::getGameStateValue("mainAction") == 2 && self::getGameStateValue("zooHelp") == 0;
+    }
+
+    function isLastTurn()
+    {
+        return self::getGameStateValue("lastTurn") >= 1;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -2523,16 +2529,17 @@ class Zookeepers extends Table
             "mainAction" => self::getGameStateValue("mainAction"),
             "freeAction" => self::getGameStateValue("freeAction"),
             "isBagEmpty" => $this->isBagEmpty(),
-            "keepers_on_boards" => $this->getKeepersOnBoards(),
-            "savable_species" => $this->getSavableSpecies(),
-            "savable_with_fund" => $this->getSavableWithFund(),
-            "savable_quarantined" => $this->getSavableQuarantined(),
-            "savable_quarantined_with_fund" => $this->getSavableQuarantinedWithFund(),
-            "quarantinable_species" => $this->getQuarantinableSpecies(),
-            "empty_column_nbr" => $this->getEmptyColumnNbr(),
-            "can_zoo_help" => $this->canZooHelp(),
-            "possible_zoos" => $this->getPossibleZoos(),
-            "resources_in_hand_nbr" => $this->resources->countCardsInLocation("hand", $player_id)
+            "canZooHelp" => $this->canZooHelp(),
+            "keepersOnBoards" => $this->getKeepersOnBoards(),
+            "savableSpecies" => $this->getSavableSpecies(),
+            "savableWithFund" => $this->getSavableWithFund(),
+            "savableQuarantined" => $this->getSavableQuarantined(),
+            "savableQuarantinedWithFund" => $this->getSavableQuarantinedWithFund(),
+            "quarantinableSpecies" => $this->getQuarantinableSpecies(),
+            "emptyColumnNbr" => $this->getEmptyColumnNbr(),
+            "possibleZoos" => $this->getPossibleZoos(),
+            "resourcesInHandNbr" => $this->resources->countCardsInLocation("hand", $player_id),
+            "isLastTurn" => $this->isLastTurn(),
         );
     }
 
@@ -2724,13 +2731,21 @@ class Zookeepers extends Table
             "player_name" => self::getActivePlayerName(),
         ));
 
-
-        if (self::getGameStateValue("highestSaved") >= 9) {
+        if (self::getGameStateValue("highestSaved") >= 0) {
             $last_turn = self::getGameStateValue("lastTurn") + 1;
+
+            if ($last_turn == 1) {
+                $this->notifyAllPlayers(
+                    "lastTurn",
+                    clienttranslate('${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends'),
+                    array("player_name" => self::getActivePlayerName())
+                );
+            }
+
             self::setGameStateValue("lastTurn", $last_turn);
         }
 
-        if (self::getGameStateValue("lastTurn") == count(self::loadPlayersBasicInfos())) {
+        if (self::getGameStateValue("lastTurn") == count(self::loadPlayersBasicInfos()) * 3) {
             $this->gamestate->nextState("finalScoresCalc");
             return;
         }
