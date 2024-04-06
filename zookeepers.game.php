@@ -1073,7 +1073,6 @@ class Zookeepers extends Table
             }
         }
 
-        self::warn(json_encode($possible_zoos));
         return $possible_zoos;
     }
 
@@ -2589,7 +2588,10 @@ class Zookeepers extends Table
         $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
         $keeper = array_shift($keepers_in_location);
 
-        return array("i18n" => array("species_name"), "keeper_name" => $keeper["type"]);
+        return array(
+            "i18n" => array("species_name"), "keeper_name" => $keeper["type"], "keeper_id" => $keeper["type_arg"],
+            "position" => explode(":", $keeper["location"])[1]
+        );
     }
 
     function argSelectReplacedPile()
@@ -2600,48 +2602,73 @@ class Zookeepers extends Table
         $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
         $keeper = array_shift($keepers_in_location);
 
-        return array("i18n" => array("species_name"), "keeper_name" => $keeper["type"]);
+        return array(
+            "i18n" => array("species_name"), "keeper_name" => $keeper["type"], "keeper_id" => $keeper["type_arg"],
+            "position" => explode(":", $keeper["location"])[1]
+        );
     }
     function argSelectAssignedKeeper()
     {
         $species_card_id = self::getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
-        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species["type_arg"]]["name"]);
+        return array(
+            "i18n" => array("species_name"),
+            "species_name" => $this->species_info[$species["type_arg"]]["name"],
+            "species_id" => $species["type_arg"],
+            "position" => $species["location_arg"]
+        );
     }
 
     function argSelectQuarantinedKeeper()
     {
         $species_card_id = self::getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
-        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species["type_arg"]]["name"]);
+        return array(
+            "i18n" => array("species_name"), "species_name" => $this->species_info[$species["type_arg"]]["name"],
+            "quarantine" => explode(":", $species["location"])[1]
+        );
     }
 
     function argSelectQuarantine()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"]);
+        return array(
+            "i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"], "species_id" => $species_id,
+            "position" => $species["location_arg"]
+        );
     }
 
     function argSelectBackupQuarantine()
     {
-        $species_id = self::getGameStateValue("selectedSpecies");
-        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_backup"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"]);
+        $species = $this->getLookedBackup();
+        $species_id = $species["type_arg"];
+
+        return array(
+            "i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"], "species_id" => $species_id,
+            "position" => $species["location_arg"]
+        );
     }
 
     function argSelectHelpQuarantine()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"]);
+        return array(
+            "i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"], "species_id" => $species_id,
+            "position" => $species["location_arg"]
+        );
     }
 
     function argSelectZoo()
     {
         $species_id = self::getGameStateValue("selectedSpecies");
-        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array("i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"], "possible_zoos" => $this->getPossibleZoos(),);
+        return array(
+            "i18n" => array("species_name"),
+            "species_name" => $this->species_info[$species_id]["name"],
+            "species_id" => $species_id,
+            "possible_zoos" => $this->getPossibleZoos(),
+        );
     }
 
     function argBetweenActions()

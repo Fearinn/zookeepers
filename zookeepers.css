@@ -77,6 +77,10 @@
   width: 120px;
 }
 
+.zkp_highlight {
+  border: 2px solid red !important;
+}
+
 .zkp_simple_container {
   display: flex;
   flex-direction: column;

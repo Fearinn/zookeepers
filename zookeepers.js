@@ -550,6 +550,14 @@ define([
           );
 
           this.addSelectableStyle(".zkp_keeper_pile");
+
+          const keeper_id = args.args.keeper_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_keeper_${playerId}:${position}_item_${keeper_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
@@ -565,6 +573,14 @@ define([
           );
 
           this.addSelectableStyle(".zkp_keeper_pile");
+
+          const keeper_id = args.args.keeper_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_keeper_${playerId}:${position}_item_${keeper_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
@@ -673,6 +689,14 @@ define([
           );
 
           this.addSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+
+          const species_id = args.args.species_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_visible_species_${position}_item_${species_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
@@ -703,6 +727,14 @@ define([
           );
 
           this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
+
+          const species_id = args.args.species_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_visible_species_${position}_item_${species_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
@@ -792,6 +824,14 @@ define([
       if (stateName === "selectHelpQuarantine") {
         if (this.isCurrentPlayerActive()) {
           this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
+
+          const species_id = args.args.species_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_visible_species_${position}_item_${species_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
