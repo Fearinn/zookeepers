@@ -749,6 +749,21 @@ define([
             "red"
           );
 
+          const looked_backup = args.args._private?.looked_backup;
+
+          if (this.isCurrentPlayerActive() && looked_backup) {
+            const species_id = looked_backup.type_arg;
+            const column = looked_backup.location_arg;
+
+            const backup_id = looked_backup.backup_id;
+
+            this.lookAtBackup({
+              column: column,
+              backup_id: backup_id,
+              species_id: species_id,
+            });
+          }
+
           this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
         }
       }
@@ -1223,32 +1238,40 @@ define([
     },
 
     lookAtBackup: function ({ column, backup_id, species_id }) {
+      const itemId = `species_${species_id}`;
       const stockKey = `backupShop_${column}`;
+
+      if (
+        this[stockKey].getAllItems().find((item) => {
+          return item.id === itemId;
+        })
+      ) {
+        return;
+      }
+
       this[stockKey].removeFromStockById(backup_id);
 
       this[stockKey].image_items_per_row = 10;
       this[stockKey].addItemType(
-        `species_${species_id}`,
+        itemId,
         backup_id == 1 ? -1 : 1,
         g_gamethemeurl + "img/species.png",
         species_id - 1
       );
-      this[stockKey].addToStockWithId(
-        `species_${species_id}`,
-        `species_${species_id}`
-      );
+
+      this[stockKey].addToStockWithId(itemId, itemId);
       this[stockKey].image_items_per_row = 1;
 
       const speciesName = _(this.allSpecies[species_id].name);
       const speciesSciName = this.allSpecies[species_id].scientific_name;
       this.addTooltip(
-        `zkp_backup_column:${column}_item_species_${species_id}`,
+        `zkp_backup_column:${column}_item_${itemId}`,
         _(`${speciesName} (${speciesSciName})`),
         ""
       );
 
       dojo.removeClass(
-        `zkp_backup_column:${column}_item_species_${species_id}`,
+        `zkp_backup_column:${column}_item_${itemId}`,
         "zkp_background_contain"
       );
     },

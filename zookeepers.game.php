@@ -2341,21 +2341,25 @@ class Zookeepers extends Table
     function cancelMngSpecies()
     {
         self::checkAction("cancelMngSpecies");
-
-        self::setGameStateValue("selectedSpecies", 0);
         self::setGameStateValue("selectedPosition", 0);
-        self::setGameStateValue("selectedBackup", 0);
+
+        $state_name = $this->gamestate->state()["name"];
+
+        if ($state_name !== "selectBackupQuarantine") {
+            self::setGameStateValue("selectedSpecies", 0);
+            self::setGameStateValue("selectedBackup", 0);
+        }
 
         if (
             self::getGameStateValue("secondStep") > 0
-            && $this->gamestate->state()["name"] !== "mngSecondSpecies"
+            && $state_name !== "mngSecondSpecies"
         ) {
             self::setGameStateValue("mainAction", 3);
             $this->gamestate->nextState("cancelQuarantine");
             return;
         }
 
-        if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
+        if ($state_name === "mngSecondSpecies") {
             self::setGameStateValue("mainAction", 3);
             $this->gamestate->nextState("betweenActions");
             return;
@@ -2645,8 +2649,13 @@ class Zookeepers extends Table
         $species_id = $species["type_arg"];
 
         return array(
-            "i18n" => array("species_name"), "species_name" => $this->species_info[$species_id]["name"], "species_id" => $species_id,
-            "position" => $species["location_arg"]
+            "_private" => array(
+                "active" => array(
+                    "i18n" => array("species_name"),
+                    "species_name" => $this->species_info[$species_id]["name"],
+                    "looked_backup" => $species
+                )
+            )
         );
     }
 

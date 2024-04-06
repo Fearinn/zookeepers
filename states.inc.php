@@ -190,8 +190,8 @@ $machinestates = array(
 
     31 => array(
         "name" => "selectBackupQuarantine",
-        "description" => clienttranslate('${actplayer} can pick a quarantine to put the ${species_name} in'),
-        "descriptionmyturn" => clienttranslate('${you} can pick a quarantine to put the ${species_name} in'),
+        "description" => clienttranslate('${actplayer} can pick a quarantine to put a face-down species in'),
+        "descriptionmyturn" => clienttranslate('${you} can pick a quarantine to put the ${_private.species_name} in'),
         "type" => "activeplayer",
         "args" => "argSelectBackupQuarantine",
         "possibleactions" => array("selectBackupQuarantine", "cancelMngSpecies"),
