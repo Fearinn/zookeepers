@@ -1,15 +1,31 @@
 {
   "100": {
-    "name": "Score Tracking",
+    "name": "Score tracking",
     "values": {
-      "1": {
+      "0": {
         "name": "End of game only",
         "description": "Scores will not be displayed until the end of the game.",
         "default": true
       },
-      "2": {
+      "1": {
         "name": "Real-time",
         "description": "Each player's score will be updated and displayed throughout the game."
+      }
+    }
+  },
+  "101": {
+    "name": "Hide resources in the bag",
+    "values": {
+      "0": {
+        "name": "Off",
+        "description": "The count of resources in the bag will be visible.",
+        "tmdisplay": ""
+      },
+      "1": {
+        "name": "On",
+        "description": "The count of resources in the bag will not be visible.",
+        "tmdisplay": "Hide resources in the bag",
+        "default": true
       }
     }
   }

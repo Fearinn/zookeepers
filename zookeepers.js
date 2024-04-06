@@ -38,6 +38,7 @@ define([
       };
 
       this.isRealTimeScoreTracking = false;
+      this.isBagHidden = false;
 
       this.mainAction = 0;
       this.freeAction = 0;
@@ -83,6 +84,7 @@ define([
       console.log("Starting game setup");
 
       this.isRealTimeScoreTracking = gamedatas.isRealTimeScoreTracking;
+      this.isBagHidden = gamedatas.isBagHidden;
 
       this.allKeepers = gamedatas.allKeepers;
       this.keepersOnBoards = this.formatKeepersOnBoards(
@@ -143,26 +145,32 @@ define([
         this.addTooltip(`zkp_kit_icon_${player_id}`, _("medical kit"), "");
       }
 
-      const plantBagCounter = new ebg.counter();
-      plantBagCounter.create("zkp_bag_counter_plant");
+      if (!this.isBagHidden) {
+        const plantBagCounter = new ebg.counter();
+        plantBagCounter.create("zkp_bag_counter_plant");
 
-      const meatBagCounter = new ebg.counter();
-      meatBagCounter.create("zkp_bag_counter_meat");
+        const meatBagCounter = new ebg.counter();
+        meatBagCounter.create("zkp_bag_counter_meat");
 
-      const kitBagCounter = new ebg.counter();
-      kitBagCounter.create("zkp_bag_counter_kit");
+        const kitBagCounter = new ebg.counter();
+        kitBagCounter.create("zkp_bag_counter_kit");
 
-      this.bagCounters = {
-        plant: plantBagCounter,
-        meat: meatBagCounter,
-        kit: kitBagCounter,
-      };
+        this.bagCounters = {
+          plant: plantBagCounter,
+          meat: meatBagCounter,
+          kit: kitBagCounter,
+        };
 
-      this.updateBagCounters(gamedatas.bagCounters);
+        this.updateBagCounters(gamedatas.bagCounters);
 
-      this.addTooltip("zkp_bag_plant_icon", _("plant"), "");
-      this.addTooltip("zkp_bag_meat_icon", _("meat/fish"), "");
-      this.addTooltip("zkp_bag_kit_icon", _("medical kit"), "");
+        this.addTooltip("zkp_bag_plant_icon", _("plant"), "");
+        this.addTooltip("zkp_bag_meat_icon", _("meat/fish"), "");
+        this.addTooltip("zkp_bag_kit_icon", _("medical kit"), "");
+      }
+
+      if (this.isBagHidden) {
+        dojo.destroy("zkp_bag_counters");
+      }
 
       // keepers
       for (const player_id in gamedatas.players) {
@@ -1104,6 +1112,10 @@ define([
     },
 
     updateBagCounters: function (counters) {
+      if (this.isBagHidden) {
+        return;
+      }
+
       for (const type in counters) {
         const newValue = counters[type];
         this.bagCounters[type].toValue(newValue);

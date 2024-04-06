@@ -14,7 +14,7 @@
     <div id="zkp_bag" class="zkp_bag zkp_simple_container whiteblock">
       <h3>{BAG OF RESOURCES}</h3>
       <div id="zkp_bag_img" class="zkp_bag_img"></div>
-      <div class="zkp_bag_counters">
+      <div id="zkp_bag_counters" class="zkp_bag_counters">
         <div id="zkp_bag_plant" class="zkp_resource">
           <div
             id="zkp_bag_plant_icon"

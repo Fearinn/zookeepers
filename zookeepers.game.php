@@ -47,7 +47,8 @@ class Zookeepers extends Table
             "highestSaved" => 80,
             "lastTurn" => 81,
 
-            "scoreTracking" => 100
+            "scoreTracking" => 100,
+            "bagHidden" => 101
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -204,6 +205,7 @@ class Zookeepers extends Table
         $keepers_info = $this->keepers_info;
 
         $result["isRealTimeScoreTracking"] = $this->isRealTimeScoreTracking();
+        $result["isBagHidden"] = $this->isBagHidden();
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
@@ -253,7 +255,12 @@ class Zookeepers extends Table
 
     function isRealTimeScoreTracking()
     {
-        return self::getGameStateValue("scoreTracking") == 2;
+        return self::getGameStateValue("scoreTracking") == 1;
+    }
+
+    function isBagHidden()
+    {
+        return self::getGameStateValue("bagHidden") == 1;
     }
 
     function filterByResourceType($type, $resources)
@@ -343,6 +350,10 @@ class Zookeepers extends Table
 
     function getBagCounters()
     {
+        if ($this->isBagHidden()) {
+            return null;
+        }
+        
         $plants = $this->resources->getCardsOfTypeInLocation("plant", null, "deck");
         $plants_nbr = count($plants);
 
