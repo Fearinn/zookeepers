@@ -61,7 +61,7 @@ class action_zookeepers extends APP_GameAction
   public function selectHiredPile()
   {
     self::setAjaxMode();
-    $pile = self::getArg("pile", AT_posint, true);
+    $pile = self::getArg("pile", AT_enum, true, null, range(1, 4));
     $this->game->selectHiredPile($pile);
     self::ajaxResponse();
   }
@@ -69,7 +69,7 @@ class action_zookeepers extends APP_GameAction
   public function dismissKeeper()
   {
     self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
+    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->dismissKeeper($board_position);
     self::ajaxResponse();
   }
@@ -77,7 +77,7 @@ class action_zookeepers extends APP_GameAction
   public function selectDismissedPile()
   {
     self::setAjaxMode();
-    $pile = self::getArg("pile", AT_posint, true);
+    $pile = self::getArg("pile", AT_enum, true, null, range(1, 4));
     $this->game->selectDismissedPile($pile);
     self::ajaxResponse();
   }
@@ -85,7 +85,7 @@ class action_zookeepers extends APP_GameAction
   public function replaceKeeper()
   {
     self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
+    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->replaceKeeper($board_position);
     self::ajaxResponse();
   }
@@ -93,7 +93,7 @@ class action_zookeepers extends APP_GameAction
   public function selectReplacedPile()
   {
     self::setAjaxMode();
-    $pile = self::getArg("pile", AT_posint, true);
+    $pile = self::getArg("pile", AT_enum, true,  null, range(1, 4));
     $this->game->selectReplacedPile($pile);
     self::ajaxResponse();
   }
@@ -115,7 +115,7 @@ class action_zookeepers extends APP_GameAction
   public function collectFromExchange()
   {
     self::setAjaxMode();
-    $choosen_nbr = self::getArg("choosen_nbr", AT_posint, true);
+    $choosen_nbr = self::getArg("choosen_nbr", AT_enum, true, null, array(1, 2, 3, 4, 5));
     $this->game->collectFromExchange($choosen_nbr);
     self::ajaxResponse();
   }
@@ -130,8 +130,8 @@ class action_zookeepers extends APP_GameAction
   public function returnFromExchange()
   {
     self::setAjaxMode();
-    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_posint, true);
-    $lastly_returned_type = self::getArg("lastly_returned_type", AT_alphanum, true);
+    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 10));
+    $lastly_returned_type = self::getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
     $this->game->returnFromExchange($lastly_returned_nbr, $lastly_returned_type);
     self::ajaxResponse();
   }
@@ -139,8 +139,8 @@ class action_zookeepers extends APP_GameAction
   public function returnExcess()
   {
     self::setAjaxMode();
-    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_posint, true);
-    $lastly_returned_type = self::getArg("lastly_returned_type", AT_alphanum, true);
+    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 8));
+    $lastly_returned_type = self::getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
     $this->game->returnExcess($lastly_returned_nbr, $lastly_returned_type);
     self::ajaxResponse();
   }
@@ -148,7 +148,7 @@ class action_zookeepers extends APP_GameAction
   public function saveSpecies()
   {
     self::setAjaxMode();
-    $shop_position = self::getArg("shop_position", AT_posint, true);
+    $shop_position = self::getArg("shop_position", AT_enum, true, null, range(1, 4));
     $this->game->saveSpecies($shop_position);
     self::ajaxResponse();
   }
@@ -156,7 +156,7 @@ class action_zookeepers extends APP_GameAction
   public function selectAssignedKeeper()
   {
     self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
+    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->selectAssignedKeeper($board_position);
     self::ajaxResponse();
   }
@@ -164,7 +164,7 @@ class action_zookeepers extends APP_GameAction
   public function saveQuarantined()
   {
     self::setAjaxMode();
-    $species_id = self::getArg("species_id", AT_posint, true);
+    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->saveQuarantined($species_id);
     self::ajaxResponse();
   }
@@ -172,7 +172,7 @@ class action_zookeepers extends APP_GameAction
   public function selectQuarantinedKeeper()
   {
     self::setAjaxMode();
-    $board_position = self::getArg("board_position", AT_posint, true);
+    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->selectQuarantinedKeeper($board_position);
     self::ajaxResponse();
   }
@@ -180,7 +180,7 @@ class action_zookeepers extends APP_GameAction
   public function discardSpecies()
   {
     self::setAjaxMode();
-    $species_id = self::getArg("species_id", AT_posint, true);
+    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->discardSpecies($species_id);
     self::ajaxResponse();
   }
@@ -188,7 +188,7 @@ class action_zookeepers extends APP_GameAction
   public function quarantineSpecies()
   {
     self::setAjaxMode();
-    $species_id = self::getArg("species_id", AT_posint, true);
+    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->quarantineSpecies($species_id);
     self::ajaxResponse();
   }
@@ -210,8 +210,8 @@ class action_zookeepers extends APP_GameAction
   public function lookAtBackup()
   {
     self::setAjaxMode();
-    $shop_position = self::getArg("shop_position", AT_posint, true);
-    $backup_id = self::getArg("backup_id", AT_posint, true);
+    $shop_position = self::getArg("shop_position", AT_enum, true, null, range(1, 4));
+    $backup_id = self::getArg("backup_id", AT_enum, true, null, range(1, 4));
     $this->game->lookAtBackup($shop_position, $backup_id);
     self::ajaxResponse();
   }
@@ -261,7 +261,7 @@ class action_zookeepers extends APP_GameAction
   public function zooHelp()
   {
     self::setAjaxMode();
-    $species_id = self::getArg("species_id", AT_posint, true);
+    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->zooHelp($species_id);
     self::ajaxResponse();
   }
