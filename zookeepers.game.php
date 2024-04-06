@@ -2731,7 +2731,7 @@ class Zookeepers extends Table
             "player_name" => self::getActivePlayerName(),
         ));
 
-        if (self::getGameStateValue("highestSaved") >= 0) {
+        if (self::getGameStateValue("highestSaved") >= 9) {
             $last_turn = self::getGameStateValue("lastTurn") + 1;
 
             if ($last_turn == 1) {
@@ -2745,7 +2745,7 @@ class Zookeepers extends Table
             self::setGameStateValue("lastTurn", $last_turn);
         }
 
-        if (self::getGameStateValue("lastTurn") == count(self::loadPlayersBasicInfos()) * 3) {
+        if (self::getGameStateValue("lastTurn") == count(self::loadPlayersBasicInfos())) {
             $this->gamestate->nextState("finalScoresCalc");
             return;
         }
