@@ -1102,7 +1102,7 @@ define([
     },
 
     checkKeeperOwner: function (keeperId, event = null) {
-      const playerId = this.getActivePlayerId();
+      const playerId = this.getCurrentPlayerId();
 
       let result = { isOwner: false, position: 0 };
 
@@ -1349,6 +1349,7 @@ define([
 
       if (stockItemsNbr > 0) {
         const itemId = stock.getSelectedItems()[0].id;
+
         if (!this.checkKeeperOwner(itemId).isOwner) {
           stock.unselectAll();
           return;
