@@ -222,6 +222,7 @@ class Zookeepers extends Table
         $result["savableQuarantined"] = $this->getSavableQuarantined();
         $result["savableQuarantinedWithFund"] = $this->getSavableQuarantinedWithFund();
         $result["allQuarantines"] = $this->quarantines;
+        $result["openQuarantines"] = $this->getOpenQuarantines();
         $result["quarantinableSpecies"] = $this->getQuarantinableSpecies();
         $result["savedSpecies"] = $this->getSavedSpecies();
         $result["quarantinedSpecies"] = $this->getQuarantinedSpecies();
@@ -1983,6 +1984,7 @@ class Zookeepers extends Table
                 "assignable_keepers" => $assignable_keepers,
                 "species_counters" => $this->getSpeciesCounters(),
                 "can_zoo_help" => $this->canZooHelp(),
+                "open_quarantines" => $this->getOpenQuarantines()
             )
         );
 
@@ -2190,7 +2192,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "quarantineBackup",
-            clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
+            clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
@@ -2204,6 +2206,7 @@ class Zookeepers extends Table
                 "quarantine_label" => $quarantine_label,
                 "quarantined_species" => $this->getQuarantinedSpecies(),
                 "visible_species" => $this->getVisibleSpecies(),
+                "open_quarantines" => $this->getOpenQuarantines(),
             )
         );
 
@@ -2245,7 +2248,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "discardSpecies",
-            clienttranslate('${player_name} moves ${species_name} to the bottom of the deck'),
+            clienttranslate('${player_name} moves the ${species_name} to the bottom of the deck'),
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
@@ -2323,7 +2326,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "quarantineSpecies",
-            clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
+            clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
@@ -2336,6 +2339,7 @@ class Zookeepers extends Table
                 "quarantine_label" => $quarantine_label,
                 "quarantined_species" => $this->getQuarantinedSpecies(),
                 "visible_species" => $this->getVisibleSpecies(),
+                "open_quarantines" => $this->getOpenQuarantines()
             )
         );
 
@@ -2510,7 +2514,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "quarantineSpecies",
-            clienttranslate('${player_name} moves ${species_name} to his ${quarantine_label} quarantine'),
+            clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
@@ -2523,6 +2527,7 @@ class Zookeepers extends Table
                 "quarantine_label" => $quarantine_label,
                 "quarantined_species" => $this->getQuarantinedSpecies(),
                 "visible_species" => $this->getVisibleSpecies(),
+                "open_quarantines" => $this->getOpenQuarantines(),
             )
         );
 

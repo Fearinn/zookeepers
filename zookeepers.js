@@ -57,6 +57,7 @@ define([
       this.savableQuarantinedWithFund = {};
       this.savedSpecies = {};
       this.allQuarantines = {};
+      this.openQuarantines = {};
       this.quarantinedSpecies = {};
       this.completedKeepers = {};
       this.speciesCounters = {};
@@ -104,6 +105,7 @@ define([
       this.savableQuarantinedWithFund = gamedatas.savableQuarantinedWithFund;
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
+      this.openQuarantines = gamedatas.openQuarantines;
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
@@ -766,11 +768,11 @@ define([
           );
 
           const looked_backup = args.args._private?.looked_backup;
+          const possibleQuarantines = args.args._private?.possible_quarantines;
 
-          if (looked_backup) {
+          if (looked_backup && possibleQuarantines) {
             const species_id = looked_backup.type_arg;
             const column = looked_backup.location_arg;
-
             const backup_id = looked_backup.backup_id;
 
             this.lookAtBackup({
@@ -778,8 +780,6 @@ define([
               backup_id: backup_id,
               species_id: species_id,
             });
-
-            const possibleQuarantines = args.args.possible_quarantines;
 
             this.addSelectableStyle(
               `.zkp_quarantine_${playerId}`,
@@ -817,24 +817,25 @@ define([
       if (stateName === "mngBackup") {
         const looked_backup = args.args._private?.looked_backup;
 
-        if (this.isCurrentPlayerActive() && looked_backup) {
-          const species_id = looked_backup.type_arg;
-          const column = looked_backup.location_arg;
+        if (this.isCurrentPlayerActive())
+          if (looked_backup) {
+            const species_id = looked_backup.type_arg;
+            const column = looked_backup.location_arg;
 
-          const backup_id = looked_backup.backup_id;
+            const backup_id = looked_backup.backup_id;
 
-          this.lookAtBackup({
-            column: column,
-            backup_id: backup_id,
-            species_id: species_id,
-          });
-        }
+            this.lookAtBackup({
+              column: column,
+              backup_id: backup_id,
+              species_id: species_id,
+            });
+          }
 
-        if (this.isCurrentPlayerActive()) {
-          this.addActionButton("discard_backup_btn", _("Discard"), () => {
-            this.onDiscardBackup();
-          });
+        this.addActionButton("discard_backup_btn", _("Discard"), () => {
+          this.onDiscardBackup();
+        });
 
+        if (this.isQuarantinable(species_id)) {
           this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
             this.onQuarantineBackup();
           });
@@ -1165,6 +1166,20 @@ define([
       return isOwner;
     },
 
+    isQuarantinable(speciesId) {
+      const habitats = this.allSpecies[speciesId].habitat;
+      const playerId = this.getActivePlayerId();
+      let isQuarantinable = false;
+
+      habitats.forEach((habitat) => {
+        if (!!this.openQuarantines[playerId][habitat]) {
+          isQuarantinable = true;
+        }
+      });
+
+      return isQuarantinable;
+    },
+
     addSelectableStyle: function (
       containerSelector,
       itemSelector = null,
@@ -1450,14 +1465,16 @@ define([
             this.onDiscardSpecies(itemId);
           });
 
-          this.addActionButton(
-            "quarantine_species_btn",
-            _("Quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onQuarantineSpecies(itemId);
-            }
-          );
+          if (this.isQuarantinable(itemId)) {
+            this.addActionButton(
+              "quarantine_species_btn",
+              _("Quarantine"),
+              () => {
+                stock.unselectAll();
+                this.onQuarantineSpecies(itemId);
+              }
+            );
+          }
           return;
         }
         this.addPlayerTurnButtons();
@@ -1467,21 +1484,23 @@ define([
       if (stateName === "mngSecondSpecies") {
         this.removeActionButtons();
         if (stock.getSelectedItems().length > 0) {
-          const item = stock.getSelectedItems()[0].id;
+          const itemId = stock.getSelectedItems()[0].id;
 
           this.addActionButton("discard_species_btn", _("Discard"), () => {
             stock.unselectAll();
-            this.onDiscardSpecies(item);
+            this.onDiscardSpecies(itemId);
           });
 
-          this.addActionButton(
-            "quarantine_species_btn",
-            _("Quarantine"),
-            () => {
-              stock.unselectAll();
-              this.onQuarantineSpecies(item);
-            }
-          );
+          if (this.isQuarantinable(itemId)) {
+            this.addActionButton(
+              "quarantine_species_btn",
+              _("Quarantine"),
+              () => {
+                stock.unselectAll();
+                this.onQuarantineSpecies(itemId);
+              }
+            );
+          }
           return;
         }
 
@@ -1513,7 +1532,7 @@ define([
 
         if (this.mainAction > 0) {
           this.showMessage(
-            "You can't do anything with this species now",
+            _("You can't do anything with this species now"),
             "error"
           );
           stock.unselectAll();
@@ -1594,7 +1613,7 @@ define([
 
         if (this.mainAction > 0) {
           this.showMessage(
-            "You can't do anything with this species now",
+            _("You can't do anything with this species now"),
             "error"
           );
           stock.unselectAll();
@@ -2154,8 +2173,6 @@ define([
     },
 
     notif_saveSpecies: function (notif) {
-      this.savedSpecies = notif.args.saved_species;
-
       const player_id = notif.args.player_id;
       const board_position = notif.args.board_position;
       const shop_position = notif.args.shop_position;
@@ -2187,6 +2204,9 @@ define([
         ""
       );
 
+      this.updateSpeciesCounters(notif.args.species_counters);
+      this[originKey].removeFromStockById(species_id);
+
       this.canZooHelp = notif.args.can_zoo_help;
       this.possibleZoos = notif.args.possible_zoos;
       if (player_id == this.getCurrentPlayerId() && this.canZooHelp) {
@@ -2195,8 +2215,9 @@ define([
           "info"
         );
       }
-      this.updateSpeciesCounters(notif.args.species_counters);
-      this[originKey].removeFromStockById(species_id);
+
+      this.savedSpecies = notif.args.saved_species;
+      this.openQuarantines = notif.args.open_quarantines;
     },
 
     notif_saveQuarantined: function (notif) {
@@ -2206,7 +2227,6 @@ define([
       const board_position = notif.args.board_position;
       const quarantine = notif.args.quarantine;
       const species_id = notif.args.species_id;
-      console.log(species_id);
 
       const originKey = `quarantine_${player_id}:${quarantine}`;
       const destinationKey = `board_${player_id}:${board_position}`;
@@ -2279,6 +2299,7 @@ define([
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
       this.quarantinedSpecies = notif.args.quarantined_species;
+      this.openQuarantines = notif.args.open_quarantines;
     },
 
     notif_quarantineBackup: function (notif) {
@@ -2308,6 +2329,7 @@ define([
 
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
       this.quarantinedSpecies = notif.args.quarantined_species;
+      this.openQuarantines = notif.args.open_quarantines;
     },
 
     notif_lookAtBackup: function (notif) {
