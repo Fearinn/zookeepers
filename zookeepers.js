@@ -734,7 +734,15 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
+          const possibleQuarantines = args.args.possible_quarantines;
+
+          this.addSelectableStyle(
+            `.zkp_quarantine_${playerId}`,
+            null,
+            (element) => {
+              return !!possibleQuarantines[element.id.split(":")[1]];
+            }
+          );
 
           const species_id = args.args.species_id;
           const position = args.args.position;
@@ -759,7 +767,7 @@ define([
 
           const looked_backup = args.args._private?.looked_backup;
 
-          if (this.isCurrentPlayerActive() && looked_backup) {
+          if (looked_backup) {
             const species_id = looked_backup.type_arg;
             const column = looked_backup.location_arg;
 
@@ -770,9 +778,39 @@ define([
               backup_id: backup_id,
               species_id: species_id,
             });
-          }
 
-          this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
+            const possibleQuarantines = args.args.possible_quarantines;
+
+            this.addSelectableStyle(
+              `.zkp_quarantine_${playerId}`,
+              null,
+              (element) => {
+                return !!possibleQuarantines[element.id.split(":")[1]];
+              }
+            );
+          }
+        }
+      }
+
+      if (stateName === "selectHelpQuarantine") {
+        if (this.isCurrentPlayerActive()) {
+          const possibleQuarantines = args.args.possible_quarantines;
+
+          this.addSelectableStyle(
+            `.zkp_quarantine_${playerId}`,
+            null,
+            (element) => {
+              return !!possibleQuarantines[element.id.split(":")[1]];
+            }
+          );
+
+          const species_id = args.args.species_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_visible_species_${position}_item_${species_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
@@ -841,20 +879,6 @@ define([
           this.addSelectableStyle(".zkp_playmat_container", null, (element) => {
             return !!this.possibleZoos[element.id.split(":")[1]];
           });
-        }
-      }
-
-      if (stateName === "selectHelpQuarantine") {
-        if (this.isCurrentPlayerActive()) {
-          this.addSelectableStyle(`.zkp_quarantine_${playerId}`);
-
-          const species_id = args.args.species_id;
-          const position = args.args.position;
-
-          dojo.addClass(
-            `zkp_visible_species_${position}_item_${species_id}`,
-            "zkp_highlight"
-          );
         }
       }
 
