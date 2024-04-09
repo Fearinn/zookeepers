@@ -2615,10 +2615,11 @@ class Zookeepers extends Table
     {
         $species_card_id = self::getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
+        $species_id = $species["type_arg"];
         return array(
             "i18n" => array("species_name"),
-            "species_name" => $this->species_info[$species["type_arg"]]["name"],
-            "species_id" => $species["type_arg"],
+            "species_name" => $this->species_info[$species_id]["name"],
+            "species_id" => $species_id,
             "position" => $species["location_arg"]
         );
     }
@@ -2627,8 +2628,11 @@ class Zookeepers extends Table
     {
         $species_card_id = self::getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
+        $species_id = $species["type_arg"];
         return array(
-            "i18n" => array("species_name"), "species_name" => $this->species_info[$species["type_arg"]]["name"],
+            "i18n" => array("species_name"),
+            "species_name" => $this->species_info[$species_id]["name"],
+            "species_id" => $species_id,
             "quarantine" => explode(":", $species["location"])[1]
         );
     }

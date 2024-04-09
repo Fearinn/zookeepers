@@ -712,6 +712,14 @@ define([
           );
 
           this.addSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+
+          const species_id = args.args.species_id;
+          const quarantine = args.args.quarantine;
+
+          dojo.addClass(
+            `zkp_quarantine_${playerId}:${quarantine}_item_${species_id}`,
+            "zkp_highlight"
+          );
         }
       }
 
@@ -883,6 +891,7 @@ define([
 
       if (stateName === "selectDismissedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
 
@@ -894,21 +903,25 @@ define([
 
       if (stateName === "selectReplacedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile");
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
 
       if (stateName === "selectAssignedKeeper") {
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
 
       if (stateName === "selectQuarantinedKeeper") {
         this.removeSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
 
       if (stateName === "selectQuarantine") {
         this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
 
@@ -917,13 +930,14 @@ define([
         return;
       }
 
-      if (stateName === "selectZoo") {
-        this.removeSelectableStyle(".zkp_playmat_container");
+      if (stateName === "selectHelpQuarantine") {
+        this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
 
-      if (stateName === "selectHelpQuarantine") {
-        this.removeSelectableStyle(`.zkp_quarantine_${playerId}`);
+      if (stateName === "selectZoo") {
+        this.removeSelectableStyle(".zkp_playmat_container");
         return;
       }
     },
