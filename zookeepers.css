@@ -78,7 +78,7 @@
 }
 
 .zkp_highlight {
-  border: 2px solid red !important;
+  border: 2px solid blue !important;
 }
 
 .zkp_simple_container {
@@ -169,7 +169,7 @@
 .zkp_keeper_piles {
   display: grid;
   grid-template-columns: repeat(2, 122px);
-  gap: 4px;
+  gap: 8px;
 }
 
 .zkp_keeper_pile {
