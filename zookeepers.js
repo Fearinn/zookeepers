@@ -1191,7 +1191,10 @@ define([
       let isQuarantinable = false;
 
       habitats.forEach((habitat) => {
-        if (!!this.openQuarantines[playerId][habitat]) {
+        if (
+          !!this.openQuarantines[playerId]["ALL"] ||
+          !!this.openQuarantines[playerId][habitat]
+        ) {
           isQuarantinable = true;
         }
       });
@@ -1384,7 +1387,7 @@ define([
         }
 
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not yourturn"), "error");
+          this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1434,7 +1437,7 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not yourturn"), "error");
+          this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1554,7 +1557,7 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not yourturn"), "error");
+          this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1635,7 +1638,7 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not yourturn"), "error");
+          this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
