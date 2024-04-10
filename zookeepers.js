@@ -848,17 +848,21 @@ define([
               backup_id: backup_id,
               species_id: species_id,
             });
+
+            this.addActionButton("discard_backup_btn", _("Discard"), () => {
+              this.onDiscardBackup();
+            });
+
+            if (this.isQuarantinable(species_id)) {
+              this.addActionButton(
+                "quarantine_backup_btn",
+                _("Quarantine"),
+                () => {
+                  this.onQuarantineBackup();
+                }
+              );
+            }
           }
-
-        this.addActionButton("discard_backup_btn", _("Discard"), () => {
-          this.onDiscardBackup();
-        });
-
-        if (this.isQuarantinable(species_id)) {
-          this.addActionButton("quarantine_backup_btn", _("Quarantine"), () => {
-            this.onQuarantineBackup();
-          });
-        }
       }
 
       if (stateName === "mngSecondSpecies") {

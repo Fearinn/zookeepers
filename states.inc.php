@@ -195,7 +195,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argSelectBackupQuarantine",
         "possibleactions" => array("selectBackupQuarantine", "cancelMngSpecies"),
-        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 30, "cancelQuarantine" => 29, "zombiePass" => 8)
+        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 30, "cancelQuarantine" => 30, "zombiePass" => 8)
     ),
 
     32 => array(

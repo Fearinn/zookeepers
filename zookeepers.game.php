@@ -2371,9 +2371,9 @@ class Zookeepers extends Table
 
         if (
             self::getGameStateValue("secondStep") > 0
-            && $state_name !== "mngSecondSpecies"
+            &&
+            ($state_name === "selectQuarantine" || $state_name === "selectBackupQuarantine")
         ) {
-            self::setGameStateValue("mainAction", 3);
             $this->gamestate->nextState("cancelQuarantine");
             return;
         }
