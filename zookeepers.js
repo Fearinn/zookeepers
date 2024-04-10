@@ -690,7 +690,17 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+          const assignableKeepers = args.args.assignable_keepers;
+
+          this.addSelectableStyle(
+            `.zkp_keeper_${playerId}`,
+            ".stockitem",
+            null,
+            (element) => {
+              const keeperId = element.id.split("item_")[1];
+              return !!assignableKeepers[keeperId];
+            }
+          );
 
           const species_id = args.args.species_id;
           const position = args.args.position;
@@ -713,7 +723,16 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(`.zkp_keeper_${playerId}`, ".stockitem");
+          const assignableKeepers = args.args.assignable_keepers;
+          this.addSelectableStyle(
+            `.zkp_keeper_${playerId}`,
+            ".stockitem",
+            null,
+            (element) => {
+              const keeperId = element.id.split("item_")[1];
+              return !!assignableKeepers[keeperId];
+            }
+          );
 
           const species_id = args.args.species_id;
           const quarantine = args.args.quarantine;
@@ -1183,7 +1202,8 @@ define([
     addSelectableStyle: function (
       containerSelector,
       itemSelector = null,
-      condition = null
+      condition = null,
+      itemCondition = null
     ) {
       const border = "3px solid green";
 
@@ -1196,26 +1216,34 @@ define([
             });
           }
         });
-        return;
+      } else {
+        dojo.query(containerSelector).style({
+          border: itemSelector ? "none" : border,
+          cursor: "pointer",
+        });
       }
 
-      dojo.query(containerSelector).style({
-        border: itemSelector ? "none" : border,
-        cursor: "pointer",
-      });
-
       if (itemSelector) {
-        const query = dojo.query(
-          `${containerSelector} > ${itemSelector}:first-child`
-        );
-        query.style({
-          ["pointer-events"]: "none",
-        });
-        query.removeClass("stockitem_unselectable");
+        if (itemCondition) {
+          dojo
+            .query(`${containerSelector} > ${itemSelector}:first-child`)
+            .forEach((element) => {
+              if (itemCondition(element)) {
+                dojo.removeClass(element, "stockitem_unselectable");
+                dojo.setStyle(element, {
+                  border: border,
+                  ["pointer-events"]: "none",
+                });
+              }
+            });
+        } else {
+          const query = dojo.query(
+            `${containerSelector} > ${itemSelector}:first-child`
+          );
 
-        dojo
-          .query(`${containerSelector} > ${itemSelector}:first-child`)
-          .style({ border: border });
+          query.removeClass("stockitem_unselectable");
+          query.style({ border: border, ["pointer-events"]: "none" });
+        }
       }
     },
 
@@ -1356,7 +1384,7 @@ define([
         }
 
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It is not your turn"), "error");
+          this.showMessage(_("It's not yourturn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1406,7 +1434,7 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It is not your turn"), "error");
+          this.showMessage(_("It's not yourturn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1526,7 +1554,7 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It is not your turn"), "error");
+          this.showMessage(_("It's not yourturn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1607,7 +1635,7 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It is not your turn"), "error");
+          this.showMessage(_("It's not yourturn"), "error");
           stock.unselectAll();
           return;
         }
@@ -1833,8 +1861,6 @@ define([
 
     onSelectAssignedKeeper: function (event) {
       const action = "selectAssignedKeeper";
-
-      // const position = event.currentTarget.id.split(":")[1];
 
       if (this.checkAction(action, true)) {
         const { isOwner, position } = this.checkKeeperOwner(null, event);

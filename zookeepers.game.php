@@ -2627,7 +2627,9 @@ class Zookeepers extends Table
         $keeper = array_shift($keepers_in_location);
 
         return array(
-            "i18n" => array("species_name"), "keeper_name" => $keeper["type"], "keeper_id" => $keeper["type_arg"],
+            "i18n" => array("species_name"),
+            "keeper_name" => $keeper["type"],
+            "keeper_id" => $keeper["type_arg"],
             "position" => explode(":", $keeper["location"])[1]
         );
     }
@@ -2640,7 +2642,8 @@ class Zookeepers extends Table
             "i18n" => array("species_name"),
             "species_name" => $this->species_info[$species_id]["name"],
             "species_id" => $species_id,
-            "position" => $species["location_arg"]
+            "position" => $species["location_arg"],
+            "assignable_keepers" => $this->getAssignableKeepers($species_id),
         );
     }
 
@@ -2654,6 +2657,7 @@ class Zookeepers extends Table
             "species_name" => $this->species_info[$species_id]["name"],
             "species_id" => $species_id,
             "quarantine" => explode(":", $species["location"])[1],
+            "assignable_keepers" => $this->getAssignableKeepers($species_id)
         );
     }
 
