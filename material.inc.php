@@ -61,6 +61,253 @@ $this->quarantines = array(
   1 => "ALL", 2 => "TEM", 3 => "SAV", 4 => "PRA", 5 => "DES", 6 => "AQU", 7 => "TRO"
 );
 
+$this->objectives_info = array(
+  1 => array(
+    "sprite_pos" => 1,
+    "targets" => array(
+      7 => array(
+        "condition" => array(
+          "class" => array("bird"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      8 => array(
+        "condition" => array(
+          "class" => array("bird"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      9 => array(
+        "condition" => array(
+          "diet" => array("herbivore"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      10 => array(
+        "condition" => array(
+          "diet" => array("herbivore"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      11 => array(
+        "condition" => array(
+          "status" => array("EN"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      12 => array(
+        "condition" => array(
+          "habitat" => array("PRA"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      13 => array(
+        "condition" => array(
+          "habitat" => array("PRA"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      14 => array(
+        "condition" => array(
+          "continent" => array("OC"),
+          "operator" => "single"
+        ),
+        "bonus" => 5
+      ),
+    )
+  ),
+  2 => array(
+    "sprite_pos" => 2,
+    "targets" => array(
+      7 => array(
+        "condition" => array(
+          "diet" => array("carnivore"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      8 => array(
+        "condition" => array(
+          "diet" => array("carnivore"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      9 => array(
+        "condition" => array(
+          "class" => array("mammal"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      10 => array(
+        "condition" => array(
+          "class" => array("mammal"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      11 => array(
+        "condition" => array(
+          "continent" => array("AM"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      12 => array(
+        "condition" => array(
+          "habitat" => array("SAV"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      13 => array(
+        "condition" => array(
+          "habitat" => array("SAV"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      14 => array(
+        "condition" => array(
+          "habitat" => array("DES"),
+          "operator" => "single"
+        ),
+        "bonus" => 5
+      )
+    )
+  ),
+  3 => array(
+    "sprite_pos" => 3,
+    "targets" => array(
+      7 => array(
+        "condition" => array(
+          "continent" => array("AF"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      8 => array(
+        "condition" => array(
+          "continent" => array("AF"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      9 => array(
+        "condition" => array(
+          "habitat" => array("TRO"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      10 => array(
+        "condition" => array(
+          "habitat" => array("TRO"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      11 => array(
+        "condition" => array(
+          "continent" => array("EU"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      12 => array(
+        "condition" => array(
+          "diet" => array("omnivore"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      13 => array(
+        "condition" => array(
+          "diet" => array("omnivore"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      14 => array(
+        "condition" => array(
+          "status" => array("CR"),
+          "operator" => "single"
+        ),
+        "bonus" => 5
+      ),
+    )
+  ),
+  4 => array(
+    "sprite_pos" => 5,
+    "targets" => array(
+      7 => array(
+        "condition" => array(
+          "status" => array("NT", "VU"),
+          "operator" => "or"
+        ),
+        "bonus" => 2
+      ),
+      8 => array(
+        "condition" => array(
+          "status" => array("NT", "VU"),
+          "operator" => "or"
+        ),
+        "bonus" => 2
+      ),
+      9 => array(
+        "condition" => array(
+          "continent" => array("AS"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      10 => array(
+        "condition" => array(
+          "continent" => array("AS"),
+          "operator" => "single"
+        ),
+        "bonus" => 2
+      ),
+      11 => array(
+        "condition" => array(
+          "class" => array("reptile"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      12 => array(
+        "condition" => array(
+          "habitat" => array("TEM"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      13 => array(
+        "condition" => array(
+          "habitat" => array("TEM"),
+          "operator" => "single"
+        ),
+        "bonus" => 3
+      ),
+      14 => array(
+        "condition" => array(
+          "habitat" => array("AQU", "MTN"),
+          "operator" => "or"
+        ),
+        "bonus" => 5
+      ),
+    )
+  ),
+);
+
 $this->keepers_info = array(
   6 => array(
     "name" => "Abdul",
@@ -267,8 +514,7 @@ $this->species_info = array(
     "scientific_name" => "Testudo kleinmanni",
     "class" => "reptile",
     "diet" => "herbivore",
-    "status" =>
-    "CR",
+    "status" => "CR",
     "habitat" => array("DES"),
     "continent" => array("AF"),
     "cost" => array(

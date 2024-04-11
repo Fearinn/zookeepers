@@ -88,11 +88,11 @@
   gap: 4px;
 }
 
-.zkp_board {
-  clear: both;
-  padding: 4px;
+.zkp_board_resources {
   display: flex;
   gap: 4px;
+  clear: both;
+  padding: 4px;
 }
 
 .zkp_resource {
@@ -127,6 +127,10 @@
   background-size: contain;
   height: 40px;
   width: 40px;
+}
+
+.zkp_objective {
+  width: 120px;
 }
 
 .zkp_resource_cube {
@@ -211,6 +215,11 @@
 
 .zkp_backup_species {
   background-image: url("img/species_back.png");
+  background-size: contain;
+}
+
+.zkp_objectives_deck {
+  background-image: url("img/objectives_back.png");
   background-size: contain;
 }
 

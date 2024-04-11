@@ -60,6 +60,9 @@ class Zookeepers extends Table
         $this->species = self::getNew("module.common.deck");
         $this->species->init("species");
 
+        $this->objectives = self::getNew("module.common.deck");
+        $this->objectives->init("objective");
+
         // experimental flag to prevent deadlocks
         $this->bSelectGlobalsForUpdate = true;
     }
@@ -118,8 +121,6 @@ class Zookeepers extends Table
         $this->resources->shuffle("deck");
 
         $keepers_info = $this->keepers_info;
-        ksort($keepers_info);
-
         $starting_keepers = array();
 
         foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
@@ -161,9 +162,26 @@ class Zookeepers extends Table
         $this->species->createCards($species_deck, "deck");
         $this->species->shuffle("deck");
 
-        for ($i = 1; $i <= 4; $i++) {
-            $this->species->pickCardsForLocation(2, "deck", "shop_backup", $i);
-            $this->species->pickCardForLocation("deck", "shop_visible", $i);
+        for ($position = 1; $position <= 4; $position++) {
+            $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
+            $this->species->pickCardForLocation("deck", "shop_visible", $position);
+        }
+
+        //secret objectives 
+        $objectives_deck = array();
+        foreach ($this->objectives_info as $objective_id => $objective) {
+            $objectives_deck[] = array(
+                "type" => strval($objective["sprite_pos"]),
+                "type_arg" => $objective_id,
+                "nbr" => 2
+            );
+        }
+
+        $this->objectives->createCards($objectives_deck, "deck");
+        $this->objectives->shuffle("deck");
+
+        foreach ($players as $player_id => $player) {
+            $this->objectives->pickCard("deck", $player_id);
         }
 
         /************ Start the game initialization *****/
@@ -203,6 +221,7 @@ class Zookeepers extends Table
         $sql = "SELECT player_id id, player_score score FROM player ";
         $species_info = $this->species_info;
         $keepers_info = $this->keepers_info;
+        $objectives_info = $this->objectives_info;
 
         $result["isRealTimeScoreTracking"] = $this->isRealTimeScoreTracking();
         $result["isBagHidden"] = $this->isBagHidden();
@@ -229,6 +248,8 @@ class Zookeepers extends Table
         $result["completedKeepers"] = $this->getCompletedKeepers();
         $result["speciesCounters"] = $this->getSpeciesCounters();
         $result["emptyColumnNbr"] = $this->getEmptyColumnNbr();
+        $result["allObjectives"] = $objectives_info;
+        $result["secretObjective"] = $this->getObjectives()[$current_player_id];
         $result["isLastTurn"] = $this->isLastTurn();
 
         $players = self::loadPlayersBasicInfos();
@@ -389,6 +410,21 @@ class Zookeepers extends Table
         }
 
         return $keepers;
+    }
+
+    function getObjectives()
+    {
+        $objectives = array();
+
+        $players = self::loadPlayersBasicInfos();
+        foreach ($players as $player_id => $player) {
+            $objectives_in_hand = $this->objectives->getCardsInLocation("hand", $player_id);
+            $objective = array_shift($objectives_in_hand);
+
+            $objectives[$player_id] = $objective;
+        }
+
+        return $objectives;
     }
 
     function getVisibleSpecies()

@@ -64,6 +64,8 @@ define([
       this.possibleZoos = {};
       this.emptyColumnNbr = 0;
       this.resourcesInHandNbr = 0;
+      this.allObjectives = {};
+      this.secretObjective = {};
       this.isBagEmpty = false;
       this.canZooHelp = false;
       this.isLastTurn = false;
@@ -107,6 +109,9 @@ define([
       this.allQuarantines = gamedatas.allQuarantines;
       this.openQuarantines = gamedatas.openQuarantines;
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
+
+      this.allObjectives = gamedatas.allObjectives;
+      this.secretObjective = gamedatas.secretObjective;
 
       this.isBagEmpty = gamedatas.isBagEmpty;
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
@@ -487,6 +492,40 @@ define([
             this.onSelectHelpQuarantine(event);
           });
       }
+
+      //secret objectives
+
+      const playerId = this.getCurrentPlayerId();
+      const stockKey = `objective_${playerId}`;
+      this[stockKey] = new ebg.stock();
+      this[stockKey].create(
+        this,
+        $(`zkp_objective_${playerId}`),
+        this.cardWidth,
+        this.cardHeight
+      );
+
+      this[stockKey].extraClasses = "zkp_card";
+      this[stockKey].image_items_per_row = 4;
+      this[stockKey].setSelectionMode(0);
+
+      for (const objective_id in this.allObjectives) {
+        const sprite_pos = this.allObjectives[objective_id].sprite_pos;
+        this[stockKey].addItemType(
+          objective_id,
+          0,
+          g_gamethemeurl + "img/objectives.png",
+          sprite_pos
+        );
+      }
+
+      const objective_id = this.secretObjective.type_arg;
+
+      this[stockKey].addToStockWithId(
+        objective_id,
+        objective_id,
+        "zkp_objectives_deck"
+      );
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
