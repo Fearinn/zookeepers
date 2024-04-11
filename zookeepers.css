@@ -176,6 +176,15 @@
   background-image: url("img/keepers_backs.png");
 }
 
+.zkp_bigger_species {
+  display: block;
+  background-image: url("img/bigger_species.png");
+  border-radius: 24px;
+  height: 330px;
+  width: 240px;
+  margin: 0 auto 4px auto;
+}
+
 .zkp_species_deck {
   background-image: url("img/species_back.png");
   background-size: contain;

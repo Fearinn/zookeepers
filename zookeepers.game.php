@@ -2596,9 +2596,9 @@ class Zookeepers extends Table
         return array(
             "_private" => array(
                 "active" => array(
-                    "i18n" => "species_name",
+                    "i18n" => array("species_name"),
                     "looked_backup" => $looked_backup,
-                    "species_name" => $looked_backup["type"]
+                    "species_name" => $this->species_info[$looked_backup["type_arg"]]["name"]
                 )
             )
         );
