@@ -252,13 +252,12 @@ define([
               );
 
               const speciesName = _(this.allSpecies[species_id].name);
-              const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-                Math.floor((species_id - 1) / 10) * 100
-              }%`;
+              const backgroundPosition =
+                this.calcBackgroundPosition(species_id);
               this.addTooltipHtml(
                 `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
-                `<img class="zkp_bigger_species zkp_card">
-               <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+                `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+               <span style="display: block; text-align: center">${speciesName}</span>`
               );
             }
           }
@@ -340,13 +339,11 @@ define([
           );
 
           const speciesName = _(this.allSpecies[species_id].name);
-          const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-            Math.floor((species_id - 1) / 10) * 100
-          }%`;
+          const backgroundPosition = this.calcBackgroundPosition(species_id);
           this.addTooltipHtml(
             `${container}_item_${species_id}`,
-            `<img class="zkp_bigger_species zkp_card">
-            <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+            `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+            <span style="display: block; text-align: center">${speciesName}</span>`
           );
         }
       }
@@ -420,14 +417,11 @@ define([
             this[stockKey].addToStockWithId(species_id, species_id);
 
             const speciesName = _(this.allSpecies[species_id].name);
-            const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-              Math.floor((species_id - 1) / 10) * 100
-            }%`;
-
+            const backgroundPosition = this.calcBackgroundPosition(species_id);
             this.addTooltipHtml(
               `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-              `<img class="zkp_bigger_species zkp_card">
-              <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+              `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+              <span style="display: block; text-align: center">${speciesName}</span>`
             );
           }
         }
@@ -1014,6 +1008,12 @@ define([
     ///////////////////////////////////////////////////
     //// Utility methods
 
+    calcBackgroundPosition: function (itemId, itemsPerRow = 10) {
+      const xAxis = ((itemId - 1) % itemsPerRow) * 100;
+      const yAxis = Math.floor((itemId - 1) / itemsPerRow) * 100;
+      return `-${xAxis}% -${yAxis}%`;
+    },
+
     addPlayerTurnButtons: function () {
       if (this.mainAction > 0) {
         this.gamedatas.gamestate.description =
@@ -1364,13 +1364,11 @@ define([
       this[stockKey].image_items_per_row = 1;
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-        Math.floor((species_id - 1) / 10) * 100
-      }%`;
+      const backgroundPosition = this.calcBackgroundPosition(species_id);
       this.addTooltipHtml(
         `zkp_backup_column:${column}_item_${itemId}`,
-        `<img class="zkp_bigger_species zkp_card">
-        <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
       dojo.removeClass(
@@ -2246,13 +2244,11 @@ define([
       this[destinationKey].image_items_per_row = 7;
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-        Math.floor((species_id - 1) / 10) * 100
-      }%`;
+      const backgroundPosition = this.calcBackgroundPosition(species_id);
       this.addTooltipHtml(
         `zkp_keeper_${player_id}:${board_position}_item_species_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card">
-        <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
       this.updateSpeciesCounters(notif.args.species_counters);
@@ -2350,13 +2346,11 @@ define([
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-        Math.floor((species_id - 1) / 10) * 100
-      }%`;
+      const backgroundPosition = this.calcBackgroundPosition(species_id);
       this.addTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card">
-        <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
       this.quarantinedSpecies = notif.args.quarantined_species;
@@ -2391,13 +2385,11 @@ define([
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-        Math.floor((species_id - 1) / 10) * 100
-      }%`;
+      const backgroundPosition = this.calcBackgroundPosition(species_id);
       this.addTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card">
-        <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
       this.quarantinedSpecies = notif.args.quarantined_species;
@@ -2513,13 +2505,12 @@ define([
       );
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-        Math.floor((species_id - 1) / 10) * 100
-      }%`;
+      const backgroundPosition = this.calcBackgroundPosition(species_id);
+
       this.addTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card">
-        <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
       this[originKey].removeFromStockById(backupId);
@@ -2622,13 +2613,11 @@ define([
       const column = notif.args.shop_position;
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = `-${(species_id - 1) * 100}%  -${
-        Math.floor((species_id - 1) / 10) * 100
-      }%`;
+      const backgroundPosition = this.calcBackgroundPosition(species_id);
       this.addTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card">
-        <span style="display: block; text-align: center; background-position: ${backgroundPosition}">${speciesName}</span>`
+        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        <span style="display: block; text-align: center">${speciesName}</span>`
       );
     },
 
