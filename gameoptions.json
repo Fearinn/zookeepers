@@ -40,7 +40,7 @@
       },
       "1": {
         "name": "On",
-        "description": "Each player draws one of 8 secrete objectives cards. A 5th main action (replace secret objectives) is added.",
+        "description": "Each player is dealt one of 8 secret objective cards. These cards allow them to obtain additional victory points when saving certain kinds of species",
         "tmdisplay": "Secret objectives",
         "nobegginer": true
       }

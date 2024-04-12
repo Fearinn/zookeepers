@@ -125,6 +125,12 @@
 
     var jstpl_discarded_species =
       '<div id="zkp_discarded_species_${species}"></div>';
+
+    // var jstpl_down_objective =
+    //   '<div id="zkp_down_objective_${player_id}" class="zkp_objective zkp_down_objective zkp_card zkp_background_contain"></div>';
+
+    // var jstpl_up_objective =
+    //   '<div id="zkp_up_objective_${player_id}" class="zkp_objective zkp_up_objective zkp_card" style="background-position: ${backgroundPosition}"></div>';
   </script>
 
   {OVERALL_GAME_FOOTER}

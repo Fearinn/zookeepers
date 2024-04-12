@@ -29,6 +29,7 @@ $this->mainActions = array(
   6 => array("name" => "dismissKeeper", "update_scores" => true),
   7 => array("name" => "replaceKeeper", "update_scores" => true),
   8 => array("name" => "zooHelp", "update_scores" => true),
+  9 => array("name" => "replaceObjective", "update_scores" => false)
 );
 
 $this->freeActions = array(

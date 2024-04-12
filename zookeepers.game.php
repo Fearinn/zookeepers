@@ -61,10 +61,10 @@ class Zookeepers extends Table
         $this->species = self::getNew("module.common.deck");
         $this->species->init("species");
 
-        if ($this->hasSecretObjectives()) {
-            $this->objectives = self::getNew("module.common.deck");
-            $this->objectives->init("objective");
-        }
+
+        $this->objectives = self::getNew("module.common.deck");
+        $this->objectives->init("objective");
+
 
         // experimental flag to prevent deadlocks
         $this->bSelectGlobalsForUpdate = true;
@@ -2581,6 +2581,48 @@ class Zookeepers extends Table
         );
 
         $this->gamestate->nextState("activatePrevZoo");
+    }
+
+    function replaceObjective()
+    {
+        $this->checkAction("replaceObjective");
+
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
+        }
+
+        $player_id = $this->getActivePlayerId();
+
+        $location = $this->objectives->getCardsInLocation("hand", $player_id);
+        $replaced_objective = array_shift($location);
+
+        $this->objectives->insertCardOnExtremePosition($replaced_objective["id"], "deck", false);
+        $new_objective = $this->objectives->pickCard("deck", $player_id);
+
+        $this->notifyAllPlayers(
+            "replaceObjective",
+            clienttranslate('${player_name} moves his secret objective to the bottom of the deck and draws a new one'),
+            array(
+                "player_name" => $this->getActivePlayerName(),
+                "player_id" => $this->getActivePlayerId(),
+            )
+        );
+
+        $this->notifyPlayer(
+            $player_id,
+            "replaceObjectivePrivately",
+            "",
+            array(
+                "player_name" => $this->getActivePlayerName(),
+                "player_id" => $this->getActivePlayerId(),
+                "replaced_objective_id" => $replaced_objective["type_arg"],
+                "new_objective_id" => $new_objective["type_arg"]
+            )
+        );
+
+        $this->setGameStateValue("mainAction", 9);
+
+        $this->gamestate->nextState("betweenActions");
     }
 
     //////////////////////////////////////////////////////////////////////////////

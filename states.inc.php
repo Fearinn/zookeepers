@@ -70,7 +70,7 @@ $machinestates = array(
         "possibleactions" => array(
             "saveSpecies", "saveQuarantined", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange",
             "quarantineSpecies", "discardSpecies", "lookAtBackup", "replaceKeeper", "dismissKeeper",
-            "hireKeeper", "zooHelp", "newSpecies", "pass"
+            "hireKeeper", "zooHelp", "newSpecies", "replaceObjective", "pass"
         ),
         "args" => "argPlayerTurn",
         "transitions" => array(
@@ -86,7 +86,7 @@ $machinestates = array(
             "mngSecondSpecies" => 29,
             "mngBackup" => 30,
             "selectQuarantinedKeeper" => 32,
-            "selectZoo" => 33
+            "selectZoo" => 33,
         )
     ),
 

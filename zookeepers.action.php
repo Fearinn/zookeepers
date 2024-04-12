@@ -287,4 +287,11 @@ class action_zookeepers extends APP_GameAction
     $this->game->selectHelpQuarantine($quarantine);
     self::ajaxResponse();
   }
+
+  public function replaceObjective()
+  {
+    $this->setAjaxMode();
+    $this->game->replaceObjective();
+    $this->ajaxResponse();
+  }
 }

@@ -1087,9 +1087,9 @@ define([
 
         if (this.isLastTurn) {
           this.gamedatas.gamestate.description =
-            "It is ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do any available free actions";
+            "It's ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do any available free actions";
           this.gamedatas.gamestate.descriptionmyturn =
-            "It is your last turn! ${you} have already used a main action, but can still do any available free actions";
+            "It's your last turn! ${you} have already used a main action, but can still do any available free actions";
         }
       }
 
@@ -1101,23 +1101,23 @@ define([
 
         if (this.isLastTurn) {
           this.gamedatas.gamestate.description =
-            "It is ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
+            "It's ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
           this.gamedatas.gamestate.descriptionmyturn =
-            "It is your last turn! ${you} have already used a main action, but can still do the bonus action or any available free actions";
+            "It's your last turn! ${you} have already used a main action, but can still do the bonus action or any available free actions";
         }
       }
 
       if (this.mainAction == 0) {
         this.gamedatas.gamestate.description =
-          "${actplayer} can select a card and/or do any available actions, limited to one of the four main ones";
+          "${actplayer} can select a card and/or do any available actions, limited to one of the main ones";
         this.gamedatas.gamestate.descriptionmyturn =
-          "${you} can select a card and/or do any available actions, limited to one of the four main ones";
+          "${you} can select a card and/or do any available actions, limited to one of the main ones";
 
         if (this.isLastTurn) {
           this.gamedatas.gamestate.description =
-            "It is ${actplayer}'s last turn! ${actplayer} can select a card and/or do any available actions, limited to one of the four main ones";
+            "It's ${actplayer}'s last turn! ${actplayer} can select a card and/or do any available actions, limited to one of the main ones";
           this.gamedatas.gamestate.descriptionmyturn =
-            "It is your last turn! ${you} can select a card and/or do any available actions, limited to one of the four main ones";
+            "It's your last turn! ${you} can select a card and/or do any available actions, limited to one of the main ones";
         }
       }
 
@@ -1162,6 +1162,12 @@ define([
               "onCollectResources"
             );
           }
+
+          this.addActionButton(
+            "replace_objective_btn",
+            _("Replace Objective"),
+            "onReplaceObjective"
+          );
 
           if (
             this.resourcesInHandNbr > 1 &&
@@ -1773,7 +1779,7 @@ define([
       }
     },
 
-    // actions
+    //actions
     onPass: function () {
       const action = "pass";
 
@@ -2078,6 +2084,14 @@ define([
       }
     },
 
+    onReplaceObjective: function () {
+      const action = "replaceObjective";
+
+      if (this.checkAction(action, true)) {
+        this.sendAjaxCall(action);
+      }
+    },
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 
@@ -2121,6 +2135,12 @@ define([
       dojo.subscribe("zooHelp", this, "notif_zooHelp");
       dojo.subscribe("newSpecies", this, "notif_newSpecies");
       dojo.subscribe("newVisibleSpecies", this, "notif_newVisibleSpecies");
+      dojo.subscribe("replaceObjective", this, "notif_replaceObjective");
+      dojo.subscribe(
+        "replaceObjectivePrivately",
+        this,
+        "notif_replaceObjectivePrivately"
+      );
       dojo.subscribe("outOfActions", this, "notif_outOfActions");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
@@ -2180,6 +2200,7 @@ define([
         dojo.destroy("zkp_dismissed_keeper");
 
         this[stockKey].removeFromStockById(keeper_id, pileElement);
+
         const top = this.pilesTops[pile];
         dojo.style(pileElement, "backgroundPosition", this.topsPositions[top]);
 
@@ -2682,6 +2703,38 @@ define([
         `zkp_visible_species_${column}_item_${species_id}`,
         `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
         <span style="display: block; text-align: center">${speciesName}</span>`
+      );
+    },
+
+    notif_replaceObjective(notif) {
+      const current_player_id = this.getCurrentPlayerId();
+      const player_id = notif.args.player_id;
+
+      if (current_player_id == player_id) {
+        return;
+      }
+
+      const stockKey = `objective_${player_id}`;
+      const deckElement = `zkp_objectives_deck`;
+
+      this[stockKey].removeFromStockById(0, deckElement);
+      this[stockKey].addToStockWithId(0, 0, deckElement);
+    },
+
+    notif_replaceObjectivePrivately(notif) {
+      const player_id = notif.args.player_id;
+      const replaced_objective_id = notif.args.replaced_objective_id;
+      const new_objective_id = notif.args.new_objective_id;
+
+      const stockKey = `objective_${player_id}`;
+      const deckElement = `zkp_objectives_deck`;
+
+      this[stockKey].removeFromStockById(replaced_objective_id, deckElement);
+
+      this[stockKey].addToStockWithId(
+        new_objective_id,
+        new_objective_id,
+        deckElement
       );
     },
 
