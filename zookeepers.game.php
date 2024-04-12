@@ -48,7 +48,8 @@ class Zookeepers extends Table
             "lastTurn" => 81,
 
             "scoreTracking" => 100,
-            "bagHidden" => 101
+            "bagHidden" => 101,
+            "secretObjectives" => 102
         ));
 
         $this->resources = self::getNew("module.common.deck");
@@ -60,8 +61,10 @@ class Zookeepers extends Table
         $this->species = self::getNew("module.common.deck");
         $this->species->init("species");
 
-        $this->objectives = self::getNew("module.common.deck");
-        $this->objectives->init("objective");
+        if ($this->hasSecretObjectives()) {
+            $this->objectives = self::getNew("module.common.deck");
+            $this->objectives->init("objective");
+        }
 
         // experimental flag to prevent deadlocks
         $this->bSelectGlobalsForUpdate = true;
@@ -168,20 +171,23 @@ class Zookeepers extends Table
         }
 
         //secret objectives 
-        $objectives_deck = array();
-        foreach ($this->objectives_info as $objective_id => $objective) {
-            $objectives_deck[] = array(
-                "type" => strval($objective["sprite_pos"]),
-                "type_arg" => $objective_id,
-                "nbr" => 2
-            );
-        }
 
-        $this->objectives->createCards($objectives_deck, "deck");
-        $this->objectives->shuffle("deck");
+        if ($this->hasSecretObjectives()) {
+            $objectives_deck = array();
+            foreach ($this->objectives_info as $objective_id => $objective) {
+                $objectives_deck[] = array(
+                    "type" => strval($objective["sprite_pos"]),
+                    "type_arg" => $objective_id,
+                    "nbr" => 2
+                );
+            }
 
-        foreach ($players as $player_id => $player) {
-            $this->objectives->pickCard("deck", $player_id);
+            $this->objectives->createCards($objectives_deck, "deck");
+            $this->objectives->shuffle("deck");
+
+            foreach ($players as $player_id => $player) {
+                $this->objectives->pickCard("deck", $player_id);
+            }
         }
 
         /************ Start the game initialization *****/
@@ -225,6 +231,8 @@ class Zookeepers extends Table
 
         $result["isRealTimeScoreTracking"] = $this->isRealTimeScoreTracking();
         $result["isBagHidden"] = $this->isBagHidden();
+        $result["hasSecretObjectives"] = $this->hasSecretObjectives();
+
         $result["players"] = self::getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
@@ -284,6 +292,11 @@ class Zookeepers extends Table
     function isBagHidden()
     {
         return self::getGameStateValue("bagHidden") == 1;
+    }
+
+    function hasSecretObjectives()
+    {
+        return self::getGameStateValue("secretObjectives") == 1;
     }
 
     function filterByResourceType($type, $resources)

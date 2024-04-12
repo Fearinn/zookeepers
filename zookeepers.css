@@ -129,10 +129,6 @@
   width: 40px;
 }
 
-.zkp_objective {
-  width: 120px;
-}
-
 .zkp_resource_cube {
   position: relative;
 }
@@ -262,6 +258,14 @@
 
 .zkp_keepers > * {
   height: 175px !important;
+}
+
+.zkp_objective {
+  position: absolute;
+  top: 0;
+  left: 305px;
+  height: 165px;
+  width: 120px;
 }
 
 .zkp_quarantine {

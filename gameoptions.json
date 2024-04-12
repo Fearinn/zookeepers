@@ -28,5 +28,22 @@
         "default": true
       }
     }
+  },
+  "102": {
+    "name": "Secret objectives",
+    "values": {
+      "0": {
+        "name": "Off",
+        "description": "No secret objectives. Points determined by saved/quarantined species and completed keepers only.",
+        "tmdisplay": "",
+        "default": true
+      },
+      "1": {
+        "name": "On",
+        "description": "Each player draws one of 8 secrete objectives cards. A 5th main action (replace secret objectives) is added.",
+        "tmdisplay": "Secret objectives",
+        "nobegginer": true
+      }
+    }
   }
 }

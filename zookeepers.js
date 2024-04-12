@@ -39,6 +39,7 @@ define([
 
       this.isRealTimeScoreTracking = false;
       this.isBagHidden = false;
+      this.hasSecretObjectives = false;
 
       this.mainAction = 0;
       this.freeAction = 0;
@@ -89,6 +90,7 @@ define([
 
       this.isRealTimeScoreTracking = gamedatas.isRealTimeScoreTracking;
       this.isBagHidden = gamedatas.isBagHidden;
+      this.hasSecretObjectives = gamedatas.hasSecretObjectives;
 
       this.allKeepers = gamedatas.allKeepers;
       this.keepersOnBoards = this.formatKeepersOnBoards(
@@ -305,7 +307,6 @@ define([
       }
 
       // species
-
       for (let column = 1; column <= 4; column++) {
         const stockKey = `visibleShop_${column}`;
         const container = `zkp_visible_species_${column}`;
@@ -495,37 +496,61 @@ define([
 
       //secret objectives
 
-      const playerId = this.getCurrentPlayerId();
-      const stockKey = `objective_${playerId}`;
-      this[stockKey] = new ebg.stock();
-      this[stockKey].create(
-        this,
-        $(`zkp_objective_${playerId}`),
-        this.cardWidth,
-        this.cardHeight
-      );
-
-      this[stockKey].extraClasses = "zkp_card";
-      this[stockKey].image_items_per_row = 4;
-      this[stockKey].setSelectionMode(0);
-
-      for (const objective_id in this.allObjectives) {
-        const sprite_pos = this.allObjectives[objective_id].sprite_pos;
-        this[stockKey].addItemType(
-          objective_id,
-          0,
-          g_gamethemeurl + "img/objectives.png",
-          sprite_pos
-        );
+      if (!this.hasSecretObjectives) {
+        dojo.destroy("zkp_objectives_deck");
       }
 
-      const objective_id = this.secretObjective.type_arg;
+      if (this.hasSecretObjectives) {
+        const currentPlayerId = this.getCurrentPlayerId();
 
-      this[stockKey].addToStockWithId(
-        objective_id,
-        objective_id,
-        "zkp_objectives_deck"
-      );
+        for (const player_id in gamedatas.players) {
+          const stockKey = `objective_${player_id}`;
+          this[stockKey] = new ebg.stock();
+          this[stockKey].create(
+            this,
+            $(`zkp_objective:${player_id}`),
+            this.cardWidth,
+            this.cardHeight
+          );
+
+          this[stockKey].setSelectionMode(0);
+
+          this[stockKey].addItemType(
+            0,
+            0,
+            g_gamethemeurl + "img/objectives_back.png",
+            0
+          );
+
+          for (const objective_id in this.allObjectives) {
+            const sprite_pos = this.allObjectives[objective_id].sprite_pos;
+            this[stockKey].addItemType(
+              objective_id,
+              0,
+              g_gamethemeurl + "img/objectives.png",
+              sprite_pos
+            );
+          }
+
+          if (player_id == currentPlayerId) {
+            const objective_id = this.secretObjective.type_arg;
+
+            this[stockKey].extraClasses = "zkp_card";
+            this[stockKey].image_items_per_row = 4;
+
+            this[stockKey].addToStockWithId(
+              objective_id,
+              objective_id,
+              "zkp_objectives_deck"
+            );
+          } else {
+            this[stockKey].extraClasses = "zkp_card zkp_background_contain";
+            this[stockKey].image_items_per_row = 1;
+
+            this[stockKey].addToStockWithId(0, 0, "zkp_objectives_deck");
+          }
+        }
+      }
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();

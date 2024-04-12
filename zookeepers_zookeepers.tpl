@@ -70,6 +70,7 @@
           <div id="zkp_keeper_{PLAYER_ID}:3" class="zkp_keeper_{PLAYER_ID}"></div>
           <div id="zkp_keeper_{PLAYER_ID}:4" class="zkp_keeper_{PLAYER_ID}"></div>
         </div>
+        <div id="zkp_objective:{PLAYER_ID}" class="zkp_objective"></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:ALL"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_ALL"
@@ -108,14 +109,13 @@
     // Javascript HTML templates
 
     var jstpl_player_board =
-    '<div id="zkp_board" class="zkp_board zkp_simple_container">\
+    '<div id="zkp_board" class="zkp_board">\
       <div class="zkp_board_resources">\
         <div class="zkp_resource"><div id="zkp_plant_icon_${id}" class="zkp_resource_icon zkp_plant_icon"></div><span id="plant_count_${id}">0</span></div>\
         <div class="zkp_resource"><div id="zkp_meat_icon_${id}" class="zkp_resource_icon zkp_meat_icon"></div><span id="meat_count_${id}">0</span></div>\
         <div class="zkp_resource"><div id="zkp_kit_icon_${id}" class="zkp_resource_icon zkp_kit_icon"></div><span id="kit_count_${id}">0</span></div>\
         <div class="zkp_resource"><div id="zkp_species_icon_${id}" class="zkp_species_icon"></div><span id="zkp_species_count_${id}"></span></div>\
       </div>\
-      <div id="zkp_objective_${id}" class="zkp_objective"></div>\
     </div>';
 
     var jstpl_resource_cube =
