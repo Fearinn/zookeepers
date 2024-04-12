@@ -1146,6 +1146,73 @@ class Zookeepers extends Table
         return count($this->getPossibleZoos()) > 0 && self::getGameStateValue("mainAction") == 2 && self::getGameStateValue("zooHelp") == 0;
     }
 
+    function sumKeeperLevels()
+    {
+        $player_id = $this->getActivePlayerId();
+
+        $sum = 0;
+        foreach ($this->getKeepersOnBoards()[$player_id] as $location) {
+            foreach ($location as $keeper) {
+                if (is_array($keeper) && count($keeper) > 0) {
+                    $keeper_id = $keeper["card_type_arg"];
+                    $sum += $this->keepers_info[$keeper_id]["level"];
+                }
+            }
+        }
+
+        return $sum;
+    }
+
+    function calcObjectivePoints($player_id)
+    {
+        $keeper_points = $this->sumKeeperLevels();
+
+        if ($keeper_points < 7) {
+            return 0;
+        }
+
+        $location = $this->objectives->getCardsInLocation("hand", $player_id);
+        $objective = array_shift($location);
+        $objective_id = $objective["type_arg"];
+        $objective_info = $this->objectives_info[$objective_id];
+
+        $saved_species = $this->getSavedSpecies()[$player_id];
+
+        $target = $keeper_points <= 13 ? $objective_info["targets"][$keeper_points] : $objective_info["targets"][14];
+        $bonus = $target["bonus"];
+        $condition = $target["condition"];
+
+        $new_scores = 0;
+        foreach ($saved_species as $species_in_location) {
+            if ($species_in_location === null) {
+                continue;
+            }
+
+            foreach ($species_in_location as $species_id => $species) {
+                $species_info = $this->species_info[$species_id];
+                $species_fields = array_keys($species_info);
+
+                foreach ($condition as $condition_field => $condition_value) {
+                    if (in_array($condition_field, $species_fields)) {
+                        $species_value = $species_info[$condition_field];
+
+                        if (
+                            (is_array($species_value) && count(array_intersect($species_value, $condition_value)) > 0) ||
+                            (!is_array($species_value) && in_array($species_value, $condition_value))
+                        ) {
+                            $new_scores += $bonus;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        $this->updateScore($player_id, $new_scores);
+
+        return $new_scores;
+    }
+
     function isLastTurn()
     {
         return self::getGameStateValue("lastTurn") >= 1;
@@ -2591,6 +2658,10 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
+        if (!$this->hasSecretObjectives()) {
+            throw new BgaVisibleSystemException("This action is not supported in this game mode");
+        }
+
         $player_id = $this->getActivePlayerId();
 
         $location = $this->objectives->getCardsInLocation("hand", $player_id);
@@ -2968,6 +3039,10 @@ class Zookeepers extends Table
             $new_scores = 0;
             foreach ($collection as $player_data) {
                 $new_scores = $player_data["player_score"];
+            }
+
+            if ($this->hasSecretObjectives()) {
+                $new_scores += $this->calcObjectivePoints($player_id);
             }
 
             $this->notifyAllPlayers("newScores", "", array(
