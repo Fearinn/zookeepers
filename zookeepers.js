@@ -2141,6 +2141,8 @@ define([
         this,
         "notif_replaceObjectivePrivately"
       );
+      dojo.subscribe("objectiveBonus", this, "notif_objectiveBonus");
+      this.notifqueue.setSynchronous("objectiveBonus", 1000);
       dojo.subscribe("outOfActions", this, "notif_outOfActions");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
@@ -2735,6 +2737,25 @@ define([
         new_objective_id,
         new_objective_id,
         deckElement
+      );
+    },
+
+    notif_objectiveBonus: function (notif) {
+      const player_id = notif.args.player_id;
+      const objective_id = notif.args.objective_id;
+      const stockKey = `objective_${player_id}`;
+
+      if (player_id !== this.getCurrentPlayerId()) {
+        this[stockKey].removeFromStockById(0);
+        this[stockKey].image_items_per_row = 4;
+        this[stockKey].extraClasses = "zkp_card";
+        this[stockKey].addToStockWithId(objective_id, objective_id);
+      }
+
+      this.displayScoring(
+        `zkp_objective:${player_id}_item_${objective_id}`,
+        notif.args.player_color,
+        notif.args.bonus
       );
     },
 

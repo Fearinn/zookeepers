@@ -1146,10 +1146,8 @@ class Zookeepers extends Table
         return count($this->getPossibleZoos()) > 0 && self::getGameStateValue("mainAction") == 2 && self::getGameStateValue("zooHelp") == 0;
     }
 
-    function sumKeeperLevels()
+    function sumKeeperLevels($player_id)
     {
-        $player_id = $this->getActivePlayerId();
-
         $sum = 0;
         foreach ($this->getKeepersOnBoards()[$player_id] as $location) {
             foreach ($location as $keeper) {
@@ -1163,11 +1161,11 @@ class Zookeepers extends Table
         return $sum;
     }
 
-    function calcObjectivePoints($player_id)
+    function calcObjectiveBonus($player_id)
     {
-        $keeper_points = $this->sumKeeperLevels();
+        $keeper_levels = $this->sumKeeperLevels($player_id);
 
-        if ($keeper_points < 7) {
+        if (!$this->hasSecretObjectives() || $keeper_levels < 7) {
             return 0;
         }
 
@@ -1176,41 +1174,47 @@ class Zookeepers extends Table
         $objective_id = $objective["type_arg"];
         $objective_info = $this->objectives_info[$objective_id];
 
-        $saved_species = $this->getSavedSpecies()[$player_id];
-
-        $target = $keeper_points <= 13 ? $objective_info["targets"][$keeper_points] : $objective_info["targets"][14];
+        $target = $keeper_levels <= 13 ? $objective_info["targets"][$keeper_levels] : $objective_info["targets"][14];
         $bonus = $target["bonus"];
         $condition = $target["condition"];
 
-        $new_scores = 0;
+        $saved_species = $this->getSavedSpecies()[$player_id];
+        $new_bonus = 0;
         foreach ($saved_species as $species_in_location) {
-            if ($species_in_location === null) {
-                continue;
-            }
+            if ($species_in_location !== null) {
+                foreach ($species_in_location as $species_id => $species) {
+                    $species_info = $this->species_info[$species_id];
+                    $species_fields = array_keys($species_info);
 
-            foreach ($species_in_location as $species_id => $species) {
-                $species_info = $this->species_info[$species_id];
-                $species_fields = array_keys($species_info);
+                    foreach ($condition as $condition_field => $condition_value) {
+                        if (in_array($condition_field, $species_fields)) {
+                            $species_value = $species_info[$condition_field];
 
-                foreach ($condition as $condition_field => $condition_value) {
-                    if (in_array($condition_field, $species_fields)) {
-                        $species_value = $species_info[$condition_field];
-
-                        if (
-                            (is_array($species_value) && count(array_intersect($species_value, $condition_value)) > 0) ||
-                            (!is_array($species_value) && in_array($species_value, $condition_value))
-                        ) {
-                            $new_scores += $bonus;
+                            if (
+                                (is_array($species_value) && count(array_intersect($species_value, $condition_value)) > 0) ||
+                                (!is_array($species_value) && in_array($species_value, $condition_value))
+                            ) {
+                                $new_bonus += $bonus;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
         }
 
-        $this->updateScore($player_id, $new_scores);
+        $collection = $this->getCollectionFromDb("SELECT player_score_aux FROM player WHERE player_id='$player_id'");
+        $prev_bonus = 0;
+        foreach ($collection as $player) {
+            $prev_bonus = $player["player_score_aux"];
+        }
 
-        return $new_scores;
+        $this->DbQuery("UPDATE player SET player_score_aux=$new_bonus WHERE player_id='$player_id'");
+
+        $this->updateScore($player_id, $new_bonus - $prev_bonus);
+
+        $objective["bonus"] = $new_bonus;
+        return $objective;
     }
 
     function isLastTurn()
@@ -2923,6 +2927,8 @@ class Zookeepers extends Table
 
     function stBetweenActions()
     {
+        $player_id = $this->getActivePlayerId();
+
         self::setGameStateValue("totalToReturn", 0);
         self::setGameStateValue("previouslyReturned", 0);
         self::setGameStateValue("selectedPosition", 0);
@@ -2932,6 +2938,10 @@ class Zookeepers extends Table
         self::setGameStateValue("secondStep", 0);
 
         $this->autoDrawNewSpecies();
+
+        if ($this->hasSecretObjectives()) {
+            $this->calcObjectiveBonus($player_id);
+        }
 
         if ($this->isOutOfActions()) {
             $this->gamestate->nextState("betweenPlayers");
@@ -3031,7 +3041,7 @@ class Zookeepers extends Table
 
     function stFinalScoresCalc()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
             $collection = self::getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
@@ -3042,7 +3052,24 @@ class Zookeepers extends Table
             }
 
             if ($this->hasSecretObjectives()) {
-                $new_scores += $this->calcObjectivePoints($player_id);
+                $objective = $this->calcObjectiveBonus($player_id);
+                $objective_bonus = $objective["bonus"];
+
+                if ($objective_bonus > 0) {
+                    $new_scores += $objective_bonus;
+
+                    $this->notifyAllPlayers(
+                        "objectiveBonus",
+                        clienttranslate('${player_name} scores ${bonus} points by completing a secret objective'),
+                        array(
+                            "player_id" => $player_id,
+                            "player_name" => $player["player_name"],
+                            "player_color" => $player["player_color"],
+                            "objective_id" => $objective["type_arg"],
+                            "bonus" => $objective_bonus
+                        )
+                    );
+                }
             }
 
             $this->notifyAllPlayers("newScores", "", array(
