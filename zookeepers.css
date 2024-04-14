@@ -331,3 +331,23 @@
 .stockitem:not(:first-child, .zkp_backup_column > .stockitem) {
   pointer-events: none;
 }
+
+/* animations */
+
+.zkp_house:hover > .stockitem {
+  top: 0 !important;
+  transition: all 1s;
+}
+
+.zkp_house:hover > .stockitem:nth-child(2) {
+  transform: translate(0, 190px);
+  z-index: 99;
+}
+.zkp_house:hover > .stockitem:nth-child(3) {
+  transform: translate(-124px, 190px);
+  z-index: 99;
+}
+.zkp_house:hover > .stockitem:nth-child(4) {
+  transform: translate(124px, 190px);
+  z-index: 99;
+}

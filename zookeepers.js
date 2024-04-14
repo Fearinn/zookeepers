@@ -2769,6 +2769,15 @@ define([
         new_objective_id,
         deckElement
       );
+
+      const backgroundPosition = this.calcBackgroundPosition(
+        this.allObjectives[new_objective_id].sprite_pos,
+        4
+      );
+      this.addTooltipHtml(
+        `zkp_objective:${player_id}_item_${new_objective_id}`,
+        `<div class="zkp_bigger_objective zkp_card" style="background-position: ${backgroundPosition}"></div>`
+      );
     },
 
     notif_objectiveBonus: function (notif) {
