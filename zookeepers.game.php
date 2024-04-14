@@ -2634,6 +2634,8 @@ class Zookeepers extends Table
 
         $quarantine_label = $quarantine === "ALL" ? "generic" : $quarantine;
 
+        $this->updateScore($player_id, -2);
+
         $this->notifyAllPlayers(
             "quarantineSpecies",
             clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
@@ -2652,8 +2654,6 @@ class Zookeepers extends Table
                 "open_quarantines" => $this->getOpenQuarantines(),
             )
         );
-
-        $this->updateScore($player_id, -2);
 
         $this->gamestate->nextState("activatePrevZoo");
     }
