@@ -260,10 +260,10 @@ define([
 
               const speciesName = _(this.allSpecies[species_id].name);
               const backgroundPosition =
-                this.calcBackgroundPosition(species_id);
+                this.calcBackgroundPosition(species_id - 1);
               this.addTooltipHtml(
                 `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
-                `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+                `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
                <span style="display: block; text-align: center">${speciesName}</span>`
               );
             }
@@ -345,10 +345,10 @@ define([
           );
 
           const speciesName = _(this.allSpecies[species_id].name);
-          const backgroundPosition = this.calcBackgroundPosition(species_id);
+          const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
           this.addTooltipHtml(
             `${container}_item_${species_id}`,
-            `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+            `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
             <span style="display: block; text-align: center">${speciesName}</span>`
           );
         }
@@ -423,10 +423,10 @@ define([
             this[stockKey].addToStockWithId(species_id, species_id);
 
             const speciesName = _(this.allSpecies[species_id].name);
-            const backgroundPosition = this.calcBackgroundPosition(species_id);
+            const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
             this.addTooltipHtml(
               `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-              `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+              `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
               <span style="display: block; text-align: center">${speciesName}</span>`
             );
           }
@@ -542,6 +542,19 @@ define([
               objective_id,
               objective_id,
               "zkp_objectives_deck"
+            );
+
+            const backgroundPosition = this.calcBackgroundPosition(
+              this.allObjectives[objective_id].sprite_pos,
+              4
+            );
+
+            console.log("sprite", this.allObjectives[objective_id].sprite_pos);
+            console.log(backgroundPosition);
+            console.log(objective_id);
+            this.addTooltipHtml(
+              `zkp_objective:${player_id}_item_${objective_id}`,
+              `<div class="zkp_bigger_objective zkp_card" style="background-position: ${backgroundPosition}"></div>`
             );
           } else {
             this[stockKey].extraClasses = "zkp_card zkp_background_contain";
@@ -1072,9 +1085,9 @@ define([
     ///////////////////////////////////////////////////
     //// Utility methods
 
-    calcBackgroundPosition: function (itemId, itemsPerRow = 10) {
-      const xAxis = ((itemId - 1) % itemsPerRow) * 100;
-      const yAxis = Math.floor((itemId - 1) / itemsPerRow) * 100;
+    calcBackgroundPosition: function (spritePosition, itemsPerRow = 10) {
+      const xAxis = ((spritePosition) % itemsPerRow) * 100;
+      const yAxis = Math.floor((spritePosition) / itemsPerRow) * 100;
       return `-${xAxis}% -${yAxis}%`;
     },
 
@@ -1163,11 +1176,13 @@ define([
             );
           }
 
-          this.addActionButton(
-            "replace_objective_btn",
-            _("Replace Objective"),
-            "onReplaceObjective"
-          );
+          if (this.hasSecretObjectives) {
+            this.addActionButton(
+              "replace_objective_btn",
+              _("Replace Objective"),
+              "onReplaceObjective"
+            );
+          }
 
           if (
             this.resourcesInHandNbr > 1 &&
@@ -1434,10 +1449,10 @@ define([
       this[stockKey].image_items_per_row = 1;
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = this.calcBackgroundPosition(species_id);
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addTooltipHtml(
         `zkp_backup_column:${column}_item_${itemId}`,
-        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
         <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
@@ -2331,10 +2346,10 @@ define([
       this[destinationKey].image_items_per_row = 7;
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = this.calcBackgroundPosition(species_id);
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addTooltipHtml(
         `zkp_keeper_${player_id}:${board_position}_item_species_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
         <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
@@ -2433,10 +2448,10 @@ define([
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = this.calcBackgroundPosition(species_id);
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
         <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
@@ -2472,10 +2487,10 @@ define([
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = this.calcBackgroundPosition(species_id);
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
         <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
@@ -2592,11 +2607,11 @@ define([
       );
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = this.calcBackgroundPosition(species_id);
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
       this.addTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
         <span style="display: block; text-align: center">${speciesName}</span>`
       );
 
@@ -2700,10 +2715,10 @@ define([
       const column = notif.args.shop_position;
 
       const speciesName = _(this.allSpecies[species_id].name);
-      const backgroundPosition = this.calcBackgroundPosition(species_id);
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `<img class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}">
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
         <span style="display: block; text-align: center">${speciesName}</span>`
       );
     },
