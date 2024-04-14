@@ -259,8 +259,9 @@ define([
               );
 
               const speciesName = _(this.allSpecies[species_id].name);
-              const backgroundPosition =
-                this.calcBackgroundPosition(species_id - 1);
+              const backgroundPosition = this.calcBackgroundPosition(
+                species_id - 1
+              );
               this.addTooltipHtml(
                 `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
                 `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
@@ -345,7 +346,9 @@ define([
           );
 
           const speciesName = _(this.allSpecies[species_id].name);
-          const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
+          const backgroundPosition = this.calcBackgroundPosition(
+            species_id - 1
+          );
           this.addTooltipHtml(
             `${container}_item_${species_id}`,
             `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
@@ -423,7 +426,9 @@ define([
             this[stockKey].addToStockWithId(species_id, species_id);
 
             const speciesName = _(this.allSpecies[species_id].name);
-            const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
+            const backgroundPosition = this.calcBackgroundPosition(
+              species_id - 1
+            );
             this.addTooltipHtml(
               `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
               `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
@@ -1086,8 +1091,8 @@ define([
     //// Utility methods
 
     calcBackgroundPosition: function (spritePosition, itemsPerRow = 10) {
-      const xAxis = ((spritePosition) % itemsPerRow) * 100;
-      const yAxis = Math.floor((spritePosition) / itemsPerRow) * 100;
+      const xAxis = (spritePosition % itemsPerRow) * 100;
+      const yAxis = Math.floor(spritePosition / itemsPerRow) * 100;
       return `-${xAxis}% -${yAxis}%`;
     },
 
@@ -2775,9 +2780,7 @@ define([
     },
 
     notif_newScores: function (notif) {
-      if (this.isRealTimeScoreTracking || notif.args.final_scores_calc) {
-        this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
-      }
+      this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
     },
 
     notif_outOfActions: function (notif) {},

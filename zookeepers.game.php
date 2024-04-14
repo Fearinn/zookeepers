@@ -1025,7 +1025,9 @@ class Zookeepers extends Table
             $new_scores = $player['player_score'];
         }
 
-        self::notifyAllPlayers("newScores", '', array('player_id' => $player_id, 'new_scores' => $new_scores));
+        if ($this->isRealTimeScoreTracking()) {
+            $this->notifyAllPlayers("newScores", '', array('player_id' => $player_id, 'new_scores' => $new_scores));
+        }
     }
 
     function getEmptyColumnNbr()
@@ -2651,6 +2653,8 @@ class Zookeepers extends Table
             )
         );
 
+        $this->updateScore($player_id, -2);
+
         $this->gamestate->nextState("activatePrevZoo");
     }
 
@@ -3074,7 +3078,7 @@ class Zookeepers extends Table
 
             $this->notifyAllPlayers("newScores", "", array(
                 "player_id" => $player_id,
-                "new_scores" => $new_scores, "final_scores_calc" => true
+                "new_scores" => $new_scores,
             ));
         }
 
