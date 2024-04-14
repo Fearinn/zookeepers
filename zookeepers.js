@@ -1246,7 +1246,7 @@ define([
         }
 
         if (!result.isOwner) {
-          this.showMessage(_("You don't own this keeper"), "error");
+          this.showMessage(_("This keeper is not yours"), "error");
         }
 
         return result;
@@ -1260,7 +1260,7 @@ define([
         const position = event.currentTarget.id.split(":")[1];
 
         if (targetPlayerId != playerId) {
-          this.showMessage(_("You don't own this keeper"), "error");
+          this.showMessage(_("This keeper is not yours"), "error");
           result = { isOwner: false, position: 0 };
         } else {
           result = { isOwner: true, position: position };
@@ -1271,7 +1271,7 @@ define([
     },
 
     checkQuarantinedOwner: function (quarantined_id) {
-      const playerId = this.getActivePlayerId();
+      const playerId = this.getCurrentPlayerId();
 
       let isOwner = false;
 
@@ -1742,15 +1742,29 @@ define([
 
     onSelectQuarantined: function (stock) {
       const stockItemsNbr = stock.getSelectedItems().length;
+      const playerId = this.getActivePlayerId();
+
+      const savableQuarantined = this.savableQuarantined[playerId];
 
       if (stockItemsNbr > 0) {
+        const itemId = stock.getSelectedItems()[0].id;
+
+        if (!this.checkQuarantinedOwner(itemId)) {
+          stock.unselectAll();
+          return;
+        }
+
         if (!this.isCurrentPlayerActive()) {
           this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
 
-        if (this.mainAction > 0) {
+        if (
+          this.mainAction > 0 ||
+          !savableQuarantined ||
+          !savableQuarantined[itemId]
+        ) {
           this.showMessage(
             _("You can't do anything with this species now"),
             "error"
@@ -1761,38 +1775,35 @@ define([
       }
 
       const stateName = this.gamedatas.gamestate.name;
-      const playerId = this.getActivePlayerId();
 
       if (stateName === "playerTurn") {
         this.removeActionButtons();
 
         if (stock.getSelectedItems().length > 0) {
-          const item = stock.getSelectedItems()[0].id;
+          const itemId = stock.getSelectedItems()[0].id;
 
-          if (this.checkQuarantinedOwner(item)) {
-            this.gamedatas.gamestate.descriptionmyturn = _(
-              "${you} can save this quarantined species"
-            );
-            this.updatePageTitle();
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} can save this quarantined species"
+          );
+          this.updatePageTitle();
 
-            if (this.savableQuarantinedWithFund[playerId][item]) {
-              this.addActionButton(
-                "save_species_btn",
-                _("Save (with conservation fund)"),
-                () => {
-                  stock.unselectAll();
-                  this.onSaveQuarantined(item);
-                }
-              );
-            } else {
-              this.addActionButton("save_species_btn", _("Save"), () => {
+          if (this.savableQuarantinedWithFund[playerId][itemId]) {
+            this.addActionButton(
+              "save_species_btn",
+              _("Save (with conservation fund)"),
+              () => {
                 stock.unselectAll();
-                this.onSaveQuarantined(item);
-              });
-            }
-
-            return;
+                this.onSaveQuarantined(itemId);
+              }
+            );
+          } else {
+            this.addActionButton("save_species_btn", _("Save"), () => {
+              stock.unselectAll();
+              this.onSaveQuarantined(itemId);
+            });
           }
+
+          return;
         }
 
         this.addPlayerTurnButtons();
