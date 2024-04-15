@@ -266,10 +266,11 @@ define([
               const backgroundPosition = this.calcBackgroundPosition(
                 species_id - 1
               );
-              this.addTooltipHtml(
+
+              this.addSpeciesTooltipHtml(
                 `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
-                `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-               <span style="display: block; text-align: center">${speciesName}</span>`
+                backgroundPosition,
+                speciesName
               );
             }
           }
@@ -353,10 +354,11 @@ define([
           const backgroundPosition = this.calcBackgroundPosition(
             species_id - 1
           );
-          this.addTooltipHtml(
+
+          this.addSpeciesTooltipHtml(
             `${container}_item_${species_id}`,
-            `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-            <span style="display: block; text-align: center">${speciesName}</span>`
+            backgroundPosition,
+            speciesName
           );
         }
       }
@@ -433,10 +435,10 @@ define([
             const backgroundPosition = this.calcBackgroundPosition(
               species_id - 1
             );
-            this.addTooltipHtml(
+            this.addSpeciesTooltipHtml(
               `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-              `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-              <span style="display: block; text-align: center">${speciesName}</span>`
+              backgroundPosition,
+              speciesName
             );
           }
         }
@@ -1100,6 +1102,18 @@ define([
       return `-${xAxis}% -${yAxis}%`;
     },
 
+    addSpeciesTooltipHtml: function (
+      container,
+      backgroundPosition,
+      speciesName
+    ) {
+      this.addTooltipHtml(
+        container,
+        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
+        <span style="display: block; text-align: center; text-transform: capitalize">${speciesName}</span>`
+      );
+    },
+
     addPlayerTurnButtons: function () {
       if (this.mainAction > 0) {
         this.gamedatas.gamestate.description =
@@ -1460,10 +1474,11 @@ define([
 
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-      this.addTooltipHtml(
+
+      this.addSpeciesTooltipHtml(
         `zkp_backup_column:${column}_item_${itemId}`,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center">${speciesName}</span>`
+        backgroundPosition,
+        speciesName
       );
 
       dojo.removeClass(
@@ -2368,10 +2383,11 @@ define([
 
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-      this.addTooltipHtml(
+
+      this.addSpeciesTooltipHtml(
         `zkp_keeper_${player_id}:${board_position}_item_species_${species_id}`,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center">${speciesName}</span>`
+        backgroundPosition,
+        speciesName
       );
 
       this.updateSpeciesCounters(notif.args.species_counters);
@@ -2470,10 +2486,11 @@ define([
 
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-      this.addTooltipHtml(
+
+      this.addSpeciesTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center">${speciesName}</span>`
+        backgroundPosition,
+        speciesName
       );
 
       this.quarantinedSpecies = notif.args.quarantined_species;
@@ -2509,10 +2526,11 @@ define([
 
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-      this.addTooltipHtml(
+
+      this.addSpeciesTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center">${speciesName}</span>`
+        backgroundPosition,
+        speciesName
       );
 
       this.quarantinedSpecies = notif.args.quarantined_species;
@@ -2630,10 +2648,10 @@ define([
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
-      this.addTooltipHtml(
+      this.addSpeciesTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center">${speciesName}</span>`
+        backgroundPosition,
+        speciesName
       );
 
       this[originKey].removeFromStockById(backupId);
@@ -2737,10 +2755,10 @@ define([
 
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-      this.addTooltipHtml(
+      this.addSpeciesTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center">${speciesName}</span>`
+        backgroundPosition,
+        speciesName
       );
     },
 
