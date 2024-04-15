@@ -1130,9 +1130,12 @@ class Zookeepers extends Table
 
         if ($used_main_action && !$can_conservation_fund && !$can_new_species && !$can_zoo_help) {
             if ($notify) {
-                $this->notifyAllPlayers("outOfActions", clienttranslate('${player_name} is out of actions. The turn is automatically finished'), array(
-                    "player_name" => $this->getActivePlayerName()
-                ));
+                $this->notifyPlayer(
+                    $player_id,
+                    "outOfActions",
+                    clienttranslate('You are out of actions. The turn is automatically finished'),
+                    array()
+                );
             }
             return true;
         }
@@ -1310,7 +1313,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. ${left_in_pile} keeper(s) remain in the pile'),
+            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}'),
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
@@ -1319,8 +1322,7 @@ class Zookeepers extends Table
                 "board_position" => $board_position,
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
-                "piles_tops" => $this->getPilesTops(),
-                "left_in_pile" => $pile_counters[$pile]
+                "piles_tops" => $this->getPilesTops()
             )
         );
 
@@ -1396,7 +1398,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}'),
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
@@ -1406,7 +1408,6 @@ class Zookeepers extends Table
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
                 "piles_tops" => $this->getPilesTops(),
-                "left_in_pile" => $pile_counters[$pile],
             )
         );
 
