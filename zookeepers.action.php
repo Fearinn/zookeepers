@@ -45,185 +45,185 @@ class action_zookeepers extends APP_GameAction
 
   public function pass()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->pass();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function collectResources()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->collectResources();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function hireKeeper()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->hireKeeper();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectHiredPile()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $pile = self::getArg("pile", AT_enum, true, null, range(1, 4));
+    $pile = $this->getArg("pile", AT_enum, true, null, range(1, 4));
     $this->game->selectHiredPile($pile);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function dismissKeeper()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
+    $board_position = $this->getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->dismissKeeper($board_position);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectDismissedPile()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $pile = self::getArg("pile", AT_enum, true, null, range(1, 4));
+    $pile = $this->getArg("pile", AT_enum, true, null, range(1, 4));
     $this->game->selectDismissedPile($pile);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function replaceKeeper()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
+    $board_position = $this->getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->replaceKeeper($board_position);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectReplacedPile()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $pile = self::getArg("pile", AT_enum, true,  null, range(1, 4));
+    $pile = $this->getArg("pile", AT_enum, true,  null, range(1, 4));
     $this->game->selectReplacedPile($pile);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function cancelMngKeepers()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->cancelMngKeepers();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function exchangeResources()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->exchangeResources();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function collectFromExchange()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $choosen_nbr = self::getArg("choosen_nbr", AT_enum, true, null, array(1, 2, 3, 4, 5));
+    $choosen_nbr = $this->getArg("choosen_nbr", AT_enum, true, null, array(1, 2, 3, 4, 5));
     $this->game->collectFromExchange($choosen_nbr);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function cancelExchange()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->cancelExchange();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function returnFromExchange()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 10));
-    $lastly_returned_type = self::getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
+    $lastly_returned_nbr = $this->getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 10));
+    $lastly_returned_type = $this->getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
     $this->game->returnFromExchange($lastly_returned_nbr, $lastly_returned_type);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function returnExcess()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $lastly_returned_nbr = self::getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 8));
-    $lastly_returned_type = self::getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
+    $lastly_returned_nbr = $this->getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 8));
+    $lastly_returned_type = $this->getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
     $this->game->returnExcess($lastly_returned_nbr, $lastly_returned_type);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function saveSpecies()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $shop_position = self::getArg("shop_position", AT_enum, true, null, range(1, 4));
+    $shop_position = $this->getArg("shop_position", AT_enum, true, null, range(1, 4));
     $this->game->saveSpecies($shop_position);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectAssignedKeeper()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
+    $board_position = $this->getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->selectAssignedKeeper($board_position);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function saveQuarantined()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
+    $species_id = $this->getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->saveQuarantined($species_id);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectQuarantinedKeeper()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $board_position = self::getArg("board_position", AT_enum, true, null, range(1, 4));
+    $board_position = $this->getArg("board_position", AT_enum, true, null, range(1, 4));
     $this->game->selectQuarantinedKeeper($board_position);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function discardSpecies()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
+    $species_id = $this->getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->discardSpecies($species_id);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function quarantineSpecies()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
+    $species_id = $this->getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->quarantineSpecies($species_id);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectQuarantine()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $quarantine = self::getArg(
+    $quarantine = $this->getArg(
       "quarantine",
       AT_enum,
       true,
@@ -231,40 +231,40 @@ class action_zookeepers extends APP_GameAction
       array("ALL", "TEM", "SAV", "PRA", "DES", "AQU", "TRO")
     );
     $this->game->selectQuarantine($quarantine);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function lookAtBackup()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $shop_position = self::getArg("shop_position", AT_enum, true, null, range(1, 4));
-    $backup_id = self::getArg("backup_id", AT_enum, true, null, range(1, 4));
+    $shop_position = $this->getArg("shop_position", AT_enum, true, null, range(1, 4));
+    $backup_id = $this->getArg("backup_id", AT_enum, true, null, range(1, 4));
     $this->game->lookAtBackup($shop_position, $backup_id);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function discardBackup()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->discardBackup();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function quarantineBackup()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->quarantineBackup();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectBackupQuarantine()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $quarantine = self::getArg(
+    $quarantine = $this->getArg(
       "quarantine",
       AT_enum,
       true,
@@ -272,48 +272,48 @@ class action_zookeepers extends APP_GameAction
       array("ALL", "TEM", "SAV", "PRA", "DES", "AQU", "TRO")
     );
     $this->game->selectBackupQuarantine($quarantine);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function cancelMngSpecies()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->cancelMngSpecies();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function newSpecies()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
     $this->game->newSpecies();
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function zooHelp()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $species_id = self::getArg("species_id", AT_enum, true, null, range(1, 70));
+    $species_id = $this->getArg("species_id", AT_enum, true, null, range(1, 70));
     $this->game->zooHelp($species_id);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectZoo()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $player_id = self::getArg("player_id", AT_posint, true);
+    $player_id = $this->getArg("player_id", AT_posint, true);
     $this->game->selectZoo($player_id);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function selectHelpQuarantine()
   {
-    self::setAjaxMode();
+    $this->setAjaxMode();
     $this->checkVersion();
-    $quarantine = self::getArg(
+    $quarantine = $this->getArg(
       "quarantine",
       AT_enum,
       true,
@@ -321,7 +321,7 @@ class action_zookeepers extends APP_GameAction
       array("ALL", "TEM", "SAV", "PRA", "DES", "AQU", "TRO")
     );
     $this->game->selectHelpQuarantine($quarantine);
-    self::ajaxResponse();
+    $this->ajaxResponse();
   }
 
   public function replaceObjective()

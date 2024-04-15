@@ -32,7 +32,7 @@ class Zookeepers extends Table
         // Note: afterwards, you can get/set the global variables with getGameStateValue/setGameStateInitialValue/setGameStateValue
         parent::__construct();
 
-        self::initGameStateLabels(array(
+        $this->initGameStateLabels(array(
             "mainAction" => 10,
             "totalToReturn" => 11,
             "previouslyReturned" => 12,
@@ -52,17 +52,17 @@ class Zookeepers extends Table
             "secretObjectives" => 102
         ));
 
-        $this->resources = self::getNew("module.common.deck");
+        $this->resources = $this->getNew("module.common.deck");
         $this->resources->init("resource");
 
-        $this->keepers = self::getNew("module.common.deck");
+        $this->keepers = $this->getNew("module.common.deck");
         $this->keepers->init("keeper");
 
-        $this->species = self::getNew("module.common.deck");
+        $this->species = $this->getNew("module.common.deck");
         $this->species->init("species");
 
 
-        $this->objectives = self::getNew("module.common.deck");
+        $this->objectives = $this->getNew("module.common.deck");
         $this->objectives->init("objective");
 
 
@@ -88,7 +88,7 @@ class Zookeepers extends Table
         // Set the colors of the players with HTML color code
         // The default below is red/green/blue/orange/brown
         // The number of colors defined here must correspond to the maximum number of players allowed for the gams
-        $gameinfos = self::getGameinfos();
+        $gameinfos = $this->getGameinfos();
         $default_colors = $gameinfos['player_colors'];
 
         // Create players
@@ -100,11 +100,11 @@ class Zookeepers extends Table
             $values[] = "('" . $player_id . "','$color','" . $player['player_canal'] . "','" . addslashes($player['player_name']) . "','" . addslashes($player['player_avatar']) . "')";
         }
         $sql .= implode(',', $values);
-        self::DbQuery($sql);
-        self::reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
-        self::reloadPlayersBasicInfos();
+        $this->DbQuery($sql);
+        $this->reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
+        $this->reloadPlayersBasicInfos();
 
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         $resources_deck = array();
         foreach ($this->resource_types as $code => $resource) {
@@ -132,7 +132,7 @@ class Zookeepers extends Table
         $this->keepers->createCards($starting_keepers, "deck");
         $this->keepers->shuffle("deck");
         foreach ($players as $player_id => $player) {
-            self::DbQuery("UPDATE keeper SET pile=0 WHERE card_location='deck'");
+            $this->DbQuery("UPDATE keeper SET pile=0 WHERE card_location='deck'");
             $this->keepers->pickCardForLocation("deck", "board:1", $player_id);
         }
 
@@ -147,7 +147,7 @@ class Zookeepers extends Table
         for ($pile = 1; $pile <= 4; $pile++) {
             $location = "deck:" . $pile;
             $this->keepers->pickCardsForLocation(5, "deck", $location);
-            self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
+            $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
             $this->keepers->shuffle($location);
         }
 
@@ -193,22 +193,22 @@ class Zookeepers extends Table
         /************ Start the game initialization *****/
 
         // Init global values with their initial values
-        self::setGameStateInitialValue("mainAction", 0);
-        self::setGameStateInitialValue("freeAction", 0);
-        self::setGameStateInitialValue("totalToReturn", 0);
-        self::setGameStateInitialValue("previouslyReturned", 0);
-        self::setGameStateInitialValue("selectedPosition", 0);
-        self::setGameStateInitialValue("selectedSpecies", 0);
-        self::setGameStateInitialValue("selectedBackup", 0);
-        self::setGameStateInitialValue("selectedZoo", 0);
-        self::setGameStateInitialValue("zooHelp", 0);
-        self::setGameStateInitialValue("secondStep", 0);
-        self::setGameStateInitialValue("lastTurn", 0);
+        $this->setGameStateInitialValue("mainAction", 0);
+        $this->setGameStateInitialValue("freeAction", 0);
+        $this->setGameStateInitialValue("totalToReturn", 0);
+        $this->setGameStateInitialValue("previouslyReturned", 0);
+        $this->setGameStateInitialValue("selectedPosition", 0);
+        $this->setGameStateInitialValue("selectedSpecies", 0);
+        $this->setGameStateInitialValue("selectedBackup", 0);
+        $this->setGameStateInitialValue("selectedZoo", 0);
+        $this->setGameStateInitialValue("zooHelp", 0);
+        $this->setGameStateInitialValue("secondStep", 0);
+        $this->setGameStateInitialValue("lastTurn", 0);
 
         // Init game statistics
         // (note: statistics used in this file must be defined in your stats.inc.php file)
-        //self::initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
-        //self::initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
+        //$this->initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
+        //$this->initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -220,7 +220,7 @@ class Zookeepers extends Table
     {
         $result = array();
 
-        $current_player_id = self::getCurrentPlayerId();    // !! We must only return informations visible by this player !!
+        $current_player_id = $this->getCurrentPlayerId();    // !! We must only return informations visible by this player !!
 
         // Get information about players
         // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
@@ -235,7 +235,7 @@ class Zookeepers extends Table
         $result["isBagHidden"] = $this->isBagHidden();
         $result["hasSecretObjectives"] = $this->hasSecretObjectives();
 
-        $result["players"] = self::getCollectionFromDb($sql);
+        $result["players"] = $this->getCollectionFromDb($sql);
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
@@ -262,7 +262,7 @@ class Zookeepers extends Table
         $result["secretObjective"] = $this->getObjectives()[$current_player_id];
         $result["isLastTurn"] = $this->isLastTurn();
 
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         return $result;
     }
@@ -279,7 +279,7 @@ class Zookeepers extends Table
     */
     function getGameProgression()
     {
-        return 10 * self::getGameStateValue("highestSaved");
+        return 10 * $this->getGameStateValue("highestSaved");
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -295,17 +295,17 @@ class Zookeepers extends Table
 
     function isRealTimeScoreTracking()
     {
-        return self::getGameStateValue("scoreTracking") == 1;
+        return $this->getGameStateValue("scoreTracking") == 1;
     }
 
     function isBagHidden()
     {
-        return self::getGameStateValue("bagHidden") == 1;
+        return $this->getGameStateValue("bagHidden") == 1;
     }
 
     function hasSecretObjectives()
     {
-        return self::getGameStateValue("secretObjectives") == 1;
+        return $this->getGameStateValue("secretObjectives") == 1;
     }
 
     function boldAndCapitalize($text)
@@ -378,7 +378,7 @@ class Zookeepers extends Table
 
     function getResourceCounters()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         $counters = array();
 
@@ -425,14 +425,14 @@ class Zookeepers extends Table
 
     function getKeepersOnBoards()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         $keepers = array();
         foreach ($players as $player_id => $player) {
             for ($i = 1; $i <= 4; $i++) {
                 $location = "board:" . $i;
                 $sql = "SELECT pile, card_id, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
-                $keepers[$player_id][$i] = self::getCollectionFromDb($sql);
+                $keepers[$player_id][$i] = $this->getCollectionFromDb($sql);
             }
         }
 
@@ -443,7 +443,7 @@ class Zookeepers extends Table
     {
         $objectives = array();
 
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
         foreach ($players as $player_id => $player) {
             $objectives_in_hand = $this->objectives->getCardsInLocation("hand", $player_id);
             $objective = array_shift($objectives_in_hand);
@@ -506,7 +506,7 @@ class Zookeepers extends Table
     function getSavableQuarantined()
     {
         $savable_quarantined = array();
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
             $savable_quarantined[$player_id] = array();
@@ -537,7 +537,7 @@ class Zookeepers extends Table
     function getSavableQuarantinedWithFund()
     {
         $savable_with_fund = array();
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
             $savable_with_fund[$player_id] = array();
@@ -567,7 +567,7 @@ class Zookeepers extends Table
 
     function canPayCost($species_id)
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $resource_counters = $this->getResourceCounters()[$player_id];
 
         $species_info = $this->species_info[$species_id];
@@ -588,7 +588,7 @@ class Zookeepers extends Table
 
     function canPayWithFund($species_id)
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $resource_counters = $this->getResourceCounters()[$player_id];
 
         $species_info = $this->species_info[$species_id];
@@ -635,7 +635,7 @@ class Zookeepers extends Table
     function getAssignableKeepers($species_id)
     {
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $species_info = $this->species_info[$species_id];
 
         $keepers_in_play = array();
@@ -728,7 +728,7 @@ class Zookeepers extends Table
 
     function getSavedSpecies()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
         $saved_species = array();
 
         foreach ($players as $player_id => $player) {
@@ -750,7 +750,7 @@ class Zookeepers extends Table
 
     function returnCost($species_id)
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $cost = $this->species_info[$species_id]["cost"];
 
         $returned_cost = array();
@@ -825,7 +825,7 @@ class Zookeepers extends Table
 
     function getQuarantinedSpecies()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
         $quarantined_species = array();
 
         foreach ($players as $player_id => $player) {
@@ -849,7 +849,7 @@ class Zookeepers extends Table
     {
         $completed_keepers = array();
 
-        foreach (self::loadPlayersBasicInfos() as $player_id => $player) {
+        foreach ($this->loadPlayersBasicInfos() as $player_id => $player) {
             for ($position = 1; $position <= 4; $position++) {
                 $saved_species_nbr = $this->species->countCardsInLocation("board:" . $position, $player_id);
                 $keepers = ($this->keepers->getCardsInLocation("board:" . $position, $player_id));
@@ -868,7 +868,7 @@ class Zookeepers extends Table
 
     function discardAllKeptSpecies($board_position, $keeper_name)
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         if ($board_position) {
             $discarded_species = $this->species->getCardsInLocation("board:" . $board_position, $player_id);
 
@@ -910,8 +910,8 @@ class Zookeepers extends Table
 
     function getLookedBackup()
     {
-        $backup_id = self::getGameStateValue("selectedBackup");
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $backup_id = $this->getGameStateValue("selectedBackup");
+        $species_id = $this->getGameStateValue("selectedSpecies");
 
         $backup_species = $this->species->getCardsInLocation("shop_backup");
 
@@ -927,7 +927,7 @@ class Zookeepers extends Table
 
     function getOpenQuarantines()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
         $open_quarantines = array();
 
         foreach ($players as $player_id => $player) {
@@ -944,7 +944,7 @@ class Zookeepers extends Table
 
     function getQuarantinableSpecies()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
         $quarantinable_species = array();
 
         foreach ($players as $player_id => $player) {
@@ -971,7 +971,7 @@ class Zookeepers extends Table
 
     function canLiveInQuarantine($species_id, $quarantine)
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $canLiveInQuarantine = false;
 
         $species_habitats = $this->species_info[$species_id]["habitat"];
@@ -988,7 +988,7 @@ class Zookeepers extends Table
     {
         $possible_quarantines = array();
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         foreach ($this->quarantines as $quarantine) {
             if ($this->canLiveInQuarantine($species_id, $quarantine)) {
@@ -1003,7 +1003,7 @@ class Zookeepers extends Table
     {
         $counters = array();
 
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
             $species_nbr = 0;
@@ -1026,15 +1026,15 @@ class Zookeepers extends Table
             }
         }
 
-        self::setGameStateValue("highestSaved", $highest);
+        $this->setGameStateValue("highestSaved", $highest);
         return $highest;
     }
 
     function updateScore($player_id, $score)
     {
-        self::DbQuery("UPDATE player SET player_score=player_score+$score WHERE player_id='$player_id'");
+        $this->DbQuery("UPDATE player SET player_score=player_score+$score WHERE player_id='$player_id'");
         $new_scores = 0;
-        $collection = self::getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
+        $collection = $this->getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
         foreach ($collection as $player) {
             $new_scores = $player['player_score'];
         }
@@ -1091,7 +1091,7 @@ class Zookeepers extends Table
             "newSpecies",
             clienttranslate($message),
             array(
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "visible_species" => $this->getVisibleSpecies(),
                 "backup_species" => $this->getBackupSpecies(),
             )
@@ -1120,18 +1120,18 @@ class Zookeepers extends Table
 
     function isOutOfActions($notify = true)
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
-        $used_main_action = self::getGameStateValue("mainAction") > 0;
+        $used_main_action = $this->getGameStateValue("mainAction") > 0;
         $can_new_species = $this->getEmptyColumnNbr() >= 2;
-        $used_free_action = self::getGameStateValue("freeAction") > 0;
+        $used_free_action = $this->getGameStateValue("freeAction") > 0;
         $can_conservation_fund = $this->resources->countCardsInLocation("hand", $player_id) > 0 && !$used_main_action && !$used_free_action;
         $can_zoo_help = $this->canZooHelp();
 
         if ($used_main_action && !$can_conservation_fund && !$can_new_species && !$can_zoo_help) {
             if ($notify) {
                 $this->notifyAllPlayers("outOfActions", clienttranslate('${player_name} is out of actions. The turn is automatically finished'), array(
-                    "player_name" => self::getActivePlayerName()
+                    "player_name" => $this->getActivePlayerName()
                 ));
             }
             return true;
@@ -1145,7 +1145,7 @@ class Zookeepers extends Table
         $possible_zoos = array();
         $species_counters = $this->getSpeciesCounters();
 
-        $active_player_id = self::getActivePlayerId();
+        $active_player_id = $this->getActivePlayerId();
         $active_counter = $species_counters[$active_player_id];
 
         foreach ($species_counters as $player_id => $counter) {
@@ -1159,7 +1159,7 @@ class Zookeepers extends Table
 
     function canZooHelp()
     {
-        return count($this->getPossibleZoos()) > 0 && self::getGameStateValue("mainAction") == 2 && self::getGameStateValue("zooHelp") == 0;
+        return count($this->getPossibleZoos()) > 0 && $this->getGameStateValue("mainAction") == 2 && $this->getGameStateValue("zooHelp") == 0;
     }
 
     function sumKeeperLevels($player_id)
@@ -1235,7 +1235,7 @@ class Zookeepers extends Table
 
     function isLastTurn()
     {
-        return self::getGameStateValue("lastTurn") >= 1;
+        return $this->getGameStateValue("lastTurn") >= 1;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -1249,20 +1249,20 @@ class Zookeepers extends Table
 
     function pass()
     {
-        self::checkAction("pass");
+        $this->checkAction("pass");
 
         $this->gamestate->nextState("pass");
     }
 
     function hireKeeper()
     {
-        self::checkAction("hireKeeper");
+        $this->checkAction("hireKeeper");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $keepers_on_board_nbr = 0;
 
@@ -1279,9 +1279,9 @@ class Zookeepers extends Table
 
     function selectHiredPile($pile)
     {
-        self::checkAction("selectHiredPile");
+        $this->checkAction("selectHiredPile");
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $board_position = 0;
 
@@ -1299,21 +1299,21 @@ class Zookeepers extends Table
         $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
         if ($keeper === null) {
-            throw new BgaUserException(self::_("The selected pile is out of cards"));
+            throw new BgaUserException($this->_("The selected pile is out of cards"));
         }
         $keeper_id = $keeper["id"];
 
         $pile_counters = $this->getPileCounters();
 
         $sql = "UPDATE keeper SET pile=$pile WHERE card_id=$keeper_id";
-        self::DbQuery($sql);
+        $this->DbQuery($sql);
 
         $this->notifyAllPlayers(
             "hireKeeper",
             clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}. ${left_in_pile} keeper(s) remain in the pile'),
             array(
-                "player_id" => self::getActivePlayerId(),
-                "player_name" => self::getActivePlayerName(),
+                "player_id" => $this->getActivePlayerId(),
+                "player_name" => $this->getActivePlayerName(),
                 "keeper_name" => $keeper["type"],
                 "keeper_id" => $keeper["type_arg"],
                 "board_position" => $board_position,
@@ -1324,24 +1324,24 @@ class Zookeepers extends Table
             )
         );
 
-        self::setGameStateValue("mainAction", 5);
+        $this->setGameStateValue("mainAction", 5);
 
         $this->gamestate->nextState("betweenActions");
     }
 
     function dismissKeeper($board_position)
     {
-        self::checkAction("dismissKeeper");
+        $this->checkAction("dismissKeeper");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
         if ($board_position < 1 || $board_position > 4) {
             throw new BgaVisibleSystemException("Invalid board position");
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $keepers_on_board_nbr = 0;
 
@@ -1370,7 +1370,7 @@ class Zookeepers extends Table
         }
 
         if ($pile == 0 && $keeper_level === 1) {
-            self::setGameStateValue("selectedPosition", $board_position);
+            $this->setGameStateValue("selectedPosition", $board_position);
             $this->gamestate->nextState("selectDismissedPile");
             return;
         }
@@ -1398,8 +1398,8 @@ class Zookeepers extends Table
             "dismissKeeper",
             clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
             array(
-                "player_id" => self::getActivePlayerId(),
-                "player_name" => self::getActivePlayerName(),
+                "player_id" => $this->getActivePlayerId(),
+                "player_name" => $this->getActivePlayerName(),
                 "keeper_name" => $keeper["card_type"],
                 "keeper_id" => $keeper_id,
                 "board_position" => $board_position,
@@ -1412,16 +1412,16 @@ class Zookeepers extends Table
 
         $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
-        self::setGameStateValue("mainAction", 6);
+        $this->setGameStateValue("mainAction", 6);
 
         $this->gamestate->nextState("betweenActions");
     }
 
     function selectDismissedPile($pile)
     {
-        self::checkAction("selectDismissedPile");
+        $this->checkAction("selectDismissedPile");
 
-        $board_position = self::getGameStateValue("selectedPosition");
+        $board_position = $this->getGameStateValue("selectedPosition");
 
         if ($board_position < 1 || $board_position > 4) {
             throw new BgaVisibleSystemException("Invalid board position");
@@ -1431,7 +1431,7 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Invalid keeper pile");
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $keeper = null;
         $keeper_id = null;
@@ -1460,8 +1460,8 @@ class Zookeepers extends Table
             "dismissKeeper",
             clienttranslate('${player_name} dismiss ${keeper_name}, who is sent the bottom of pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
             array(
-                "player_id" => self::getActivePlayerId(),
-                "player_name" => self::getActivePlayerName(),
+                "player_id" => $this->getActivePlayerId(),
+                "player_name" => $this->getActivePlayerName(),
                 "keeper_name" => $keeper["card_type"],
                 "keeper_id" => $keeper_id,
                 "board_position" => $board_position,
@@ -1474,24 +1474,24 @@ class Zookeepers extends Table
 
         $keeper_card_id = $keeper["card_id"];
 
-        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_card_id'");
+        $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_card_id'");
 
         $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
 
-        self::setGameStateValue("mainAction", 6);
+        $this->setGameStateValue("mainAction", 6);
 
         $this->gamestate->nextState("betweenActions");
     }
 
     function replaceKeeper($board_position)
     {
-        self::checkAction("replaceKeeper");
+        $this->checkAction("replaceKeeper");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $keepers_on_board_nbr = 0;
 
         for ($position = 1; $position <= 4; $position++) {
@@ -1516,18 +1516,18 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Keeper not found");
         }
 
-        self::setGameStateValue("selectedPosition", $board_position);
+        $this->setGameStateValue("selectedPosition", $board_position);
 
         $this->gamestate->nextState("selectReplacedPile");
     }
 
     function selectReplacedPile($pile)
     {
-        self::checkAction("selectReplacedPile");
+        $this->checkAction("selectReplacedPile");
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
-        $board_position = self::getGameStateValue("selectedPosition");
+        $board_position = $this->getGameStateValue("selectedPosition");
 
         $replaced_keeper = null;
 
@@ -1542,7 +1542,7 @@ class Zookeepers extends Table
         $hired_keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
         if ($hired_keeper === null) {
-            throw new BgaUserException(self::_("The selected pile is out of cards"));
+            throw new BgaUserException($this->_("The selected pile is out of cards"));
         }
 
         $replaced_keeper_id = $replaced_keeper["card_type_arg"];
@@ -1555,14 +1555,14 @@ class Zookeepers extends Table
         }
 
         $replaced_card_id = $replaced_keeper["card_id"];
-        self::DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_card_id");
+        $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_card_id");
         $this->keepers->insertCardOnExtremePosition($replaced_card_id, "deck:" . $pile, false);;
 
         $this->notifyAllPlayers(
             "hireKeeper",
             "",
             array(
-                "player_id" => self::getActivePlayerId(),
+                "player_id" => $this->getActivePlayerId(),
                 "keeper_id" => $hired_keeper["type_arg"],
                 "board_position" => $board_position,
                 "pile" => $pile,
@@ -1575,8 +1575,8 @@ class Zookeepers extends Table
             "dismissKeeper",
             clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}, from pile ${pile}'),
             array(
-                "player_id" => self::getActivePlayerId(),
-                "player_name" => self::getActivePlayerName(),
+                "player_id" => $this->getActivePlayerId(),
+                "player_name" => $this->getActivePlayerName(),
                 "replaced_keeper_name" => $replaced_keeper["card_type"],
                 "hired_keeper_name" => $hired_keeper["type"],
                 "keeper_id" => $replaced_keeper_id,
@@ -1589,38 +1589,38 @@ class Zookeepers extends Table
 
         $this->discardAllKeptSpecies($board_position, $replaced_keeper["card_type"]);
 
-        self::setGameStateValue("mainAction", 7);
+        $this->setGameStateValue("mainAction", 7);
 
         $this->gamestate->nextState("betweenActions");
     }
 
     function cancelMngKeepers()
     {
-        self::checkAction("cancelMngKeepers");
-        self::setGameStateValue("selectedPosition", 0);
-        self::setGameStateValue("mainAction", 0);
+        $this->checkAction("cancelMngKeepers");
+        $this->setGameStateValue("selectedPosition", 0);
+        $this->setGameStateValue("mainAction", 0);
 
         $this->gamestate->nextState("cancel");
     }
 
     function collectResources()
     {
-        self::checkAction("collectResources");
+        $this->checkAction("collectResources");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
         if ($this->isBagEmpty()) {
-            throw new BgaUserException(self::_("The bag is out of resources"));
+            throw new BgaUserException($this->_("The bag is out of resources"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $species_nbr = $this->getSpeciesCounters()[$player_id];
 
         if ($species_nbr === 0) {
-            throw new BgaUserException(self::_("You can't collect any resources until you save a species"));
+            throw new BgaUserException($this->_("You can't collect any resources until you save a species"));
         }
 
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
@@ -1640,7 +1640,7 @@ class Zookeepers extends Table
             clienttranslate('${player_name} collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
            ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s)'),
             array(
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
                 "collected_nbr" => $collected_nbr,
                 "collected_plant_nbr" => $collected_plant_nbr,
@@ -1651,21 +1651,21 @@ class Zookeepers extends Table
             )
         );
 
-        self::setGameStateValue("mainAction", 1);
+        $this->setGameStateValue("mainAction", 1);
 
         $this->gamestate->nextState("betweenActions");
     }
 
     function exchangeResources()
     {
-        self::checkAction("exchangeResources");
+        $this->checkAction("exchangeResources");
 
-        if (self::getGameStateValue("freeAction") || self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("The conservation fund can't be used after any other action"));
+        if ($this->getGameStateValue("freeAction") || $this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("The conservation fund can't be used after any other action"));
         }
 
         if ($this->isBagEmpty()) {
-            throw new BgaUserException(self::_("The bag is out of resources"));
+            throw new BgaUserException($this->_("The bag is out of resources"));
         }
 
         $this->gamestate->nextState("exchangeCollection");
@@ -1673,9 +1673,9 @@ class Zookeepers extends Table
 
     function collectFromExchange($choosen_nbr)
     {
-        self::checkAction("collectFromExchange");
+        $this->checkAction("collectFromExchange");
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         if ($choosen_nbr >= $this->resources->countCardsInLocation("hand", $player_id)) {
             throw new BgaVisibleSystemException("You can't collect more resources from the fund than what you have in hand");
@@ -1689,7 +1689,7 @@ class Zookeepers extends Table
         $collected_nbr = count($collected_resources);
 
         $return_nbr = $collected_nbr * 2;
-        self::setGameStateValue("totalToReturn", $return_nbr);
+        $this->setGameStateValue("totalToReturn", $return_nbr);
 
         $collected_plant = $this->filterByResourceType("plant", $collected_resources);
         $collected_plant_nbr = count($collected_plant);
@@ -1705,7 +1705,7 @@ class Zookeepers extends Table
             clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
             ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s). ${return_nbr} resource(s) must be returned to the bag'),
             array(
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
                 "collected_nbr" => $collected_nbr,
                 "collected_plant_nbr" => $collected_plant_nbr,
@@ -1716,23 +1716,23 @@ class Zookeepers extends Table
                 "bag_counters" => $this->getBagCounters(),
             )
         );
-        self::setGameStateValue("freeAction", 3);
+        $this->setGameStateValue("freeAction", 3);
 
         $this->gamestate->nextState("exchangeReturn");
     }
 
     function cancelExchange()
     {
-        self::checkAction("cancelExchange");
-        self::setGameStateValue("freeAction", 0);
+        $this->checkAction("cancelExchange");
+        $this->setGameStateValue("freeAction", 0);
 
         $this->gamestate->nextState("cancel");
     }
 
     function returnFromExchange($lastly_returned_nbr, $type)
     {
-        self::checkAction("returnFromExchange");
-        $player_id = self::getActivePlayerId();
+        $this->checkAction("returnFromExchange");
+        $player_id = $this->getActivePlayerId();
 
         $resources_in_hand = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
         $resources_returned = array_slice($resources_in_hand, 0, $lastly_returned_nbr, true);
@@ -1741,18 +1741,18 @@ class Zookeepers extends Table
         $this->resources->moveCards($keys, "deck");
         $this->resources->shuffle("deck");
 
-        $previously_returned_nbr = self::getGameStateValue("previouslyReturned");
+        $previously_returned_nbr = $this->getGameStateValue("previouslyReturned");
         $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
-        self::setGameStateValue("previouslyReturned", $previously_returned_nbr + $lastly_returned_nbr);
+        $this->setGameStateValue("previouslyReturned", $previously_returned_nbr + $lastly_returned_nbr);
 
-        $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
+        $to_return = $this->getGameStateValue("totalToReturn") - $returned_total;
 
         $this->notifyAllPlayers(
             "returnResources",
             clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) to the bag'),
             array(
                 "i18n" => array("type_label"),
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
                 "returned_nbr" => $lastly_returned_nbr,
                 "type" => $type,
@@ -1772,8 +1772,8 @@ class Zookeepers extends Table
 
     function returnExcess($lastly_returned_nbr, $type)
     {
-        self::checkAction("returnExcess");
-        $player_id = self::getActivePlayerId();
+        $this->checkAction("returnExcess");
+        $player_id = $this->getActivePlayerId();
 
         $resources_in_hand = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
         $resources_returned = array_slice($resources_in_hand, 0, $lastly_returned_nbr, true);
@@ -1782,18 +1782,18 @@ class Zookeepers extends Table
         $this->resources->moveCards($keys, "deck");
         $this->resources->shuffle("deck");
 
-        $previously_returned_nbr = self::getGameStateValue("previouslyReturned");
+        $previously_returned_nbr = $this->getGameStateValue("previouslyReturned");
         $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
-        self::setGameStateValue("previouslyReturned", $previously_returned_nbr + $lastly_returned_nbr);
+        $this->setGameStateValue("previouslyReturned", $previously_returned_nbr + $lastly_returned_nbr);
 
-        $to_return = self::getGameStateValue("totalToReturn") - $returned_total;
+        $to_return = $this->getGameStateValue("totalToReturn") - $returned_total;
 
         $this->notifyAllPlayers(
             "returnResources",
             clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) as excess'),
             array(
                 "i18n" => array("type_label"),
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
                 "returned_nbr" => $lastly_returned_nbr,
                 "type" => $type,
@@ -1813,7 +1813,7 @@ class Zookeepers extends Table
 
     function zombieReturnResources()
     {
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
             if ($player["player_zombie"] == 1) {
@@ -1824,7 +1824,7 @@ class Zookeepers extends Table
                         "returnResources",
                         "",
                         array(
-                            "player_name" => self::getActivePlayerName(),
+                            "player_name" => $this->getActivePlayerName(),
                             "player_id" => $player_id,
                             "returned_nbr" => $counter,
                             "type" => $type,
@@ -1839,18 +1839,18 @@ class Zookeepers extends Table
 
     function saveQuarantined($species_id)
     {
-        self::checkAction("saveQuarantined");
+        $this->checkAction("saveQuarantined");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $can_save = count($this->getSavableQuarantined()) > 0;
 
         if (!$can_save) {
-            throw new BgaUserException(self::_("You can't save any of the available species"));
+            throw new BgaUserException($this->_("You can't save any of the available species"));
         }
 
         $species_card = null;
@@ -1871,24 +1871,24 @@ class Zookeepers extends Table
         }
 
         if (!in_array($species_id, $savable_species)) {
-            throw new BgaUserException(self::_("You don't have the required resources or keepers to save this species"));
+            throw new BgaUserException($this->_("You don't have the required resources or keepers to save this species"));
         }
 
-        self::setGameStateValue("selectedSpecies", $species_card["id"]);
+        $this->setGameStateValue("selectedSpecies", $species_card["id"]);
         $this->gamestate->nextState("selectQuarantinedKeeper");
     }
 
     function selectQuarantinedKeeper($board_position)
     {
-        self::checkAction("selectQuarantinedKeeper");
+        $this->checkAction("selectQuarantinedKeeper");
 
         if ($board_position < 1 || $board_position > 4) {
             throw new BgaVisibleSystemException("Invalid board position");
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
-        $species = $this->species->getCard(self::getGameStateValue("selectedSpecies"));
+        $species = $this->species->getCard($this->getGameStateValue("selectedSpecies"));
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -1906,7 +1906,7 @@ class Zookeepers extends Table
         $assignable_keepers = array_keys($this->getAssignableKeepers($species_id));
 
         if (!in_array($keeper_id, $assignable_keepers)) {
-            throw new BgaUserException(self::_("You can't assign this species to this keeper"));
+            throw new BgaUserException($this->_("You can't assign this species to this keeper"));
         }
 
         $this->species->moveCard(
@@ -1947,9 +1947,9 @@ class Zookeepers extends Table
             scoring ${species_points} point(s)'),
             array(
                 "i18n" => array("species_name"),
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
-                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
                 "species_id" => $species_id,
                 "species_points" => $points,
@@ -1975,9 +1975,9 @@ class Zookeepers extends Table
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
 
                 $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
-                    "player_name" => self::getActivePlayerName(),
+                    "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,
-                    "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                    "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                     "keeper_id" => $keeper_id,
                     "keeper_name" => $keeper["type"],
                     "keeper_level" => $keeper_level,
@@ -1991,23 +1991,23 @@ class Zookeepers extends Table
 
         $this->updateHighestSaved();
 
-        self::setGameStateValue("mainAction", 2);
+        $this->setGameStateValue("mainAction", 2);
 
         $this->gamestate->nextState("betweenActions");
     }
 
     function saveSpecies($shop_position)
     {
-        self::checkAction("saveSpecies");
+        $this->checkAction("saveSpecies");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
         $can_save = count($this->getSavableSpecies()) > 0;
 
         if (!$can_save) {
-            throw new BgaUserException(self::_("You can't save any of the available species"));
+            throw new BgaUserException($this->_("You can't save any of the available species"));
         }
 
         if ($shop_position < 1 || $shop_position > 4) {
@@ -2028,24 +2028,24 @@ class Zookeepers extends Table
         }
 
         if (!in_array($species_id, $savable_species_ids)) {
-            throw new BgaUserException(self::_("You don't have the required resources or keepers to save this species"));
+            throw new BgaUserException($this->_("You don't have the required resources or keepers to save this species"));
         }
 
-        self::setGameStateValue("selectedSpecies", $species_card_id);
+        $this->setGameStateValue("selectedSpecies", $species_card_id);
         $this->gamestate->nextState("selectAssignedKeeper");
     }
 
     function selectAssignedKeeper($board_position)
     {
-        self::checkAction("selectAssignedKeeper");
+        $this->checkAction("selectAssignedKeeper");
 
         if ($board_position < 1 || $board_position > 4) {
             throw new BgaVisibleSystemException("Invalid board position");
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
-        $species = $this->species->getCard(self::getGameStateValue("selectedSpecies"));
+        $species = $this->species->getCard($this->getGameStateValue("selectedSpecies"));
 
         if (!$species) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2065,10 +2065,10 @@ class Zookeepers extends Table
         $assignable_keepers_ids = array_keys($assignable_keepers);
 
         if (!in_array($keeper_id, $assignable_keepers_ids)) {
-            throw new BgaUserException(self::_("You can't assign this species to this keeper"));
+            throw new BgaUserException($this->_("You can't assign this species to this keeper"));
         }
 
-        self::setGameStateValue("mainAction", 2);
+        $this->setGameStateValue("mainAction", 2);
 
         $this->species->moveAllCardsInLocation(
             $species["location"],
@@ -2105,9 +2105,9 @@ class Zookeepers extends Table
             clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
             array(
                 "i18n" => array("species_name"),
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
-                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
                 "species_id" => $species["type_arg"],
                 "species_points" => $points,
@@ -2135,9 +2135,9 @@ class Zookeepers extends Table
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
 
                 $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
-                    "player_name" => self::getActivePlayerName(),
+                    "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,
-                    "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                    "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                     "keeper_id" => $keeper_id,
                     "keeper_name" => $keeper["type"],
                     "keeper_level" => $keeper_level,
@@ -2158,13 +2158,13 @@ class Zookeepers extends Table
         $shop_position,
         $backup_id
     ) {
-        self::checkAction("lookAtBackup");
+        $this->checkAction("lookAtBackup");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         if ($shop_position < 0 || $shop_position > 4) {
             throw new BgaVisibleSystemException("Invalid shop position");
@@ -2194,26 +2194,26 @@ class Zookeepers extends Table
             ),
         );
 
-        self::setGameStateValue("selectedSpecies", $species_id);
-        self::setGameStateValue("selectedBackup", $backup_id);
-        self::setGameStateValue("selectedPosition", $shop_position);
+        $this->setGameStateValue("selectedSpecies", $species_id);
+        $this->setGameStateValue("selectedBackup", $backup_id);
+        $this->setGameStateValue("selectedPosition", $shop_position);
 
         $this->gamestate->nextState("mngBackup");
     }
 
     function discardBackup()
     {
-        self::checkAction("discardBackup");
+        $this->checkAction("discardBackup");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
-        $species_id = self::getGameStateValue("selectedSpecies");
-        $backup_id = self::getGameStateValue("selectedBackup");
-        $shop_position = self::getGameStateValue("selectedPosition");
+        $species_id = $this->getGameStateValue("selectedSpecies");
+        $backup_id = $this->getGameStateValue("selectedBackup");
+        $shop_position = $this->getGameStateValue("selectedPosition");
 
         $species_in_location = $this->species->getCardsInLocation("shop_backup");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2230,7 +2230,7 @@ class Zookeepers extends Table
             "",
             array(
                 "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "shop_position" => $shop_position,
                 "backup_id" => $backup_id,
                 "species_id" => $species_id,
@@ -2243,22 +2243,22 @@ class Zookeepers extends Table
             clienttranslate('${player_name} moves a face-down species to the bottom of the deck'),
             array(
                 "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "shop_position" => $shop_position,
                 "backup_id" => $backup_id,
                 "backup_species" => $this->getBackupSpecies(),
             ),
         );
 
-        if (self::getGameStateValue("secondStep") > 0) {
-            self::setGameStateValue("mainAction", 4);
+        if ($this->getGameStateValue("secondStep") > 0) {
+            $this->setGameStateValue("mainAction", 4);
             $this->gamestate->nextState("betweenActions");
             return;
         }
 
-        self::setGameStateValue("selectedBackup", 0);
-        self::setGameStateValue("selectedPosition", 0);
-        self::setGameStateValue("secondStep", 1);
+        $this->setGameStateValue("selectedBackup", 0);
+        $this->setGameStateValue("selectedPosition", 0);
+        $this->setGameStateValue("secondStep", 1);
 
         $this->autoDrawNewSpecies();
 
@@ -2267,14 +2267,14 @@ class Zookeepers extends Table
 
     function quarantineBackup()
     {
-        self::checkAction("quarantineBackup");
+        $this->checkAction("quarantineBackup");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $species_id = self::getGameStateValue("selectedSpecies");
-        $player_id = self::getActivePlayerId();
+        $species_id = $this->getGameStateValue("selectedSpecies");
+        $player_id = $this->getActivePlayerId();
 
         $species_in_location = $this->species->getCardsInLocation("shop_backup");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2293,20 +2293,20 @@ class Zookeepers extends Table
         }
 
         if (!$is_quarantinable) {
-            throw new BgaUserException(self::_("You can't quarantine this species"));
+            throw new BgaUserException($this->_("You can't quarantine this species"));
         }
 
-        self::setGameStateValue("selectedSpecies", $species_id);
+        $this->setGameStateValue("selectedSpecies", $species_id);
 
         $this->gamestate->nextState("selectBackupQuarantine");
     }
 
     function selectBackupQuarantine($quarantine)
     {
-        self::checkAction("selectBackupQuarantine");
+        $this->checkAction("selectBackupQuarantine");
 
-        $player_id = self::getActivePlayerId();
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $player_id = $this->getActivePlayerId();
+        $species_id = $this->getGameStateValue("selectedSpecies");
 
         $species_in_location = $this->species->getCardsInLocation("shop_backup");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2316,7 +2316,7 @@ class Zookeepers extends Table
         }
 
         if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
-            throw new BgaUserException(self::_("This species can't live in that quarantine"));
+            throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
 
         $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
@@ -2332,12 +2332,12 @@ class Zookeepers extends Table
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
-                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "player_name" => $this->getActivePlayerName(),
+                "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
                 "shop_position" => $species["location_arg"],
-                "backup_id" => self::getGameStateValue("selectedBackup"),
+                "backup_id" => $this->getGameStateValue("selectedBackup"),
                 "quarantine" => $quarantine,
                 "quarantine_label" => $quarantine_label,
                 "quarantined_species" => $this->getQuarantinedSpecies(),
@@ -2348,28 +2348,28 @@ class Zookeepers extends Table
 
         $this->updateScore($player_id, -2);
 
-        if (self::getGameStateValue("secondStep") == 0) {
+        if ($this->getGameStateValue("secondStep") == 0) {
             $this->autoDrawNewSpecies();
-            self::setGameStateValue("secondStep", 1);
-            self::setGameStateValue("selectedSpecies", 0);
+            $this->setGameStateValue("secondStep", 1);
+            $this->setGameStateValue("selectedSpecies", 0);
             $this->gamestate->nextState("mngSecondSpecies");
             return;
         }
 
-        self::setGameStateValue("mainAction", 3);
+        $this->setGameStateValue("mainAction", 3);
         $this->gamestate->nextState("betweenActions");
     }
 
     function discardSpecies(
         $species_id
     ) {
-        self::checkAction("discardSpecies");
+        $this->checkAction("discardSpecies");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2388,7 +2388,7 @@ class Zookeepers extends Table
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
+                "player_name" => $this->getActivePlayerName(),
                 "species_id" => $species_id,
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
                 "shop_position" => $shop_position,
@@ -2396,26 +2396,26 @@ class Zookeepers extends Table
             ),
         );
 
-        if (self::getGameStateValue("secondStep") > 0) {
-            self::setGameStateValue("mainAction", 4);
+        if ($this->getGameStateValue("secondStep") > 0) {
+            $this->setGameStateValue("mainAction", 4);
             $this->gamestate->nextState("betweenActions");
             return;
         }
 
         $this->autoDrawNewSpecies();
-        self::setGameStateValue("secondStep", 1);
+        $this->setGameStateValue("secondStep", 1);
         $this->gamestate->nextState("mngSecondSpecies");
     }
 
     function quarantineSpecies($species_id)
     {
-        self::checkAction("quarantineSpecies");
+        $this->checkAction("quarantineSpecies");
 
-        if (self::getGameStateValue("mainAction")) {
-            throw new BgaUserException(self::_("You already used a main action this turn"));
+        if ($this->getGameStateValue("mainAction")) {
+            throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2427,20 +2427,20 @@ class Zookeepers extends Table
         $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
 
         if (!in_array($species_id, $quarantinable_species)) {
-            throw new BgaUserException(self::_("You can't quarantine this species"));
+            throw new BgaUserException($this->_("You can't quarantine this species"));
         }
 
-        self::setGameStateValue("selectedSpecies", $species_id);
+        $this->setGameStateValue("selectedSpecies", $species_id);
 
         $this->gamestate->nextState("selectQuarantine");
     }
 
     function selectQuarantine($quarantine)
     {
-        self::checkAction("selectQuarantine");
+        $this->checkAction("selectQuarantine");
 
-        $player_id = self::getActivePlayerId();
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $player_id = $this->getActivePlayerId();
+        $species_id = $this->getGameStateValue("selectedSpecies");
 
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2450,7 +2450,7 @@ class Zookeepers extends Table
         }
 
         if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
-            throw new BgaUserException(self::_("This species can't live in that quarantine"));
+            throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
 
         $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
@@ -2466,8 +2466,8 @@ class Zookeepers extends Table
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
-                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "player_name" => $this->getActivePlayerName(),
+                "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
                 "shop_position" => $species["location_arg"],
@@ -2481,32 +2481,32 @@ class Zookeepers extends Table
 
         $this->updateScore($player_id, -2);
 
-        if (self::getGameStateValue("secondStep") == 0) {
+        if ($this->getGameStateValue("secondStep") == 0) {
             $this->autoDrawNewSpecies();
-            self::setGameStateValue("secondStep", 1);
-            self::setGameStateValue("selectedSpecies", 0);
+            $this->setGameStateValue("secondStep", 1);
+            $this->setGameStateValue("selectedSpecies", 0);
             $this->gamestate->nextState("mngSecondSpecies");
             return;
         }
 
-        self::setGameStateValue("mainAction", 3);
+        $this->setGameStateValue("mainAction", 3);
         $this->gamestate->nextState("betweenActions");
     }
 
     function cancelMngSpecies()
     {
-        self::checkAction("cancelMngSpecies");
-        self::setGameStateValue("selectedPosition", 0);
+        $this->checkAction("cancelMngSpecies");
+        $this->setGameStateValue("selectedPosition", 0);
 
         $state_name = $this->gamestate->state()["name"];
 
         if ($state_name !== "selectBackupQuarantine") {
-            self::setGameStateValue("selectedSpecies", 0);
-            self::setGameStateValue("selectedBackup", 0);
+            $this->setGameStateValue("selectedSpecies", 0);
+            $this->setGameStateValue("selectedBackup", 0);
         }
 
         if (
-            self::getGameStateValue("secondStep") > 0
+            $this->getGameStateValue("secondStep") > 0
             &&
             ($state_name === "selectQuarantine" || $state_name === "selectBackupQuarantine")
         ) {
@@ -2515,22 +2515,22 @@ class Zookeepers extends Table
         }
 
         if ($state_name === "mngSecondSpecies") {
-            self::setGameStateValue("mainAction", 3);
+            $this->setGameStateValue("mainAction", 3);
             $this->gamestate->nextState("betweenActions");
             return;
         }
 
-        self::setGameStateValue("secondStep", 0);
+        $this->setGameStateValue("secondStep", 0);
         $this->gamestate->nextState("cancel");
     }
 
     function newSpecies()
     {
-        self::checkAction("newSpecies");
+        $this->checkAction("newSpecies");
 
         $this->drawNewSpecies();
 
-        self::setGameStateValue("freeAction", 1);
+        $this->setGameStateValue("freeAction", 1);
 
         if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
             $this->gamestate->nextState("mngSecondSpecies");
@@ -2542,13 +2542,13 @@ class Zookeepers extends Table
 
     function zooHelp($species_id)
     {
-        self::checkAction("zooHelp");
+        $this->checkAction("zooHelp");
 
-        if (self::getGameStateValue("mainAction") != 2) {
+        if ($this->getGameStateValue("mainAction") != 2) {
             throw new BgaVisibleSystemException("The bonus action is only available after you save a species in the turn");
         }
 
-        if (self::getGameStateValue("zooHelp")) {
+        if ($this->getGameStateValue("zooHelp")) {
             throw new BgaVisibleSystemException("You already asked a zoo for help this turn");
         }
 
@@ -2556,9 +2556,9 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("No zoo can help with this species now");
         }
 
-        $players = self::loadPlayersBasicInfos();
+        $players = $this->loadPlayersBasicInfos();
 
-        self::setGameStateInitialValue("selectedSpecies", $species_id);
+        $this->setGameStateInitialValue("selectedSpecies", $species_id);
 
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2577,7 +2577,7 @@ class Zookeepers extends Table
         }
 
         if (!$can_quarantine) {
-            throw new BgaUserException(self::_("No zoo can help with this species"));
+            throw new BgaUserException($this->_("No zoo can help with this species"));
         }
 
         $this->gamestate->nextState("selectZoo");
@@ -2585,19 +2585,19 @@ class Zookeepers extends Table
 
     function selectZoo($selected_zoo)
     {
-        self::checkAction("selectZoo");
+        $this->checkAction("selectZoo");
 
-        $players_ids = array_keys(self::loadPlayersBasicInfos());
+        $players_ids = array_keys($this->loadPlayersBasicInfos());
 
         if (!in_array($selected_zoo, $players_ids)) {
             throw new BgaVisibleSystemException("This player is not in the table");
         }
 
         if ($this->gamestate->isPlayerActive($selected_zoo)) {
-            throw new BgaUserException(self::_("You can't select your own zoo"));
+            throw new BgaUserException($this->_("You can't select your own zoo"));
         }
 
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $species_id = $this->getGameStateValue("selectedSpecies");
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
@@ -2606,7 +2606,7 @@ class Zookeepers extends Table
         }
 
         if (!in_array($selected_zoo, $this->getPossibleZoos())) {
-            throw new BgaUserException(self::_("You can't ask this zoo for help"));
+            throw new BgaUserException($this->_("You can't ask this zoo for help"));
         }
 
         $this->notifyAllPlayers(
@@ -2614,24 +2614,24 @@ class Zookeepers extends Table
             clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name} '),
             array(
                 "i18n" => array("species_name"),
-                "selected_zoo_name" => self::loadPlayersBasicInfos()[$selected_zoo]["player_name"],
-                "active_zoo_name" => self::getActivePlayerName(),
+                "selected_zoo_name" => $this->loadPlayersBasicInfos()[$selected_zoo]["player_name"],
+                "active_zoo_name" => $this->getActivePlayerName(),
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"])
             )
         );
 
-        self::setGameStateValue("selectedZoo", $selected_zoo);
-        self::setGameStateValue("zooHelp", 1);
+        $this->setGameStateValue("selectedZoo", $selected_zoo);
+        $this->setGameStateValue("zooHelp", 1);
 
         $this->gamestate->nextState("activateZoo");
     }
 
     function selectHelpQuarantine($quarantine)
     {
-        self::checkAction("selectHelpQuarantine");
+        $this->checkAction("selectHelpQuarantine");
 
-        $player_id = self::getActivePlayerId();
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $player_id = $this->getActivePlayerId();
+        $species_id = $this->getGameStateValue("selectedSpecies");
 
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -2641,7 +2641,7 @@ class Zookeepers extends Table
         }
 
         if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
-            throw new BgaUserException(self::_("This species can't live in that quarantine"));
+            throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
 
         $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
@@ -2656,8 +2656,8 @@ class Zookeepers extends Table
             array(
                 "i18n" => array("species_name"),
                 "player_id" => $player_id,
-                "player_name" => self::getActivePlayerName(),
-                "player_color" => self::loadPlayersBasicInfos()[$player_id]["player_color"],
+                "player_name" => $this->getActivePlayerName(),
+                "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
                 "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
                 "shop_position" => $species["location_arg"],
@@ -2730,11 +2730,11 @@ class Zookeepers extends Table
 
     function argPlayerTurn()
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         return array(
-            "mainAction" => self::getGameStateValue("mainAction"),
-            "freeAction" => self::getGameStateValue("freeAction"),
+            "mainAction" => $this->getGameStateValue("mainAction"),
+            "freeAction" => $this->getGameStateValue("freeAction"),
             "isBagEmpty" => $this->isBagEmpty(),
             "canZooHelp" => $this->canZooHelp(),
             "keepersOnBoards" => $this->getKeepersOnBoards(),
@@ -2752,21 +2752,21 @@ class Zookeepers extends Table
 
     function argExchangeCollection()
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
 
         $resources_in_hand_nbr = $this->resources->countCardsInLocation("hand", $player_id);
 
-        return array("resources_in_hand_nbr" => $resources_in_hand_nbr, "freeAction" => self::getGameStateValue("freeAction"));
+        return array("resources_in_hand_nbr" => $resources_in_hand_nbr, "freeAction" => $this->getGameStateValue("freeAction"));
     }
 
     function argExchangeReturn()
     {
-        return array("to_return" => self::getGameStateValue("totalToReturn") - self::getGameStateValue("previouslyReturned"));
+        return array("to_return" => $this->getGameStateValue("totalToReturn") - $this->getGameStateValue("previouslyReturned"));
     }
 
     function argReturnExcess()
     {
-        return array("to_return" => self::getGameStateValue("totalToReturn") - self::getGameStateValue("previouslyReturned"));
+        return array("to_return" => $this->getGameStateValue("totalToReturn") - $this->getGameStateValue("previouslyReturned"));
     }
 
     function argMngSecondSpecies()
@@ -2790,8 +2790,8 @@ class Zookeepers extends Table
 
     function argSelectDismissedPile()
     {
-        $player_id = self::getActivePlayerId();
-        $position = self::getGameStateValue("selectedPosition");
+        $player_id = $this->getActivePlayerId();
+        $position = $this->getGameStateValue("selectedPosition");
 
         $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
         $keeper = array_shift($keepers_in_location);
@@ -2804,8 +2804,8 @@ class Zookeepers extends Table
 
     function argSelectReplacedPile()
     {
-        $player_id = self::getActivePlayerId();
-        $position = self::getGameStateValue("selectedPosition");
+        $player_id = $this->getActivePlayerId();
+        $position = $this->getGameStateValue("selectedPosition");
 
         $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
         $keeper = array_shift($keepers_in_location);
@@ -2819,7 +2819,7 @@ class Zookeepers extends Table
     }
     function argSelectAssignedKeeper()
     {
-        $species_card_id = self::getGameStateValue("selectedSpecies");
+        $species_card_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
         $species_id = $species["type_arg"];
         return array(
@@ -2833,7 +2833,7 @@ class Zookeepers extends Table
 
     function argSelectQuarantinedKeeper()
     {
-        $species_card_id = self::getGameStateValue("selectedSpecies");
+        $species_card_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
         $species_id = $species["type_arg"];
         return array(
@@ -2847,7 +2847,7 @@ class Zookeepers extends Table
 
     function argSelectQuarantine()
     {
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $species_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
         return array(
             "i18n" => array("species_name"),
@@ -2877,7 +2877,7 @@ class Zookeepers extends Table
 
     function argSelectHelpQuarantine()
     {
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $species_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
         return array(
             "i18n" => array("species_name"),
@@ -2890,7 +2890,7 @@ class Zookeepers extends Table
 
     function argSelectZoo()
     {
-        $species_id = self::getGameStateValue("selectedSpecies");
+        $species_id = $this->getGameStateValue("selectedSpecies");
         return array(
             "i18n" => array("species_name"),
             "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
@@ -2901,7 +2901,7 @@ class Zookeepers extends Table
 
     function argBetweenActions()
     {
-        $mainAction = self::getGameStateValue("mainAction");
+        $mainAction = $this->getGameStateValue("mainAction");
 
         return array("mainAction" => $mainAction);
     }
@@ -2926,18 +2926,18 @@ class Zookeepers extends Table
 
     function stActivateZoo()
     {
-        $prev_zoo = self::getActivePlayerId();
-        $selected_zoo = self::getGameStateValue("selectedZoo");
+        $prev_zoo = $this->getActivePlayerId();
+        $selected_zoo = $this->getGameStateValue("selectedZoo");
 
         $this->gamestate->changeActivePlayer($selected_zoo);
-        self::setGameStateValue("selectedZoo", $prev_zoo);
+        $this->setGameStateValue("selectedZoo", $prev_zoo);
 
         $this->gamestate->nextState("selectHelpQuarantine");
     }
 
     function stActivatePrevZoo()
     {
-        $prev_zoo = self::getGameStateValue("selectedZoo");
+        $prev_zoo = $this->getGameStateValue("selectedZoo");
 
         $this->gamestate->changeActivePlayer($prev_zoo);
         $this->gamestate->nextState("betweenActions");
@@ -2947,13 +2947,13 @@ class Zookeepers extends Table
     {
         $player_id = $this->getActivePlayerId();
 
-        self::setGameStateValue("totalToReturn", 0);
-        self::setGameStateValue("previouslyReturned", 0);
-        self::setGameStateValue("selectedPosition", 0);
-        self::setGameStateValue("selectedSpecies", 0);
-        self::setGameStateValue("selectedBackup", 0);
-        self::setGameStateValue("selectedZoo", 0);
-        self::setGameStateValue("secondStep", 0);
+        $this->setGameStateValue("totalToReturn", 0);
+        $this->setGameStateValue("previouslyReturned", 0);
+        $this->setGameStateValue("selectedPosition", 0);
+        $this->setGameStateValue("selectedSpecies", 0);
+        $this->setGameStateValue("selectedBackup", 0);
+        $this->setGameStateValue("selectedZoo", 0);
+        $this->setGameStateValue("secondStep", 0);
 
         $this->autoDrawNewSpecies();
 
@@ -2971,13 +2971,13 @@ class Zookeepers extends Table
 
     function stBetweenPlayers()
     {
-        self::setGameStateValue("totalToReturn", 0);
-        self::setGameStateValue("previouslyReturned", 0);
-        self::setGameStateValue("mainAction", 0);
-        self::setGameStateValue("freeAction", 0);
-        self::setGameStateValue("zooHelp", 0);
+        $this->setGameStateValue("totalToReturn", 0);
+        $this->setGameStateValue("previouslyReturned", 0);
+        $this->setGameStateValue("mainAction", 0);
+        $this->setGameStateValue("freeAction", 0);
+        $this->setGameStateValue("zooHelp", 0);
 
-        $active_player_id = self::getActivePlayerId();
+        $active_player_id = $this->getActivePlayerId();
 
         $this->zombieReturnResources();
         $resources_nbr = $this->resources->countCardsInLocation("hand", $active_player_id);
@@ -2989,32 +2989,32 @@ class Zookeepers extends Table
         }
 
         $this->notifyAllPlayers("pass", clienttranslate('${player_name} finishes his turn and passes'), array(
-            "player_name" => self::getActivePlayerName(),
+            "player_name" => $this->getActivePlayerName(),
         ));
 
-        if (self::getGameStateValue("highestSaved") >= 9) {
-            $last_turn = self::getGameStateValue("lastTurn") + 1;
+        if ($this->getGameStateValue("highestSaved") >= 9) {
+            $last_turn = $this->getGameStateValue("lastTurn") + 1;
 
             if ($last_turn == 1) {
                 $this->notifyAllPlayers(
                     "lastTurn",
                     clienttranslate('${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends'),
-                    array("player_name" => self::getActivePlayerName())
+                    array("player_name" => $this->getActivePlayerName())
                 );
             }
 
-            self::setGameStateValue("lastTurn", $last_turn);
+            $this->setGameStateValue("lastTurn", $last_turn);
         }
 
-        if (self::getGameStateValue("lastTurn") == count(self::loadPlayersBasicInfos())) {
+        if ($this->getGameStateValue("lastTurn") == count($this->loadPlayersBasicInfos())) {
             $this->gamestate->nextState("finalScoresCalc");
             return;
         }
 
         $this->revealSpecies();
 
-        self::activeNextPlayer();
-        $next_player_id = self::getActivePlayerId();
+        $this->activeNextPlayer();
+        $next_player_id = $this->getActivePlayerId();
         $this->giveExtraTime($next_player_id);
 
         $this->gamestate->nextState("nextPlayer");
@@ -3022,7 +3022,7 @@ class Zookeepers extends Table
 
     function stExcessResources()
     {
-        $player_id = self::getActivePlayerId();
+        $player_id = $this->getActivePlayerId();
         $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $player_id));
 
         if ($kit_nbr > 5) {
@@ -3049,7 +3049,7 @@ class Zookeepers extends Table
         $resources_nbr = $this->resources->countCardsInLocation("hand", $player_id);
 
         if ($resources_nbr > 12) {
-            self::setGameStateValue("totalToReturn", $resources_nbr - 12);
+            $this->setGameStateValue("totalToReturn", $resources_nbr - 12);
             $this->gamestate->nextState("returnExcess");
             return;
         }
@@ -3062,7 +3062,7 @@ class Zookeepers extends Table
         $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
-            $collection = self::getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
+            $collection = $this->getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
 
             $new_scores = 0;
             foreach ($collection as $player_data) {
@@ -3162,14 +3162,14 @@ class Zookeepers extends Table
         //            // ! important ! Use DBPREFIX_<table_name> for all tables
         //
         //            $sql = "ALTER TABLE DBPREFIX_xxxxxxx ....";
-        //            self::applyDbUpgradeToAllDB( $sql );
+        //            $this->applyDbUpgradeToAllDB( $sql );
         //        }
         //        if( $from_version <= 1405061421 )
         //        {
         //            // ! important ! Use DBPREFIX_<table_name> for all tables
         //
         //            $sql = "CREATE TABLE DBPREFIX_xxxxxxx ....";
-        //            self::applyDbUpgradeToAllDB( $sql );
+        //            $this->applyDbUpgradeToAllDB( $sql );
         //        }
         //        // Please add your future database scheme changes here
         //

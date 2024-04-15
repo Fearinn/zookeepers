@@ -43,7 +43,7 @@ class view_zookeepers_zookeepers extends game_view
 
         /*********** Place your code below:  ************/
 
-        $template = self::getGameName() . "_" . self::getGameName();
+        $template = $this->getGameName() . "_" . $this->getGameName();
 
         $this->page->begin_block($template, "playmatblock");
         foreach ($players as $player_id => $player) {
@@ -54,7 +54,7 @@ class view_zookeepers_zookeepers extends game_view
             ));
         }
 
-        $this->tpl["BAG OF RESOURCES"] = self::_("Bag of Resources");
+        $this->tpl["BAG OF RESOURCES"] = $this->_("Bag of Resources");
 
         /*********** Do not change anything below this line  ************/
     }
