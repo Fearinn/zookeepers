@@ -229,6 +229,8 @@ class Zookeepers extends Table
         $keepers_info = $this->keepers_info;
         $objectives_info = $this->objectives_info;
 
+        $result["gameVersion"] = intval($this->gamestate->table_globals[300]);
+
         $result["isRealTimeScoreTracking"] = $this->isRealTimeScoreTracking();
         $result["isBagHidden"] = $this->isBagHidden();
         $result["hasSecretObjectives"] = $this->hasSecretObjectives();
@@ -283,6 +285,13 @@ class Zookeepers extends Table
     //////////////////////////////////////////////////////////////////////////////
     //////////// Utility functions
     ////////////    
+
+    public function checkVersion(int $clientVersion): void
+    {
+        if ($clientVersion != intval($this->gamestate->table_globals[300])) {
+            throw new BgaVisibleSystemException($this->_("A new version of this game is now available. Please reload the page (F5)."));
+        }
+    }
 
     function isRealTimeScoreTracking()
     {
@@ -1694,7 +1703,7 @@ class Zookeepers extends Table
         $this->notifyAllPlayers(
             "collectResources",
             clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
-            ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s). ${return_nbr} resources must be returned to the bag'),
+            ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s). ${return_nbr} resource(s) must be returned to the bag'),
             array(
                 "player_name" => self::getActivePlayerName(),
                 "player_id" => $player_id,

@@ -37,6 +37,8 @@ define([
         5: "-249px -3px",
       };
 
+      this.gameVersion = 0;
+
       this.isRealTimeScoreTracking = false;
       this.isBagHidden = false;
       this.hasSecretObjectives = false;
@@ -87,6 +89,8 @@ define([
 
     setup: function (gamedatas) {
       console.log("Starting game setup");
+
+      this.gameVersion = gamedatas.gameVersion;
 
       this.isRealTimeScoreTracking = gamedatas.isRealTimeScoreTracking;
       this.isBagHidden = gamedatas.isBagHidden;
@@ -1214,6 +1218,7 @@ define([
     },
 
     sendAjaxCall: function (action, args = {}) {
+      args.gameVersion = this.gameVersion;
       args.lock = true;
 
       if (this.checkAction(action)) {
