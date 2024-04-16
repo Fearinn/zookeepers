@@ -97,6 +97,7 @@
 
 .zkp_board_resources {
   display: flex;
+  align-self: flex-start;
   gap: 4px;
   clear: both;
   padding: 4px;
@@ -138,6 +139,11 @@
 
 .zkp_resource_cube {
   position: relative;
+}
+
+.zkp_objective {
+  height: 166px;
+  width: 120px;
 }
 
 .zkp_common_area {
@@ -265,14 +271,6 @@
 
 .zkp_keepers > * {
   height: 175px !important;
-}
-
-.zkp_objective {
-  position: absolute;
-  top: 0;
-  left: 305px;
-  height: 166px;
-  width: 120px;
 }
 
 .zkp_bigger_objective {

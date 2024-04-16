@@ -506,7 +506,6 @@ define([
       }
 
       //secret objectives
-
       if (!this.hasSecretObjectives) {
         dojo.destroy("zkp_objectives_deck");
       }
