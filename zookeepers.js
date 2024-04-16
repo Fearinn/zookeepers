@@ -560,9 +560,6 @@ define([
               4
             );
 
-            console.log("sprite", this.allObjectives[objective_id].sprite_pos);
-            console.log(backgroundPosition);
-            console.log(objective_id);
             this.addTooltipHtml(
               `zkp_objective:${player_id}_item_${objective_id}`,
               `<div class="zkp_bigger_objective zkp_card" style="background-position: ${backgroundPosition}"></div>`
