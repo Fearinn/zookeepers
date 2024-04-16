@@ -1712,6 +1712,7 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
+        //tests
         $species_nbr = $this->getSpeciesCounters()[$player_id];
 
         if ($species_nbr === 0) {
@@ -1885,7 +1886,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) as excess'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) to the bag as excess'),
             array(
                 "i18n" => array("type_label"),
                 "player_name" => $this->getActivePlayerName(),
@@ -3222,23 +3223,29 @@ class Zookeepers extends Table
     function stExcessResources()
     {
         $player_id = $this->getActivePlayerId();
-        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id));
+        $kits = $this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id);
+        $kit_nbr = count($kits);
 
         if ($kit_nbr > 5) {
             $returned_nbr = $kit_nbr - 5;
-            $kits = $this->resources->getCardsInLocation("hand", $player_id);
+
+            $this->warn($returned_nbr);
+
             $returned_kits = array_slice($kits, 0, $returned_nbr, true);
+
+            $this->warn(json_encode($returned_kits));
+
             $keys = array_keys($returned_kits);
             $this->resources->moveCards($keys, "deck");
             $this->resources->shuffle("deck");
 
             $this->notifyAllPlayers(
                 "returnResources",
-                clienttranslate('${player_name} returns ${returned_nbr} kit(s) to the bag as excess'),
+                clienttranslate('${player_name} returns ${returned_nbr} medical kit(s) to the bag as excess'),
                 array(
                     "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,
-                    "returned_nbr" => $returned_nbr,
+                    "returned_nbr" => count($keys),
                     "type" => "kit",
                     "resource_counters" => $this->getResourceCounters(),
                 )
@@ -3246,6 +3253,8 @@ class Zookeepers extends Table
         }
 
         $resources_nbr = $this->resources->countCardsInLocation("hand", $player_id);
+        $this->warn("resources nbr");
+        $this->warn($resources_nbr);
 
         if ($resources_nbr > 12) {
             $this->setGameStateValue("totalToReturn", $resources_nbr - 12);
