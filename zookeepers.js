@@ -30,11 +30,11 @@ define([
       this.cardWidth = 120;
       this.cardHeight = 166;
       this.topsPositions = {
-        1: "-126px -171px",
-        2: "-126px -3px",
-        3: "-3px -171px",
-        4: "-3px -3px",
-        5: "-249px -3px",
+        1: "",
+        2: "-100% 0",
+        3: "-200% 0",
+        4: "-100% -100%",
+        5: "0 -100%",
       };
 
       this.gameVersion = 0;
