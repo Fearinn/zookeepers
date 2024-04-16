@@ -308,9 +308,9 @@ class Zookeepers extends Table
         return $this->getGameStateValue("secretObjectives") == 1;
     }
 
-    function boldAndCapitalize($text)
+    function styledSpeciesName()
     {
-        return "<span style='font-weight: bold; text-transform: capitalize'>$text</span>";
+        return '<span style="font-weight: bold; text-transform: capitalize">${species_name_tr}</span>';
     }
 
     function filterByResourceType($type, $resources)
@@ -806,13 +806,22 @@ class Zookeepers extends Table
 
                 if ($species) {
                     $this->species->moveCard($species["id"], "shop_visible", $position);
+
+                    $species_id = $species["type_arg"];
+
                     $this->notifyAllPlayers(
                         "revealSpecies",
                         clienttranslate('The ${species_name} is flipped over and revealed to all players'),
                         array(
-                            "i18n" => array("species_name"),
+
                             "shop_position" => $position,
-                            "species_name" => $this->boldAndCapitalize($this->species_info[$species["type_arg"]]["name"]),
+                            "species_name" => array(
+                                "log" => $this->styledSpeciesName(),
+                                "args" => array(
+                                    "i18n" => array("species_name_tr"),
+                                    "species_name_tr" => $this->species_info[$species_id]["name"]
+                                )
+                            ),
                             "revealed_id" => $species["type_arg"],
                             "backup_species" => $this->getBackupSpecies(),
                             "visible_species" => $this->getVisibleSpecies(),
@@ -1089,7 +1098,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "newSpecies",
-            clienttranslate($message),
+            $message,
             array(
                 "player_name" => $this->getActivePlayerName(),
                 "visible_species" => $this->getVisibleSpecies(),
@@ -2009,14 +2018,20 @@ class Zookeepers extends Table
                     "returnResources",
                     clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
                     array(
-                        "i18n" => array("species_name", "type_label"),
+                        "i18n" => array("type_label"),
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
                         "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
-                        "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"])
+                        "species_name" => array(
+                            "log" => $this->styledSpeciesName(),
+                            "args" => array(
+                                "i18n" => array("species_name_tr"),
+                                "species_name_tr" => $this->species_info[$species_id]["name"]
+                            )
+                        )
                     )
                 );
             }
@@ -2032,11 +2047,17 @@ class Zookeepers extends Table
             clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}, 
             scoring ${species_points} point(s)'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
                 "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "species_id" => $species_id,
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
@@ -2171,14 +2192,20 @@ class Zookeepers extends Table
                     "returnResources",
                     clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
                     array(
-                        "i18n" => array("species_name", "type_label"),
+                        "i18n" => array("type_label"),
                         "player_name" => $this->getActivePlayerName(),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
                         "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
-                        "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"])
+                        "species_name" => array(
+                            "log" => $this->styledSpeciesName(),
+                            "args" => array(
+                                "i18n" => array("species_name_tr"),
+                                "species_name_tr" => $this->species_info[$species_id]["name"]
+                            )
+                        )
                     )
                 );
             }
@@ -2190,11 +2217,17 @@ class Zookeepers extends Table
             "saveSpecies",
             clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
                 "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "species_id" => $species["type_arg"],
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
@@ -2270,10 +2303,16 @@ class Zookeepers extends Table
             "lookAtBackup",
             clienttranslate('You look at a face-down species and... It is the ${species_name}!'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_id" => $player_id,
                 "species_id" => $species_id,
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "shop_position" => $shop_position,
                 "backup_id" => $backup_id,
                 "backup_species" => $this->getBackupSpecies(),
@@ -2416,12 +2455,18 @@ class Zookeepers extends Table
             "quarantineBackup",
             clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_id" => $player_id,
                 "player_name" => $this->getActivePlayerName(),
                 "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "shop_position" => $species["location_arg"],
                 "backup_id" => $this->getGameStateValue("selectedBackup"),
                 "quarantine" => $quarantine,
@@ -2472,11 +2517,17 @@ class Zookeepers extends Table
             "discardSpecies",
             clienttranslate('${player_name} moves the ${species_name} to the bottom of the deck'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_id" => $player_id,
                 "player_name" => $this->getActivePlayerName(),
                 "species_id" => $species_id,
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "shop_position" => $shop_position,
                 "visible_species" => $this->getVisibleSpecies(),
             ),
@@ -2550,12 +2601,18 @@ class Zookeepers extends Table
             "quarantineSpecies",
             clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_id" => $player_id,
                 "player_name" => $this->getActivePlayerName(),
                 "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "shop_position" => $species["location_arg"],
                 "quarantine" => $quarantine,
                 "quarantine_label" => $quarantine_label,
@@ -2699,10 +2756,16 @@ class Zookeepers extends Table
             "zooHelp",
             clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name} '),
             array(
-                "i18n" => array("species_name"),
+
                 "selected_zoo_name" => $this->loadPlayersBasicInfos()[$selected_zoo]["player_name"],
                 "active_zoo_name" => $this->getActivePlayerName(),
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"])
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                )
             )
         );
 
@@ -2740,12 +2803,18 @@ class Zookeepers extends Table
             "quarantineSpecies",
             clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
             array(
-                "i18n" => array("species_name"),
+
                 "player_id" => $player_id,
                 "player_name" => $this->getActivePlayerName(),
                 "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
                 "species_id" => $species_id,
-                "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
                 "shop_position" => $species["location_arg"],
                 "quarantine" => $quarantine,
                 "quarantine_label" => $quarantine_label,
@@ -2862,13 +2931,20 @@ class Zookeepers extends Table
 
     function argMngBackup()
     {
-        $looked_backup = $this->getLookedBackup();
+        $species = $this->getLookedBackup();
+        $species_id = $species["type_arg"];
         return array(
             "_private" => array(
                 "active" => array(
-                    "i18n" => array("species_name"),
-                    "looked_backup" => $looked_backup,
-                    "species_name" => $this->species_info[$looked_backup["type_arg"]]["name"]
+
+                    "looked_backup" => $species,
+                    "species_name" => array(
+                        "log" => $this->styledSpeciesName(),
+                        "args" => array(
+                            "i18n" => array("species_name_tr"),
+                            "species_name_tr" => $this->species_info[$species_id]["name"]
+                        )
+                    )
                 )
             )
         );
@@ -2883,7 +2959,7 @@ class Zookeepers extends Table
         $keeper = array_shift($keepers_in_location);
 
         return array(
-            "i18n" => array("species_name"), "keeper_name" => $keeper["type"], "keeper_id" => $keeper["type_arg"],
+            "keeper_name" => $keeper["type"], "keeper_id" => $keeper["type_arg"],
             "position" => explode(":", $keeper["location"])[1]
         );
     }
@@ -2897,7 +2973,7 @@ class Zookeepers extends Table
         $keeper = array_shift($keepers_in_location);
 
         return array(
-            "i18n" => array("species_name"),
+
             "keeper_name" => $keeper["type"],
             "keeper_id" => $keeper["type_arg"],
             "position" => explode(":", $keeper["location"])[1]
@@ -2909,8 +2985,14 @@ class Zookeepers extends Table
         $species = $this->species->getCard($species_card_id);
         $species_id = $species["type_arg"];
         return array(
-            "i18n" => array("species_name"),
-            "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+
+            "species_name" => array(
+                "log" => $this->styledSpeciesName(),
+                "args" => array(
+                    "i18n" => array("species_name_tr"),
+                    "species_name_tr" => $this->species_info[$species_id]["name"]
+                )
+            ),
             "species_id" => $species_id,
             "position" => $species["location_arg"],
             "assignable_keepers" => $this->getAssignableKeepers($species_id),
@@ -2923,8 +3005,14 @@ class Zookeepers extends Table
         $species = $this->species->getCard($species_card_id);
         $species_id = $species["type_arg"];
         return array(
-            "i18n" => array("species_name"),
-            "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+
+            "species_name" => array(
+                "log" => $this->styledSpeciesName(),
+                "args" => array(
+                    "i18n" => array("species_name_tr"),
+                    "species_name_tr" => $this->species_info[$species_id]["name"]
+                )
+            ),
             "species_id" => $species_id,
             "quarantine" => explode(":", $species["location"])[1],
             "assignable_keepers" => $this->getAssignableKeepers($species_id)
@@ -2936,8 +3024,14 @@ class Zookeepers extends Table
         $species_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
         return array(
-            "i18n" => array("species_name"),
-            "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+
+            "species_name" => array(
+                "log" => $this->styledSpeciesName(),
+                "args" => array(
+                    "i18n" => array("species_name_tr"),
+                    "species_name_tr" => $this->species_info[$species_id]["name"]
+                )
+            ),
             "species_id" => $species_id,
             "position" => $species["location_arg"],
             "possible_quarantines" => $this->getPossibleQuarantines($species_id),
@@ -2952,8 +3046,14 @@ class Zookeepers extends Table
         return array(
             "_private" => array(
                 "active" => array(
-                    "i18n" => array("species_name"),
-                    "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+
+                    "species_name" => array(
+                        "log" => $this->styledSpeciesName(),
+                        "args" => array(
+                            "i18n" => array("species_name_tr"),
+                            "species_name_tr" => $this->species_info[$species_id]["name"]
+                        )
+                    ),
                     "looked_backup" => $species,
                     "possible_quarantines" => $this->getPossibleQuarantines($species_id),
                 )
@@ -2966,8 +3066,14 @@ class Zookeepers extends Table
         $species_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
         return array(
-            "i18n" => array("species_name"),
-            "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+
+            "species_name" => array(
+                "log" => $this->styledSpeciesName(),
+                "args" => array(
+                    "i18n" => array("species_name_tr"),
+                    "species_name_tr" => $this->species_info[$species_id]["name"]
+                )
+            ),
             "species_id" => $species_id,
             "position" => $species["location_arg"],
             "possible_quarantines" => $this->getPossibleQuarantines($species_id),
@@ -2978,8 +3084,14 @@ class Zookeepers extends Table
     {
         $species_id = $this->getGameStateValue("selectedSpecies");
         return array(
-            "i18n" => array("species_name"),
-            "species_name" => $this->boldAndCapitalize($this->species_info[$species_id]["name"]),
+
+            "species_name" => array(
+                "log" => $this->styledSpeciesName(),
+                "args" => array(
+                    "i18n" => array("species_name_tr"),
+                    "species_name_tr" => $this->species_info[$species_id]["name"]
+                )
+            ),
             "species_id" => $species_id,
             "possible_zoos" => $this->getPossibleZoos(),
         );
