@@ -249,7 +249,7 @@ define([
             this[stockKey].addItemType(
               `species_${species_id}`,
               0,
-              g_gamethemeurl + "img/species_v2.png",
+              g_gamethemeurl + "img/species.png",
               species_id - 1
             );
           }
@@ -336,7 +336,7 @@ define([
           this[stockKey].addItemType(
             species_id,
             species_id,
-            g_gamethemeurl + "img/species_v2.png",
+            g_gamethemeurl + "img/species.png",
             species_id - 1
           );
         }
@@ -420,7 +420,7 @@ define([
             this[stockKey].addItemType(
               species_id,
               species_id,
-              g_gamethemeurl + "img/species_v2.png",
+              g_gamethemeurl + "img/species.png",
               species_id - 1
             );
           }
@@ -1465,7 +1465,7 @@ define([
       this[stockKey].addItemType(
         itemId,
         backup_id == 1 ? -1 : 1,
-        g_gamethemeurl + "img/species_v2.png",
+        g_gamethemeurl + "img/species.png",
         species_id - 1
       );
 
