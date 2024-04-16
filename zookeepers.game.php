@@ -1165,6 +1165,66 @@ class Zookeepers extends Table
         return count($this->getPossibleZoos()) > 0 && $this->getGameStateValue("mainAction") == 2 && $this->getGameStateValue("zooHelp") == 0;
     }
 
+    function countSpeciesByStatus($player_id)
+    {
+        $species_by_status = array();
+
+        foreach ($this->status as $status) {
+            $species_by_status[$status] = 0;
+        }
+
+        for ($position = 1; $position <= 4; $position++) {
+            foreach ($this->species->getCardsInLocation("board:" . $position, $player_id) as $species) {
+                $species_id = $species["type_arg"];
+                $status = $this->species_info[$species_id]["status"];
+
+                $species_by_status[$status]++;
+            }
+        }
+
+        return $species_by_status;
+    }
+
+    function calcTieBreakers($player_id)
+    {
+        $species_by_status = $this->countSpeciesByStatus($player_id);
+
+        $tie_breakers = 0;
+
+        foreach ($this->status as $weight => $status) {
+            $tie_breakers += $species_by_status[$status] * $weight;
+        }
+
+        $this->DbQuery("UPDATE player SET player_score_aux=$tie_breakers WHERE player_id='$player_id'");
+
+        return $tie_breakers;
+    }
+
+    // function calcPointsByKeeper($player_id)
+    // {
+    //     $pointsByKeeper = array();
+
+
+    //     for ($position = 1; $position <= 4; $position++) {
+    //         $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
+    //         $keeper = array_shift($keepers_in_location);
+    //         $keeper_id = $keeper["type_arg"];
+
+    //         $species_in_location = $this->species->getCardsInLocation("board:" . $position, $player_id);
+
+    //         if (count($species_in_location) == 3) {
+    //             $pointsByKeeper[$position][$keeper_id] += $this->keepers_info[$keeper_id]["level"];
+    //         }
+
+    //         foreach ($species_in_location as $species) {
+    //             $species_id = $species["type_arg"];
+    //             $pointsByKeeper[$position][$keeper_id] += $this->species_info[$species_id]["points"];
+    //         }
+    //     }
+
+    //     return $pointsByKeeper;
+    // }
+
     function sumKeeperLevels($player_id)
     {
         $sum = 0;
@@ -1185,7 +1245,7 @@ class Zookeepers extends Table
         $keeper_levels = $this->sumKeeperLevels($player_id);
 
         if (!$this->hasSecretObjectives() || $keeper_levels < 7) {
-            return 0;
+            return null;
         }
 
         $location = $this->objectives->getCardsInLocation("hand", $player_id);
@@ -1233,6 +1293,7 @@ class Zookeepers extends Table
         $this->updateScore($player_id, $new_bonus - $prev_bonus);
 
         $objective["bonus"] = $new_bonus;
+
         return $objective;
     }
 
@@ -2993,7 +3054,9 @@ class Zookeepers extends Table
             "player_name" => $this->getActivePlayerName(),
         ));
 
-        if ($this->getGameStateValue("highestSaved") >= 9) {
+        //game end condition
+        //tests
+        if ($this->getGameStateValue("highestSaved") >= 1) {
             $last_turn = $this->getGameStateValue("lastTurn") + 1;
 
             if ($last_turn == 1) {
@@ -3070,24 +3133,29 @@ class Zookeepers extends Table
                 $new_scores = $player_data["player_score"];
             }
 
+            $this->calcTieBreakers($player_id);
+
             if ($this->hasSecretObjectives()) {
                 $objective = $this->calcObjectiveBonus($player_id);
-                $objective_bonus = $objective["bonus"];
 
-                if ($objective_bonus > 0) {
-                    $new_scores += $objective_bonus;
+                if ($objective !== null) {
+                    $objective_bonus = $objective["bonus"];
 
-                    $this->notifyAllPlayers(
-                        "objectiveBonus",
-                        clienttranslate('${player_name} scores ${bonus} points by completing a secret objective'),
-                        array(
-                            "player_id" => $player_id,
-                            "player_name" => $player["player_name"],
-                            "player_color" => $player["player_color"],
-                            "objective_id" => $objective["type_arg"],
-                            "bonus" => $objective_bonus
-                        )
-                    );
+                    if ($objective_bonus > 0) {
+                        $new_scores += $objective_bonus;
+
+                        $this->notifyAllPlayers(
+                            "objectiveBonus",
+                            clienttranslate('${player_name} scores ${bonus} points by completing a secret objective'),
+                            array(
+                                "player_id" => $player_id,
+                                "player_name" => $player["player_name"],
+                                "player_color" => $player["player_color"],
+                                "objective_id" => $objective["type_arg"],
+                                "bonus" => $objective_bonus
+                            )
+                        );
+                    }
                 }
             }
 
