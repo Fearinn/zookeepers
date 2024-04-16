@@ -3179,7 +3179,7 @@ class Zookeepers extends Table
 
         $this->zombieReturnResources();
         $resources_nbr = $this->resources->countCardsInLocation("hand", $active_player_id);
-        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $active_player_id));
+        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", null, "hand", $active_player_id));
 
         if ($resources_nbr > 12 || $kit_nbr > 5) {
             $this->gamestate->nextState("excessResources");
@@ -3222,7 +3222,7 @@ class Zookeepers extends Table
     function stExcessResources()
     {
         $player_id = $this->getActivePlayerId();
-        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", 3, "hand", $player_id));
+        $kit_nbr = count($this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id));
 
         if ($kit_nbr > 5) {
             $returned_nbr = $kit_nbr - 5;
