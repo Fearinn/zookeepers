@@ -2189,12 +2189,18 @@ define([
         this,
         "notif_replaceObjectivePrivately"
       );
-      dojo.subscribe("objectiveBonus", this, "notif_objectiveBonus");
-      this.notifqueue.setSynchronous("objectiveBonus", 1000);
       dojo.subscribe("outOfActions", this, "notif_outOfActions");
       dojo.subscribe("newScores", this, "notif_newScores");
       dojo.subscribe("pass", this, "notif_pass");
       dojo.subscribe("lastTurn", this, "notif_lastTurn");
+
+      //game end animations
+      dojo.subscribe("regularPoints", this, "notif_regularPoints");
+      this.notifqueue.setSynchronous("regularPoints", 500);
+      dojo.subscribe("quarantinePenalties", this, "notif_quarantinePenalties");
+      this.notifqueue.setSynchronous("quarantinePenalties", 500);
+      dojo.subscribe("objectiveBonus", this, "notif_objectiveBonus");
+      this.notifqueue.setSynchronous("objectiveBonus", 500);
     },
 
     notif_hireKeeper: function (notif) {
@@ -2800,6 +2806,48 @@ define([
       );
     },
 
+    notif_newScores: function (notif) {
+      this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
+    },
+
+    notif_outOfActions: function (notif) {},
+
+    notif_pass: function (notif) {},
+
+    notif_lastTurn: function (notif) {
+      const player_name = notif.args.player_name;
+      this.showMessage(
+        _(
+          `${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends`
+        ),
+        "warning"
+      );
+    },
+
+    notif_regularPoints: function (notif) {
+      const player_id = notif.args.player_id;
+      const position = notif.args.board_position;
+      const keeper_id = notif.args.keeper_id;
+
+      this.displayScoring(
+        `zkp_keeper_${player_id}:${position}_item_${keeper_id}`,
+        notif.args.player_color,
+        notif.args.points
+      );
+    },
+
+    notif_quarantinePenalties: function (notif) {
+      const player_id = notif.args.player_id;
+      const quarantine = notif.args.quarantine;
+      const species_id = notif.args.species_id;
+
+      this.displayScoring(
+        `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
+        notif.args.player_color,
+        -2
+      );
+    },
+
     notif_objectiveBonus: function (notif) {
       const player_id = notif.args.player_id;
       const objective_id = notif.args.objective_id;
@@ -2816,24 +2864,6 @@ define([
         `zkp_objective:${player_id}_item_${objective_id}`,
         notif.args.player_color,
         notif.args.bonus
-      );
-    },
-
-    notif_newScores: function (notif) {
-      this.scoreCtrl[notif.args.player_id].toValue(notif.args.new_scores);
-    },
-
-    notif_outOfActions: function (notif) {},
-
-    notif_pass: function (notif) {},
-
-    notif_lastTurn: function (notif) {
-      const player_name = notif.args.player_name;
-      this.showMessage(
-        _(
-          `${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends`
-        ),
-        "warning"
       );
     },
   });

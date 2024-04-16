@@ -1165,65 +1165,59 @@ class Zookeepers extends Table
         return count($this->getPossibleZoos()) > 0 && $this->getGameStateValue("mainAction") == 2 && $this->getGameStateValue("zooHelp") == 0;
     }
 
-    function countSpeciesByStatus($player_id)
+    function isLastTurn()
     {
-        $species_by_status = array();
+        return $this->getGameStateValue("lastTurn") >= 1;
+    }
 
-        foreach ($this->status as $status) {
-            $species_by_status[$status] = 0;
-        }
+    function calcRegularPoints($player_id)
+    {
+        $regular_points = array();
 
         for ($position = 1; $position <= 4; $position++) {
-            foreach ($this->species->getCardsInLocation("board:" . $position, $player_id) as $species) {
-                $species_id = $species["type_arg"];
-                $status = $this->species_info[$species_id]["status"];
+            $regular_points[$position] = null;
 
-                $species_by_status[$status]++;
+            $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
+            $keeper = array_shift($keepers_in_location);
+
+            if ($keeper !== null) {
+                $keeper_id = $keeper["type_arg"];
+                $regular_points[$position][$keeper_id] = 0;
+
+                $species_in_location = $this->species->getCardsInLocation("board:" . $position, $player_id);
+
+                if (count($species_in_location) == 3) {
+                    $regular_points[$position][$keeper_id] += $this->keepers_info[$keeper_id]["level"];
+                }
+
+                foreach ($species_in_location as $species) {
+                    $species_id = $species["type_arg"];
+                    $regular_points[$position][$keeper_id] += $this->species_info[$species_id]["points"];
+                }
             }
         }
 
-        return $species_by_status;
+        return $regular_points;
     }
 
-    function calcTieBreakers($player_id)
+    function calcQuarantinePenalties($player_id)
     {
-        $species_by_status = $this->countSpeciesByStatus($player_id);
+        $quarantine_penalties = array();
+        foreach ($this->quarantines as $quarantine) {
+            $quarantine_penalties[$quarantine] = null;
+            $species_in_quarantine = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
+            $species = array_shift($species_in_quarantine);
 
-        $tie_breakers = 0;
+            if ($species !== null) {
+                $species_id = $species["type_arg"];
 
-        foreach ($this->status as $weight => $status) {
-            $tie_breakers += $species_by_status[$status] * $weight;
+                $quarantine_penalties[$quarantine] = $species_id;
+            }
         }
 
-        $this->DbQuery("UPDATE player SET player_score_aux=$tie_breakers WHERE player_id='$player_id'");
-
-        return $tie_breakers;
+        $this->warn(json_encode($quarantine_penalties));
+        return $quarantine_penalties;
     }
-
-    // function calcPointsByKeeper($player_id)
-    // {
-    //     $pointsByKeeper = array();
-
-
-    //     for ($position = 1; $position <= 4; $position++) {
-    //         $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
-    //         $keeper = array_shift($keepers_in_location);
-    //         $keeper_id = $keeper["type_arg"];
-
-    //         $species_in_location = $this->species->getCardsInLocation("board:" . $position, $player_id);
-
-    //         if (count($species_in_location) == 3) {
-    //             $pointsByKeeper[$position][$keeper_id] += $this->keepers_info[$keeper_id]["level"];
-    //         }
-
-    //         foreach ($species_in_location as $species) {
-    //             $species_id = $species["type_arg"];
-    //             $pointsByKeeper[$position][$keeper_id] += $this->species_info[$species_id]["points"];
-    //         }
-    //     }
-
-    //     return $pointsByKeeper;
-    // }
 
     function sumKeeperLevels($player_id)
     {
@@ -1297,9 +1291,39 @@ class Zookeepers extends Table
         return $objective;
     }
 
-    function isLastTurn()
+    function countSpeciesByStatus($player_id)
     {
-        return $this->getGameStateValue("lastTurn") >= 1;
+        $species_by_status = array();
+
+        foreach ($this->status as $status) {
+            $species_by_status[$status] = 0;
+        }
+
+        for ($position = 1; $position <= 4; $position++) {
+            foreach ($this->species->getCardsInLocation("board:" . $position, $player_id) as $species) {
+                $species_id = $species["type_arg"];
+                $status = $this->species_info[$species_id]["status"];
+
+                $species_by_status[$status]++;
+            }
+        }
+
+        return $species_by_status;
+    }
+
+    function calcTieBreakers($player_id)
+    {
+        $species_by_status = $this->countSpeciesByStatus($player_id);
+
+        $tie_breakers = 0;
+
+        foreach ($this->status as $weight => $status) {
+            $tie_breakers += $species_by_status[$status] * $weight;
+        }
+
+        $this->DbQuery("UPDATE player SET player_score_aux=$tie_breakers WHERE player_id='$player_id'");
+
+        return $tie_breakers;
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -3132,7 +3156,46 @@ class Zookeepers extends Table
                 $new_scores = $player_data["player_score"];
             }
 
-            $this->calcTieBreakers($player_id);
+            $regular_points = $this->calcRegularPoints($player_id);
+            foreach ($regular_points as $position => $position_info) {
+                if ($position_info !== null) {
+                    foreach ($position_info as $keeper_id => $points) {
+                        if ($points > 0) {
+                            $this->notifyAllPlayers(
+                                "regularPoints",
+                                clienttranslate('${player_name} scores ${points} with ${keeper_name} and their kept species'),
+                                array(
+                                    "player_name" => $player["player_name"],
+                                    "player_id" => $player_id,
+                                    "player_color" => $player["player_color"],
+                                    "board_position" => $position,
+                                    "keeper_id" => $keeper_id,
+                                    "keeper_name" => $this->keepers_info[$keeper_id]["name"],
+                                    "points" => $points
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+
+            $quarantine_penalties = $this->calcQuarantinePenalties($player_id);
+            foreach ($quarantine_penalties as $quarantine => $species_id) {
+                if ($species_id !== null) {
+                    $this->notifyAllPlayers(
+                        "quarantinePenalties",
+                        clienttranslate('${player_name} loses 2 points due to having a species in his ${quarantine_label} quarantine'),
+                        array(
+                            "player_name" => $player["player_name"],
+                            "player_id" => $player_id,
+                            "player_color" => $player["player_color"],
+                            "quarantine" => $quarantine,
+                            "quarantine_label" => $quarantine === "ALL" ? "generic" : $quarantine,
+                            "species_id" => $species_id
+                        )
+                    );
+                }
+            }
 
             if ($this->hasSecretObjectives()) {
                 $objective = $this->calcObjectiveBonus($player_id);
@@ -3158,13 +3221,15 @@ class Zookeepers extends Table
                 }
             }
 
+            $this->calcTieBreakers($player_id);
+
             $this->notifyAllPlayers("newScores", "", array(
                 "player_id" => $player_id,
                 "new_scores" => $new_scores,
             ));
         }
 
-        $this->gamestate->nextState("gameEnd");
+        $this->gamestate->nextState("betweenActions");
     }
 
     //////////////////////////////////////////////////////////////////////////////
