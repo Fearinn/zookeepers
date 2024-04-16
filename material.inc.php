@@ -472,7 +472,7 @@ $this->keepers_info = array(
 );
 
 $this->species_info = array(
-  12 => array(
+  5 => array(
     "name" => clienttranslate("snowy owl"),
     "scientific_name" => "Bubo scandiaca",
     "class" => "bird",
@@ -519,7 +519,8 @@ $this->species_info = array(
     "scientific_name" => "Testudo kleinmanni",
     "class" => "reptile",
     "diet" => "herbivore",
-    "status" => "CR",
+    "status" =>
+    "CR",
     "habitat" => array("DES"),
     "continent" => array("AF"),
     "cost" => array(
@@ -529,7 +530,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  35 => array(
+  33 => array(
     "name" => clienttranslate("spiny hill turtle"),
     "scientific_name" => "Heosemys spinosa",
     "class" => "reptile",
@@ -544,7 +545,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  26 => array(
+  36 => array(
     "name" => clienttranslate("komodo dragon"),
     "scientific_name" => "Varanus komodoensis",
     "class" => "reptile",
@@ -562,7 +563,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  21 => array(
+  34 => array(
     "name" => clienttranslate("burmese python"),
     "scientific_name" => "Python bivittatus",
     "class" => "reptile",
@@ -577,7 +578,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  7 => array(
+  27 => array(
     "name" => clienttranslate("american alligator"),
     "scientific_name" => "Alligator mississippiensis",
     "class" => "reptile",
@@ -592,7 +593,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  36 => array(
+  41 => array(
     "name" => clienttranslate("madagascar tree boa"),
     "scientific_name" => "Sanzinia madagascariensis",
     "class" => "reptile",
@@ -610,7 +611,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  50 => array(
+  58 => array(
     "name" => clienttranslate("spur-thighed tortoise"),
     "scientific_name" => "Testudo graeca",
     "class" => "reptile",
@@ -625,7 +626,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  22 => array(
+  3 => array(
     "name" => clienttranslate("rhinoceros iguana"),
     "scientific_name" => "Cyclura cornuta",
     "class" => "reptile",
@@ -643,7 +644,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  14 => array(
+  16 => array(
     "name" => clienttranslate("gila monster"),
     "scientific_name" => "Heloderma suspectum",
     "class" => "reptile",
@@ -658,7 +659,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  31 => array(
+  12 => array(
     "name" => clienttranslate("jamaican boa"),
     "scientific_name" => "Chilabothrus subflavus ",
     "class" => "reptile",
@@ -673,7 +674,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  54 => array(
+  10  => array(
     "name" => clienttranslate("nile crocodile"),
     "scientific_name" => "Crocodylus niloticus",
     "class" => "reptile",
@@ -691,7 +692,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  10 => array(
+  57 => array(
     "name" => clienttranslate("african penguin"),
     "scientific_name" => "Spheniscus demersus",
     "class" => "bird",
@@ -707,7 +708,7 @@ $this->species_info = array(
     "points" => 4,
   ),
 
-  4 => array(
+  32 => array(
     "name" => clienttranslate("great white pelican"),
     "scientific_name" => "Pelecanus onocrotalus",
     "class" => "bird",
@@ -722,7 +723,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  55 => array(
+  59 => array(
     "name" => clienttranslate("nicobar pigeon"),
     "scientific_name" => "Caloenas nicobarica",
     "class" => "bird",
@@ -773,7 +774,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  2 => array(
+  21 => array(
     "name" => clienttranslate("southern cassowary"),
     "scientific_name" => "Casuarius casuarius",
     "class" => "bird",
@@ -791,7 +792,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  59 => array(
+  56 => array(
     "name" => clienttranslate("steppe eagle"),
     "scientific_name" => "Aquila nipalensis",
     "class" => "bird",
@@ -809,7 +810,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  53 => array(
+  20 => array(
     "name" => clienttranslate("griffon vulture"),
     "scientific_name" => "Gyps fulvus fulvus",
     "class" => "bird",
@@ -827,7 +828,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  3 => array(
+  23 => array(
     "name" => clienttranslate("common barn owl"),
     "scientific_name" => "Tyto alba",
     "class" => "bird",
@@ -842,7 +843,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  6 => array(
+  7 => array(
     "name" => clienttranslate("laughing kookaburra"),
     "scientific_name" => "Dacelo novaeguineae",
     "class" => "bird",
@@ -857,7 +858,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  11 => array(
+  15 => array(
     "name" => clienttranslate("red-tailed amazon"),
     "scientific_name" => "Amazona brasiliensis",
     "class" => "bird",
@@ -872,7 +873,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  49 => array(
+  39 => array(
     "name" => clienttranslate("waldrapp ibis"),
     "scientific_name" => "Geronticus eremita",
     "class" => "bird",
@@ -890,7 +891,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  16 => array(
+  17 => array(
     "name" => clienttranslate("long-billed corella"),
     "scientific_name" => "Cacatua tenuirostris tenuirostris",
     "class" => "bird",
@@ -908,7 +909,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  52 => array(
+  54 => array(
     "name" => clienttranslate("fischer's lovebird"),
     "scientific_name" => "Agapornis fischeri",
     "class" => "bird",
@@ -927,7 +928,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  5 => array(
+  6 => array(
     "name" => clienttranslate("golden-capped conure"),
     "scientific_name" => "Aratinga auricapillus aurifrons",
     "class" => "bird",
@@ -945,7 +946,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  39 => array(
+  52 => array(
     "name" => clienttranslate("blue-streaked lory"),
     "scientific_name" => "Eos reticulata",
     "class" => "bird",
@@ -960,7 +961,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  15 => array(
+  35 => array(
     "name" => clienttranslate("great argus"),
     "scientific_name" => "Argusianus argus argus",
     "class" => "bird",
@@ -975,7 +976,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  32 => array(
+  14 => array(
     "name" => clienttranslate("european rabbit"),
     "scientific_name" => "Oryctolagus cuniculus",
     "class" => "mammal",
@@ -993,7 +994,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  56 => array(
+  51 => array(
     "name" => clienttranslate("african elephant"),
     "scientific_name" => "Loxodonta africana",
     "class" => "mammal",
@@ -1008,7 +1009,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  30 => array(
+  50 => array(
     "name" => clienttranslate("queensland koala"),
     "scientific_name" => "Phascolarctos cinereus adustus",
     "class" => "mammal",
@@ -1059,7 +1060,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  68 => array(
+  69 => array(
     "name" => clienttranslate("western lowland gorilla"),
     "scientific_name" => "Gorilla gorilla gorilla",
     "class" => "mammal",
@@ -1074,7 +1075,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  57 => array(
+  55 => array(
     "name" => clienttranslate("ring-tailed lemur"),
     "scientific_name" => "Lemur catta",
     "class" => "mammal",
@@ -1110,7 +1111,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  34 => array(
+  31 => array(
     "name" => clienttranslate("lion-tailed macaque"),
     "scientific_name" => "Macaca silenus",
     "class" => "mammal",
@@ -1125,7 +1126,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  13 => array(
+  11 => array(
     "name" => clienttranslate("golden lion tamarin"),
     "scientific_name" => "Leontopithecus rosalia",
     "class" => "mammal",
@@ -1140,7 +1141,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  69 => array(
+  68 => array(
     "name" => clienttranslate("sumatran orangutan"),
     "scientific_name" => "Pongo abelii",
     "class" => "mammal",
@@ -1155,7 +1156,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  58 => array(
+  30 => array(
     "name" => clienttranslate("jaguar"),
     "scientific_name" => "Panthera onca",
     "class" => "mammal",
@@ -1170,7 +1171,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  41 => array(
+  2 => array(
     "name" => clienttranslate("african lion"),
     "scientific_name" => "Panthera leo",
     "class" => "mammal",
@@ -1185,7 +1186,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  60 => array(
+  59 => array(
     "name" => clienttranslate("persian leopard"),
     "scientific_name" => "Panthera pardus saxicolor",
     "class" => "mammal",
@@ -1203,7 +1204,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  43 => array(
+  26 => array(
     "name" => clienttranslate("iberian lynx"),
     "scientific_name" => "Lynx pardinus",
     "class" => "mammal",
@@ -1218,7 +1219,7 @@ $this->species_info = array(
     ),
     "points" => 4,
   ),
-  17 => array(
+  37 => array(
     "name" => clienttranslate("iberian wolf"),
     "scientific_name" => "Canis lupus signatus",
     "class" => "mammal",
@@ -1233,7 +1234,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  23 => array(
+  13 => array(
     "name" => clienttranslate("red panda"),
     "scientific_name" => "Ailurus fulgens",
     "class" => "mammal",
@@ -1284,7 +1285,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  51 => array(
+  53 => array(
     "name" => clienttranslate("brown bear"),
     "scientific_name" => "Ursus arctos",
     "class" => "mammal",
@@ -1314,7 +1315,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  33 => array(
+  22 => array(
     "name" => clienttranslate("grevy's zebra"),
     "scientific_name" => "Equus grevyi",
     "class" => "mammal",
@@ -1347,7 +1348,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  27 => array(
+  42 => array(
     "name" => clienttranslate("american bison"),
     "scientific_name" => "Bison bison bison",
     "class" => "mammal",
@@ -1395,7 +1396,7 @@ $this->species_info = array(
     ),
     "points" => 6,
   ),
-  20 => array(
+  40 => array(
     "name" => clienttranslate("angolan giraffe"),
     "scientific_name" => "Giraffa camelopardalis angolensis",
     "class" => "mammal",
@@ -1409,7 +1410,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  42 => array(
+  4 => array(
     "name" => clienttranslate("hippopotamus"),
     "scientific_name" => "Hippopotamus amphibius",
     "class" => "mammal",
@@ -1446,7 +1447,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  40 => array(
+  49 => array(
     "name" => clienttranslate("cheetah"),
     "scientific_name" => "Acinonyx jubatus jubatus",
     "class" => "mammal",
@@ -1476,7 +1477,7 @@ $this->species_info = array(
     ),
     "points" => 1,
   ),
-  64 => array(
+  63 => array(
     "name" => clienttranslate("one-horned rhinoceros"),
     "scientific_name" => "Rhinoceros unicornis",
     "class" => "mammal",
@@ -1494,7 +1495,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  62 => array(
+  64 => array(
     "name" => clienttranslate("manchurian crane"),
     "scientific_name" => "Grus japonensis",
     "class" => "bird",
@@ -1509,7 +1510,7 @@ $this->species_info = array(
     ),
     "points" => 4
   ),
-  47 => array(
+  46 => array(
     "name" => clienttranslate("green aracari"),
     "scientific_name" => "Pteroglossus viridis",
     "class" => "bird",
@@ -1542,7 +1543,7 @@ $this->species_info = array(
     ),
     "points" => 6
   ),
-  46 => array(
+  47 => array(
     "name" => clienttranslate("hyacinth macaw"),
     "scientific_name" => "Anodorhynchus hyacinthinus",
     "class" => "bird",
@@ -1557,7 +1558,7 @@ $this->species_info = array(
     ),
     "points" => 3,
   ),
-  63 => array(
+  62 => array(
     "name" => clienttranslate("slender-tailed meerkat"),
     "scientific_name" => "Suricata suricatta",
     "class" => "mammal",

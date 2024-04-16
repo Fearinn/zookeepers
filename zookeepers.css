@@ -73,7 +73,7 @@
 .zkp_card {
   border-radius: 12px;
   box-shadow: 1px 1px 3px black;
-  height: 165px;
+  height: 166px;
   width: 120px;
 }
 
@@ -178,9 +178,9 @@
 
 .zkp_bigger_species {
   display: block;
-  background-image: url("img/bigger_species.png");
+  background-image: url("img/bigger_species_v2.png");
   border-radius: 24px;
-  height: 330px;
+  height: 332px;
   width: 240px;
   margin: 0 auto 4px auto;
 }
@@ -264,20 +264,20 @@
   position: absolute;
   top: 0;
   left: 305px;
-  height: 165px;
+  height: 166px;
   width: 120px;
 }
 
 .zkp_bigger_objective {
   background-image: url("img/bigger_objectives.png");
   border-radius: 24px;
-  height: 330px;
+  height: 332px;
   width: 240px;
 }
 
 .zkp_quarantine {
   border-radius: 12px;
-  height: 165px;
+  height: 166px;
   width: 120px;
 }
 
