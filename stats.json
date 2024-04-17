@@ -1,1 +1,69 @@
-{}
+{
+  "table": {},
+  "player": {
+    "species_saved": {
+      "id": 10,
+      "name": "species saved (later discarded ones included)",
+      "type": "int"
+    },
+    "points_species_saved": {
+      "id": 11,
+      "name": "points from saved species",
+      "type": "int"
+    },
+    "cr_species_saved": {
+      "id": 12,
+      "name": "critically endangered species saved",
+      "type": "int"
+    },
+    "quarantined_species": {
+      "id": 13,
+      "name": "species in quarantine",
+      "type": "int"
+    },
+    "discarded_species": {
+      "id": 14,
+      "name": "species discarded from the grid",
+      "type": "int"
+    },
+    "discarded_saved_species": {
+      "id": 15,
+      "name": "species discarded after being saved"
+    },
+    "keepers_completed": {
+      "id": 16,
+      "name": "keepers completed",
+      "type": "int"
+    },
+    "points_keepers_completed": {
+      "id": 17,
+      "name": "points from completed keepers",
+      "type": "int"
+    },
+    "keepers_dismissed": {
+      "id": 18,
+      "name": "keepers dismissed/replaced",
+      "type": "int"
+    },
+    "points_objectives": {
+      "id": 19,
+      "name": "points from objectives",
+      "type": "int"
+    },
+    "resources_consumed": {
+      "id": 20,
+      "name": "resources consumed",
+      "type": "int"
+    },
+    "zoo_help_asked": {
+      "id": 21,
+      "name": "zoo help asked",
+      "type": "int"
+    },
+    "zoo_help_given": {
+      "id": 22,
+      "name": "zoo help given",
+      "type": "int"
+    }
+  }
+}

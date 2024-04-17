@@ -206,9 +206,19 @@ class Zookeepers extends Table
         $this->setGameStateInitialValue("lastTurn", 0);
 
         // Init game statistics
-        // (note: statistics used in this file must be defined in your stats.inc.php file)
-        //$this->initStat( 'table', 'table_teststat1', 0 );    // Init a table statistics
-        //$this->initStat( 'player', 'player_teststat1', 0 );  // Init a player statistics (for all players)
+        $this->initStat("player", "species_saved", 0);
+        $this->initStat("player", "points_species_saved", 0);
+        $this->initStat("player", "cr_species_saved", 0);
+        $this->initStat("player", "quarantined_species", 0);
+        $this->initStat("player", "discarded_species", 0);
+        $this->initStat("player", "discarded_saved_species", 0);
+        $this->initStat("player", "keepers_completed", 0);
+        $this->initStat("player", "points_keepers_completed", 0);
+        $this->initStat("player", "points_objectives", 0);
+        $this->initStat("player", "keepers_dismissed", 0);
+        $this->initStat("player", "resources_consumed", 0);
+        $this->initStat("player", "zoo_help_asked", 0);
+        $this->initStat("player", "zoo_help_given", 0);
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
@@ -878,9 +888,11 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
         if ($board_position) {
             $discarded_species = $this->species->getCardsInLocation("board:" . $board_position, $player_id);
-
-            if (count($discarded_species) > 0) {
+            $discarded_species_nbr = count($discarded_species);
+            if ($discarded_species_nbr > 0) {
                 $this->species->moveAllCardsInLocation("board:" . $board_position, "deck", $player_id);
+                $this->incStat($discarded_species_nbr, "discarded_saved_species", $player_id);
+
                 $this->notifyAllPlayers(
                     "discardAllKeptSpecies",
                     clienttranslate('All species kept by ${keeper_name} are moved to the bottom of the deck'),
@@ -1194,12 +1206,18 @@ class Zookeepers extends Table
                 $species_in_location = $this->species->getCardsInLocation("board:" . $position, $player_id);
 
                 if (count($species_in_location) == 3) {
-                    $regular_points[$position][$keeper_id] += $this->keepers_info[$keeper_id]["level"];
+                    $keeper_points = $this->keepers_info[$keeper_id]["level"];
+
+                    $regular_points[$position][$keeper_id] += $keeper_points;
+                    $this->incStat($keeper_points, "points_keepers_completed", $player_id);
                 }
 
                 foreach ($species_in_location as $species) {
                     $species_id = $species["type_arg"];
-                    $regular_points[$position][$keeper_id] += $this->species_info[$species_id]["points"];
+                    $species_points =  $this->species_info[$species_id]["points"];
+
+                    $regular_points[$position][$keeper_id] += $species_points;
+                    $this->incStat($species_points, "points_species_saved", $player_id);
                 }
             }
         }
@@ -1219,6 +1237,7 @@ class Zookeepers extends Table
                 $species_id = $species["type_arg"];
 
                 $quarantine_penalties[$quarantine] = $species_id;
+                $this->incStat(1, "quarantined_species", $player_id);
             }
         }
 
@@ -1290,8 +1309,8 @@ class Zookeepers extends Table
         }
 
         $this->DbQuery("UPDATE player SET player_score_aux=$new_bonus WHERE player_id='$player_id'");
-
         $this->updateScore($player_id, $new_bonus - $prev_bonus);
+        $this->setStat($new_bonus, "points_objectives", $player_id);
 
         $objective["bonus"] = $new_bonus;
 
@@ -1485,6 +1504,7 @@ class Zookeepers extends Table
         }
 
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
+        $this->incStat(1, "dismissed_keeper", $player_id);
 
         $pile_counters = $this->getPileCounters();
 
@@ -1546,6 +1566,7 @@ class Zookeepers extends Table
         }
 
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "pile:" . $pile, false);
+        $this->incStat(1, "dismissed_keeper", $player_id);
 
         $pile_counters = $this->getPileCounters();
 
@@ -1663,6 +1684,8 @@ class Zookeepers extends Table
                 "piles_tops" => $this->getPilesTops(),
             )
         );
+
+        $this->incStat(1, "dismissed_keeper", $player_id);
 
         $this->notifyAllPlayers(
             "dismissKeeper",
@@ -2070,11 +2093,16 @@ class Zookeepers extends Table
         );
 
         $this->updateScore($player_id, $points);
+        $this->incStat(1, "species_saved", $player_id);
 
-        $completed_card = $this->getCompletedKeepers()[$player_id][$board_position];
+        if ($this->species_info[$species_id]["status"] === "CR") {
+            $this->incStat(1, "cr_species_saved", $player_id);
+        }
 
-        if ($completed_card !== null) {
-            $completed_id = $completed_card["type_arg"];
+        $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_keeper !== null) {
+            $completed_id = $completed_keeper["type_arg"];
 
             if ($keeper_id == $completed_id) {
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
@@ -2091,6 +2119,7 @@ class Zookeepers extends Table
                 ));
 
                 $this->updateScore($player_id, $keeper_level);
+                $this->incStat(1, "keepers_completed", $player_id);
             }
         }
 
@@ -2186,6 +2215,8 @@ class Zookeepers extends Table
 
         foreach ($returned_cost as $type => $cost) {
             if ($cost > 0) {
+                $this->incStat($cost, "resources_consumed", $player_id);
+
                 $this->notifyAllPlayers(
                     "returnResources",
                     clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
@@ -2242,11 +2273,16 @@ class Zookeepers extends Table
         );
 
         $this->updateScore($player_id, $points);
+        $this->incStat(1, "species_saved", $player_id);
 
-        $completed_card = $this->getCompletedKeepers()[$player_id][$board_position];
+        if ($this->species_info[$species_id]["status"] === "CR") {
+            $this->incStat(1, "cr_species_saved", $player_id);
+        }
 
-        if ($completed_card !== null) {
-            $completed_id = $completed_card["type_arg"];
+        $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
+
+        if ($completed_keeper !== null) {
+            $completed_id = $completed_keeper["type_arg"];
 
             if ($keeper_id == $completed_id) {
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
@@ -2750,6 +2786,11 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You can't ask this zoo for help"));
         }
 
+        $player_id = $this->getActivePlayerId();
+
+        $this->incStat(1, "zoo_help_asked", $player_id);
+        $this->incStat(1, "zoo_help_given", $selected_zoo);
+
         $this->notifyAllPlayers(
             "zooHelp",
             clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name} '),
@@ -3002,8 +3043,9 @@ class Zookeepers extends Table
         $species_card_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->species->getCard($species_card_id);
         $species_id = $species["type_arg"];
-        return array(
 
+        $species_id = $species["type_arg"];
+        return array(
             "species_name" => array(
                 "log" => $this->styledSpeciesName(),
                 "args" => array(
@@ -3189,7 +3231,9 @@ class Zookeepers extends Table
         ));
 
         //game end condition
-        if ($this->getGameStateValue("highestSaved") >= 9) {
+
+        //tests
+        if ($this->getGameStateValue("highestSaved") >= 1) {
             $last_turn = $this->getGameStateValue("lastTurn") + 1;
 
             if ($last_turn == 1) {
@@ -3344,7 +3388,7 @@ class Zookeepers extends Table
             ));
         }
 
-        $this->gamestate->nextState("betweenActions");
+        $this->gamestate->nextState("gameEnd");
     }
 
     //////////////////////////////////////////////////////////////////////////////
