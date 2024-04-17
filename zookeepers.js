@@ -312,7 +312,7 @@ define([
         }
       }
 
-      // species
+      //species
       for (let column = 1; column <= 4; column++) {
         const stockKey = `visibleShop_${column}`;
         const container = `zkp_visible_species_${column}`;
@@ -452,11 +452,27 @@ define([
           _("saved species"),
           ""
         );
+
+        for (let count = 0; count <= 9; count++) {
+          const stockKey = `playmatCounter_${player_id}_${count}`;
+          this[stockKey] = new ebg.stock();
+          this[stockKey].create(
+            this,
+            $(`zkp_playmat_counter_${player_id}:${count}`),
+            15,
+            15
+          );
+
+          this[stockKey].setSelectionMode(0);
+          this[stockKey].image_items_per_row = 10;
+
+          this[stockKey].addItemType(0, 0, g_gamethemeurl + "img/tokens.png", 6);
+        }
+        this[`playmatCounter_${player_id}_0`].addToStockWithId(0, 0);
       }
       this.updateSpeciesCounters(gamedatas.speciesCounters);
 
-      // event connections
-
+      //event connections
       dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
         this.onSelectKeeperPile(event);
       });
@@ -1409,9 +1425,20 @@ define([
     },
 
     updateSpeciesCounters: function (counters) {
-      for (const player_id in counters) {
-        const newValue = counters[player_id];
-        this.speciesCounters[player_id].toValue(newValue);
+      for (const playerId in counters) {
+        const counterHandler = this.speciesCounters[playerId];
+        const prevValue = counterHandler.getValue();
+        const newValue = counters[playerId];
+
+        if (prevValue != newValue) {
+          counterHandler.toValue(newValue);
+
+          const originKey = `playmatCounter_${playerId}_${prevValue}`;
+          const destinationKey = `playmatCounter_${playerId}_${newValue}`;
+
+          this[destinationKey].addToStockWithId(0, 0, `zkp_playmat_counter_${playerId}:${prevValue}`);
+          this[originKey].removeFromStockById(0);
+        }
       }
     },
 

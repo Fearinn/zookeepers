@@ -88,6 +88,48 @@
             class="zkp_house zkp_keeper_{PLAYER_ID}"
           ></div>
         </div>
+        <div id="zkp_playmat_counters" class="zkp_playmat_counters">
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:0"
+            class="zkp_playmat_counter_0 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:1"
+            class="zkp_playmat_counter_1 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:2"
+            class="zkp_playmat_counter_2 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:3"
+            class="zkp_playmat_counter_3 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:4"
+            class="zkp_playmat_counter_4 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:5"
+            class="zkp_playmat_counter_5 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:6"
+            class="zkp_playmat_counter_6 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:7"
+            class="zkp_playmat_counter_7 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:8"
+            class="zkp_playmat_counter_8 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:9"
+            class="zkp_playmat_counter_9 zkp_playmat_counter"
+          ></div>
+        </div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:ALL"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_ALL"
