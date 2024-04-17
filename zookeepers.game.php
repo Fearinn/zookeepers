@@ -792,8 +792,6 @@ class Zookeepers extends Table
             $this->resources->moveCards($resources_returned, "deck");
         }
 
-        $this->resources->shuffle("deck");
-
         return $returned_cost;
     }
 
@@ -1712,13 +1710,13 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        //tests
         $species_nbr = $this->getSpeciesCounters()[$player_id];
 
         if ($species_nbr === 0) {
-            throw new BgaUserException($this->_("You can't collect any resources until you save a species"));
+            throw new BgaUserException($this->_("You must have at least one saved species to collect resources"));
         }
 
+        $this->resources->shuffle("deck");
         $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
@@ -1781,6 +1779,7 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("You can't collect more than 5 resources from the fund");
         }
 
+        $this->resources->shuffle("deck");
         $collected_resources = $this->resources->pickCards($choosen_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
@@ -1835,7 +1834,6 @@ class Zookeepers extends Table
         $keys = array_keys($resources_returned);
 
         $this->resources->moveCards($keys, "deck");
-        $this->resources->shuffle("deck");
 
         $previously_returned_nbr = $this->getGameStateValue("previouslyReturned");
         $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
@@ -1876,7 +1874,6 @@ class Zookeepers extends Table
         $keys = array_keys($resources_returned);
 
         $this->resources->moveCards($keys, "deck");
-        $this->resources->shuffle("deck");
 
         $previously_returned_nbr = $this->getGameStateValue("previouslyReturned");
         $returned_total = $previously_returned_nbr + $lastly_returned_nbr;
@@ -3233,11 +3230,8 @@ class Zookeepers extends Table
 
             $returned_kits = array_slice($kits, 0, $returned_nbr, true);
 
-            $this->warn(json_encode($returned_kits));
-
             $keys = array_keys($returned_kits);
             $this->resources->moveCards($keys, "deck");
-            $this->resources->shuffle("deck");
 
             $this->notifyAllPlayers(
                 "returnResources",
