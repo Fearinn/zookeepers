@@ -57,6 +57,10 @@
   background-color: yellow;
 }
 
+.zkp_hide {
+  display: none;
+}
+
 .zkp_gameplay_area *:not(.zkp_card) {
   box-sizing: border-box;
 }

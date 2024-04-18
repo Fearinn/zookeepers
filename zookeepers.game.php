@@ -1504,7 +1504,7 @@ class Zookeepers extends Table
         }
 
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
-        $this->incStat(1, "dismissed_keeper", $player_id);
+        $this->incStat(1, "keepers_dismissed", $player_id);
 
         $pile_counters = $this->getPileCounters();
 
@@ -1566,7 +1566,7 @@ class Zookeepers extends Table
         }
 
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "pile:" . $pile, false);
-        $this->incStat(1, "dismissed_keeper", $player_id);
+        $this->incStat(1, "keepers_dismissed", $player_id);
 
         $pile_counters = $this->getPileCounters();
 
@@ -1685,7 +1685,7 @@ class Zookeepers extends Table
             )
         );
 
-        $this->incStat(1, "dismissed_keeper", $player_id);
+        $this->incStat(1, "keepers_dismissed", $player_id);
 
         $this->notifyAllPlayers(
             "dismissKeeper",

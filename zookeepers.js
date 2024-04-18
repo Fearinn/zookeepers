@@ -39,6 +39,8 @@ define([
 
       this.gameVersion = 0;
 
+      this.isSetup = true;
+
       this.isRealTimeScoreTracking = false;
       this.isBagHidden = false;
       this.hasSecretObjectives = false;
@@ -494,26 +496,9 @@ define([
         this.onSelectZoo(event);
       });
 
+      this.setupExpandHouses();
+
       for (const player_id in gamedatas.players) {
-        for (let position = 1; position <= 4; position++) {
-          dojo.connect(
-            $(`zkp_expand_house_${player_id}:${position}`),
-            "onclick",
-            this,
-            () => {
-              const element = `zkp_keeper_${player_id}:${position}`;
-              const className = "zkp_expanded";
-
-              if (dojo.hasClass(element, className)) {
-                dojo.removeClass(element, className);
-                return;
-              }
-
-              dojo.addClass(element, className);
-            }
-          );
-        }
-
         dojo
           .query(`.zkp_keeper_${player_id}`)
           .connect("onclick", this, (event) => {
@@ -614,6 +599,7 @@ define([
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
+      this.isSetup = false;
 
       console.log("Ending game setup");
     },
@@ -649,6 +635,7 @@ define([
         this.isLastTurn = args.args.isLastTurn;
         this.possibleZoos = args.args.possibleZoos;
 
+        this.setupExpandHouses();
         this.addPlayerTurnButtons();
       }
 
@@ -1131,6 +1118,37 @@ define([
 
     ///////////////////////////////////////////////////
     //// Utility methods
+
+    setupExpandHouses: function () {
+      for (const player_id in this.gamedatas.players) {
+        for (let position = 1; position <= 4; position++) {
+          const button = $(`zkp_expand_house_${player_id}:${position}`);
+          const house = $(`zkp_keeper_${player_id}:${position}`);
+          const className = "zkp_expanded";
+
+          console.log(this.isSetup);
+
+          if (this.isSetup) {
+            dojo.connect(button, "onclick", this, () => {
+              if (dojo.hasClass(house, className)) {
+                dojo.removeClass(house, className);
+                return;
+              }
+              dojo.addClass(house, className);
+            });
+          }
+
+          const savedSpeciesNbr =
+            this[`board_${player_id}:${position}`].getAllItems().length - 1;
+
+          if (savedSpeciesNbr > 0) {
+            dojo.removeClass(button, "zkp_hide");
+          } else {
+            dojo.addClass(button, "zkp_hide");
+          }
+        }
+      }
+    },
 
     calcBackgroundPosition: function (spritePosition, itemsPerRow = 10) {
       const xAxis = (spritePosition % itemsPerRow) * 100;
