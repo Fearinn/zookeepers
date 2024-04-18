@@ -466,7 +466,12 @@ define([
           this[stockKey].setSelectionMode(0);
           this[stockKey].image_items_per_row = 10;
 
-          this[stockKey].addItemType(0, 0, g_gamethemeurl + "img/tokens.png", 6);
+          this[stockKey].addItemType(
+            0,
+            0,
+            g_gamethemeurl + "img/tokens.png",
+            6
+          );
         }
         this[`playmatCounter_${player_id}_0`].addToStockWithId(0, 0);
       }
@@ -490,6 +495,25 @@ define([
       });
 
       for (const player_id in gamedatas.players) {
+        for (let position = 1; position <= 4; position++) {
+          dojo.connect(
+            $(`zkp_expand_house_${player_id}:${position}`),
+            "onclick",
+            this,
+            () => {
+              const element = `zkp_keeper_${player_id}:${position}`;
+              const className = "zkp_expanded";
+
+              if (dojo.hasClass(element, className)) {
+                dojo.removeClass(element, className);
+                return;
+              }
+
+              dojo.addClass(element, className);
+            }
+          );
+        }
+
         dojo
           .query(`.zkp_keeper_${player_id}`)
           .connect("onclick", this, (event) => {
@@ -1436,7 +1460,11 @@ define([
           const originKey = `playmatCounter_${playerId}_${prevValue}`;
           const destinationKey = `playmatCounter_${playerId}_${newValue}`;
 
-          this[destinationKey].addToStockWithId(0, 0, `zkp_playmat_counter_${playerId}:${prevValue}`);
+          this[destinationKey].addToStockWithId(
+            0,
+            0,
+            `zkp_playmat_counter_${playerId}:${prevValue}`
+          );
           this[originKey].removeFromStockById(0);
         }
       }

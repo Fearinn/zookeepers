@@ -70,6 +70,22 @@
     >
       <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
       <div id="zkp_playmat:{PLAYER_ID}" class="zkp_playmat">
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:1"
+          class="zkp_expand_house zkp_expand_house_1"
+        ></button>
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:2"
+          class="zkp_expand_house zkp_expand_house_2"
+        ></button>
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:3"
+          class="zkp_expand_house zkp_expand_house_3"
+        ></button>
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:4"
+          class="zkp_expand_house zkp_expand_house_4"
+        ></button>
         <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
           <div
             id="zkp_keeper_{PLAYER_ID}:1"

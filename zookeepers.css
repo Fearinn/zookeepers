@@ -395,20 +395,58 @@
 
 /* animations */
 
-.zkp_house:hover > .stockitem {
+.zkp_expand_house {
+  position: absolute;
+  background-image: url("img/expand.svg");
+  background-color: #4871b6;
+  background-size: 14px;
+  background-clip: padding-box;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 1px solid #37578c;
+  border-radius: 100%;
+  box-shadow: 0 1px 0 #000;
+  color: white;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+  overflow: hidden;
+  padding: 4px;
+  z-index: 98;
+}
+
+.zkp_expand_house_1 {
+  top: 170px;
+  left: 280px;
+}
+
+.zkp_expand_house_2 {
+  top: 170px;
+  left: 415px;
+}
+.zkp_expand_house_3 {
+  top: 350px;
+  left: 280px;
+}
+.zkp_expand_house_4 {
+  top: 350px;
+  left: 415px;
+}
+
+.zkp_house.zkp_expanded > .stockitem {
   top: 0 !important;
   transition: all 1s;
 }
 
-.zkp_house:hover > .stockitem:nth-child(2) {
-  transform: translate(0, 190px);
-  z-index: 99;
+.zkp_house.zkp_expanded > .stockitem:nth-child(2) {
+  transform: translate(0, 180px);
+  z-index: 99 !important;
 }
-.zkp_house:hover > .stockitem:nth-child(3) {
-  transform: translate(-124px, 190px);
-  z-index: 99;
+.zkp_house.zkp_expanded > .stockitem:nth-child(3) {
+  transform: translate(-124px, 180px);
+  z-index: 99 !important;
 }
-.zkp_house:hover > .stockitem:nth-child(4) {
-  transform: translate(124px, 190px);
-  z-index: 99;
+.zkp_house.zkp_expanded > .stockitem:nth-child(4) {
+  transform: translate(124px, 180px);
+  z-index: 99 !important;
 }
