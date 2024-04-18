@@ -213,7 +213,6 @@ define([
             this[stockKey].addItemType(
               keeper_id,
               1000,
-              // wrong image, tests only
               g_gamethemeurl + "img/keepers.png",
               keeper_id - 1
             );
@@ -2284,6 +2283,7 @@ define([
       const position = notif.args.board_position;
       const stockKey = `board_${player_id}:${position}`;
 
+      this.image_items_per_row = 7;
       this[stockKey].addToStockWithId(
         keeper_id,
         keeper_id,
