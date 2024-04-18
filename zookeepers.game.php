@@ -3233,7 +3233,7 @@ class Zookeepers extends Table
         //game end condition
 
         //tests
-        if ($this->getGameStateValue("highestSaved") >= 1) {
+        if ($this->getGameStateValue("highestSaved") >= 9) {
             $last_turn = $this->getGameStateValue("lastTurn") + 1;
 
             if ($last_turn == 1) {
