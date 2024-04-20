@@ -2046,6 +2046,7 @@ class Zookeepers extends Table
                         "type" => $type,
                         "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
+                        "bag_counters" => $this->getBagCounters(),
                         "species_name" => array(
                             "log" => $this->styledSpeciesName(),
                             "args" => array(
