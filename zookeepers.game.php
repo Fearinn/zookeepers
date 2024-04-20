@@ -608,7 +608,10 @@ class Zookeepers extends Table
         $kit_cost = $cost["kit"];
         $available_kits_nbr = $kit_nbr - $kit_cost;
 
-        if ($available_kits_nbr == 0) {
+        $this->warn(json_encode($resource_counters));
+        $this->warn($available_kits_nbr);
+
+        if ($available_kits_nbr <= 0) {
             return null;
         }
 
@@ -634,11 +637,12 @@ class Zookeepers extends Table
             }
 
             if ($available_kits_nbr >= $needed_kit_nbr) {
-                $conservation_fund[$type]  = $needed_kit_nbr;
+                $conservation_fund[$type] = $needed_kit_nbr;
                 $available_kits_nbr = $available_kits_nbr - $needed_kit_nbr;
             }
         }
 
+        $this->warn(json_encode($conservation_fund));
         return $conservation_fund;
     }
 
@@ -1240,8 +1244,6 @@ class Zookeepers extends Table
                 $this->incStat(1, "quarantined_species", $player_id);
             }
         }
-
-        $this->warn(json_encode($quarantine_penalties));
         return $quarantine_penalties;
     }
 
@@ -3223,8 +3225,6 @@ class Zookeepers extends Table
         if ($kit_nbr > 5) {
             $returned_nbr = $kit_nbr - 5;
 
-            $this->warn($returned_nbr);
-
             $returned_kits = array_slice($kits, 0, $returned_nbr, true);
 
             $keys = array_keys($returned_kits);
@@ -3244,8 +3244,6 @@ class Zookeepers extends Table
         }
 
         $resources_nbr = $this->resources->countCardsInLocation("hand", $player_id);
-        $this->warn("resources nbr");
-        $this->warn($resources_nbr);
 
         if ($resources_nbr > 12) {
             $this->setGameStateValue("totalToReturn", $resources_nbr - 12);
