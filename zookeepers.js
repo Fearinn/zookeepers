@@ -232,7 +232,7 @@ define([
           });
 
           this[stockKey].extraClasses = "zkp_card";
-          this[stockKey].image_items_per_row = 7;
+          this[stockKey].image_items_per_row = 6;
 
           for (const keeper_id in this.allKeepers) {
             this[stockKey].addItemType(
@@ -300,7 +300,7 @@ define([
               );
             }
           }
-          this[stockKey].image_items_per_row = 7;
+          this[stockKey].image_items_per_row = 6;
 
           const completedKeeper = this.completedKeepers[player_id][position];
 
@@ -2321,7 +2321,7 @@ define([
       const position = notif.args.board_position;
       const stockKey = `board_${player_id}:${position}`;
 
-      this.image_items_per_row = 7;
+      this.image_items_per_row = 6;
       this[stockKey].addToStockWithId(
         keeper_id,
         keeper_id,
@@ -2492,7 +2492,7 @@ define([
         `species_${species_id}`,
         originElement
       );
-      this[destinationKey].image_items_per_row = 7;
+      this[destinationKey].image_items_per_row = 6;
 
       const speciesName = _(this.allSpecies[species_id].name);
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
@@ -2536,7 +2536,7 @@ define([
         `species_${species_id}`,
         originElement
       );
-      this[destinationKey].image_items_per_row = 7;
+      this[destinationKey].image_items_per_row = 6;
 
       this.updateSpeciesCounters(notif.args.species_counters);
       this[originKey].removeFromStockById(species_id);
