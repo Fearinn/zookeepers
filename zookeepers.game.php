@@ -1208,6 +1208,7 @@ class Zookeepers extends Table
                     $keeper_points = $this->keepers_info[$keeper_id]["level"];
 
                     $regular_points[$position][$keeper_id] += $keeper_points;
+                    $this->incStat(1, "keepers_completed", $player_id);
                     $this->incStat($keeper_points, "points_keepers_completed", $player_id);
                 }
 
@@ -2118,7 +2119,6 @@ class Zookeepers extends Table
                 ));
 
                 $this->updateScore($player_id, $keeper_level);
-                $this->incStat(1, "keepers_completed", $player_id);
             }
         }
 

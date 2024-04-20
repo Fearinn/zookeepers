@@ -13,7 +13,7 @@
     },
     "cr_species_saved": {
       "id": 12,
-      "name": "critically endangered species saved",
+      "name": "critically endangered species saved (later discarded ones included)",
       "type": "int"
     },
     "quarantined_species": {
