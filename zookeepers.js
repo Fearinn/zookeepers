@@ -36,6 +36,31 @@ define([
         4: "-100% -100%",
         5: "0 -100%",
       };
+      this.filters = {
+        ff0000:
+          "invert(20%) sepia(59%) saturate(7414%) hue-rotate(355deg) brightness(98%) contrast(120%)" /* Red */,
+        "008000":
+          "invert(24%) sepia(100%) saturate(6316%) hue-rotate(117deg) brightness(98%) contrast(103%)" /* Green */,
+        "0000ff":
+          "invert(9%) sepia(100%) saturate(5946%) hue-rotate(246deg) brightness(106%) contrast(145%)" /* Blue */,
+        ffa500:
+          "invert(58%) sepia(89%) saturate(1108%) hue-rotate(360deg) brightness(103%) contrast(105%)" /* Yellow */,
+        "000000": "" /* Black */,
+        ffffff:
+          "invert(100%) sepia(0%) saturate(1%) hue-rotate(201deg) brightness(108%) contrast(101%)" /* White */,
+        e94190:
+          "invert(46%) sepia(70%) saturate(3890%) hue-rotate(307deg) brightness(93%) contrast(95%)" /* Pink */,
+        "982fff":
+          "invert(39%) sepia(84%) saturate(7500%) hue-rotate(264deg) brightness(102%) contrast(101%)" /* Purple */,
+        "72c3b1":
+          "invert(80%) sepia(54%) saturate(275%) hue-rotate(111deg) brightness(81%) contrast(88%)" /* Cyan */,
+        f07f16:
+          "invert(49%) sepia(93%) saturate(1196%) hue-rotate(356deg) brightness(100%) contrast(89%)" /* Orange */,
+        bdd002:
+          "invert(77%) sepia(55%) saturate(2858%) hue-rotate(21deg) brightness(101%) contrast(104%)" /* Khaki green */,
+        "7b7b7b":
+          "invert(49%) sepia(10%) saturate(14%) hue-rotate(17deg) brightness(96%) contrast(84%)" /* Gray */,
+      };
 
       this.gameVersion = 0;
 
@@ -466,16 +491,22 @@ define([
 
           this[stockKey].setSelectionMode(0);
           this[stockKey].image_items_per_row = 10;
+          this[stockKey].extraClasses = `zkp_token_${player_id}`;
 
           this[stockKey].addItemType(
             0,
             0,
             g_gamethemeurl + "img/tokens.png",
-            6
+            5
           );
         }
         this[`playmatCounter_${player_id}_0`].addToStockWithId(0, 0);
+
+        const player_color = gamedatas.players[player_id].color.toLowerCase();
+        const filter = this.filters[player_color] ?? "";
+        dojo.query(`.zkp_token_${player_id}`).style("filter", filter);
       }
+
       this.updateSpeciesCounters(gamedatas.speciesCounters);
 
       //event connections
