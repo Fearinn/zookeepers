@@ -2039,23 +2039,23 @@ class Zookeepers extends Table
             if ($cost > 0) {
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
+                    "",
                     array(
-                        "i18n" => array("type_label"),
-                        "player_name" => $this->getActivePlayerName(),
+                        // "i18n" => array("type_label"),
+                        // "player_name" => $this->getActivePlayerName(),
+                        // "species_name" => array(
+                        //     "log" => $this->styledSpeciesName(),
+                        //     "args" => array(
+                        //         "i18n" => array("species_name_tr"),
+                        //         "species_name_tr" => $this->species_info[$species_id]["name"]
+                        //     )
+                        // ),
+                        // "type_label" => $this->resource_types[$type]["label"],
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
-                        "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
                         "bag_counters" => $this->getBagCounters(),
-                        "species_name" => array(
-                            "log" => $this->styledSpeciesName(),
-                            "args" => array(
-                                "i18n" => array("species_name_tr"),
-                                "species_name_tr" => $this->species_info[$species_id]["name"]
-                            )
-                        )
                     )
                 );
             }
@@ -2221,22 +2221,23 @@ class Zookeepers extends Table
 
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} uses ${returned_nbr} ${type_label}(s) to save the ${species_name}'),
+                    "",
                     array(
-                        "i18n" => array("type_label"),
-                        "player_name" => $this->getActivePlayerName(),
+                        // "i18n" => array("type_label"),
+                        // "player_name" => $this->getActivePlayerName(),
+                        // "type_label" => $this->resource_types[$type]["label"],
+                        // "species_name" => array(
+                        //     "log" => $this->styledSpeciesName(),
+                        //     "args" => array(
+                        //         "i18n" => array("species_name_tr"),
+                        //         "species_name_tr" => $this->species_info[$species_id]["name"]
+                        //     )
+                        // ),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
-                        "type_label" => $this->resource_types[$type]["label"],
                         "resource_counters" => $this->getResourceCounters(),
-                        "species_name" => array(
-                            "log" => $this->styledSpeciesName(),
-                            "args" => array(
-                                "i18n" => array("species_name_tr"),
-                                "species_name_tr" => $this->species_info[$species_id]["name"]
-                            )
-                        )
+                        "bag_counters" => $this->getBagCounters(),
                     )
                 );
             }
