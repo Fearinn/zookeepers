@@ -3185,8 +3185,6 @@ class Zookeepers extends Table
         ));
 
         //game end condition
-
-        //tests
         if ($this->getGameStateValue("highestSaved") >= 9) {
             $last_turn = $this->getGameStateValue("lastTurn") + 1;
 
@@ -3262,13 +3260,6 @@ class Zookeepers extends Table
         $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
-            $collection = $this->getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
-
-            $new_scores = 0;
-            foreach ($collection as $player_data) {
-                $new_scores = $player_data["player_score"];
-            }
-
             $regular_points = $this->calcRegularPoints($player_id);
             foreach ($regular_points as $position => $position_info) {
                 if ($position_info !== null) {
@@ -3317,8 +3308,6 @@ class Zookeepers extends Table
                     $objective_bonus = $objective["bonus"];
 
                     if ($objective_bonus > 0) {
-                        $new_scores += $objective_bonus;
-
                         $this->notifyAllPlayers(
                             "objectiveBonus",
                             clienttranslate('${player_name} scores ${bonus} points by completing a secret objective'),
@@ -3334,12 +3323,19 @@ class Zookeepers extends Table
                 }
             }
 
-            $this->calcTieBreakers($player_id);
+            $collection = $this->getCollectionFromDb("SELECT player_score FROM player WHERE player_id='$player_id'");
+
+            $final_scores = 0;
+            foreach ($collection as $player_data) {
+                $final_scores = $player_data["player_score"];
+            }
 
             $this->notifyAllPlayers("newScores", "", array(
                 "player_id" => $player_id,
-                "new_scores" => $new_scores,
+                "new_scores" => $final_scores,
             ));
+
+            $this->calcTieBreakers($player_id);
         }
 
         $this->gamestate->nextState("gameEnd");
