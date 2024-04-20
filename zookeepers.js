@@ -1191,15 +1191,15 @@ define([
 
       if (this.mainAction == 2 && this.canZooHelp) {
         this.gamedatas.gamestate.description =
-          "${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
+          "${actplayer} saved a species and can now use the bonus action (ask a zoo for help) or any available free actions";
         this.gamedatas.gamestate.descriptionmyturn =
-          "${you} have already used a main action, but can still do the bonus action or any available free actions";
+          "${you} saved a species and can now use the bonus action (ask a zoo for help) or any available free actions";
 
         if (this.isLastTurn) {
           this.gamedatas.gamestate.description =
-            "It's ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do the bonus action or any available free actions";
+            "It's ${actplayer}'s last turn! ${actplayer} saved a species and can now use the bonus action (ask a zoo for help with a species) or any available free actions";
           this.gamedatas.gamestate.descriptionmyturn =
-            "It's your last turn! ${you} have already used a main action, but can still do the bonus action or any available free actions";
+            "It's your last turn! ${you} saved a species and can now use the bonus action (ask a zoo for help with a species) or any available free actions";
         }
       }
 
@@ -2477,13 +2477,6 @@ define([
 
       this.canZooHelp = notif.args.can_zoo_help;
       this.possibleZoos = notif.args.possible_zoos;
-      if (player_id == this.getCurrentPlayerId() && this.canZooHelp) {
-        this.showMessage(
-          _("You've just enabled the bonus action 'zoo help'"),
-          "info"
-        );
-      }
-
       this.savedSpecies = notif.args.saved_species;
       this.openQuarantines = notif.args.open_quarantines;
     },
