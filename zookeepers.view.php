@@ -54,7 +54,7 @@ class view_zookeepers_zookeepers extends game_view
             ));
         }
 
-        $this->tpl["BAG OF RESOURCES"] = $this->_("Bag of Resources");
+        $this->tpl["RESOURCES"] = $this->_("Resources");
 
         /*********** Do not change anything below this line  ************/
     }

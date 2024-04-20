@@ -32,7 +32,7 @@
       <div id="zkp_keeper_pile:4" class="zkp_keeper_pile zkp_card"></div>
     </div>
     <div id="zkp_bag" class="zkp_bag zkp_column_container whiteblock">
-      <h3>{BAG OF RESOURCES}</h3>
+      <h3>{RESOURCES}</h3>
       <div id="zkp_bag_img" class="zkp_bag_img"></div>
       <div id="zkp_bag_counters" class="zkp_bag_counters">
         <div id="zkp_bag_plant" class="zkp_resource">
