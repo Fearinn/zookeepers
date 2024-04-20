@@ -598,7 +598,6 @@ define([
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
-      this.isSetup = false;
 
       console.log("Ending game setup");
     },
@@ -612,6 +611,16 @@ define([
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
       const playerId = this.getActivePlayerId();
+
+      if (this.isSetup) {
+        this.isSetup = false;
+
+        if (!this.isRealTimeScoreTracking) {
+          for (const player_id in this.scoreCtrl) {
+            this.scoreCtrl[player_id].setValue(0);
+          }
+        }
+      }
 
       if (stateName === "playerTurn") {
         this.mainAction = args.args.mainAction;
@@ -1124,8 +1133,6 @@ define([
           const button = $(`zkp_expand_house_${player_id}:${position}`);
           const house = $(`zkp_keeper_${player_id}:${position}`);
           const className = "zkp_expanded";
-
-          console.log(this.isSetup);
 
           if (this.isSetup) {
             dojo.connect(button, "onclick", this, () => {
