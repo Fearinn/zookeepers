@@ -2547,6 +2547,7 @@ class Zookeepers extends Table
         $shop_position = $species["location_arg"];
 
         $this->species->insertCardOnExtremePosition($species["id"], "deck", false);
+        $this->incStat(1, "discarded_species", $player_id);
 
         $this->notifyAllPlayers(
             "discardSpecies",
