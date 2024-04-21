@@ -608,9 +608,6 @@ class Zookeepers extends Table
         $kit_cost = $cost["kit"];
         $available_kits_nbr = $kit_nbr - $kit_cost;
 
-        $this->warn(json_encode($resource_counters));
-        $this->warn($available_kits_nbr);
-
         if ($available_kits_nbr <= 0) {
             return null;
         }
@@ -642,7 +639,6 @@ class Zookeepers extends Table
             }
         }
 
-        $this->warn(json_encode($conservation_fund));
         return $conservation_fund;
     }
 
@@ -1247,7 +1243,7 @@ class Zookeepers extends Table
         return $quarantine_penalties;
     }
 
-    function sumKeeperLevels($player_id)
+    function sumKeepersLevels($player_id)
     {
         $sum = 0;
         foreach ($this->getKeepersOnBoards()[$player_id] as $location) {
@@ -1264,9 +1260,9 @@ class Zookeepers extends Table
 
     function calcObjectiveBonus($player_id)
     {
-        $keeper_levels = $this->sumKeeperLevels($player_id);
+        $keepers_levels = $this->sumKeepersLevels($player_id);
 
-        if (!$this->hasSecretObjectives() || $keeper_levels < 7) {
+        if (!$this->hasSecretObjectives() || $keepers_levels < 7) {
             return null;
         }
 
@@ -1275,12 +1271,12 @@ class Zookeepers extends Table
         $objective_id = $objective["type_arg"];
         $objective_info = $this->objectives_info[$objective_id];
 
-        $target = $keeper_levels <= 13 ? $objective_info["targets"][$keeper_levels] : $objective_info["targets"][14];
+        $target = $keepers_levels <= 13 ? $objective_info["targets"][$keepers_levels] : $objective_info["targets"][14];
         $bonus = $target["bonus"];
         $condition = $target["condition"];
 
         $saved_species = $this->getSavedSpecies()[$player_id];
-        $new_bonus = 0;
+        $total_bonus = 0;
         foreach ($saved_species as $species_in_location) {
             if ($species_in_location !== null) {
                 foreach ($species_in_location as $species_id => $species) {
@@ -1295,7 +1291,7 @@ class Zookeepers extends Table
                                 (is_array($species_value) && count(array_intersect($species_value, $condition_value)) > 0) ||
                                 (!is_array($species_value) && in_array($species_value, $condition_value))
                             ) {
-                                $new_bonus += $bonus;
+                                $total_bonus += $bonus;
                             }
                             break;
                         }
@@ -1304,17 +1300,10 @@ class Zookeepers extends Table
             }
         }
 
-        $collection = $this->getCollectionFromDb("SELECT player_score_aux FROM player WHERE player_id='$player_id'");
-        $prev_bonus = 0;
-        foreach ($collection as $player) {
-            $prev_bonus = $player["player_score_aux"];
-        }
+        $this->updateScore($player_id, $total_bonus);
+        $this->setStat($total_bonus, "points_objectives", $player_id);
 
-        $this->DbQuery("UPDATE player SET player_score_aux=$new_bonus WHERE player_id='$player_id'");
-        $this->updateScore($player_id, $new_bonus - $prev_bonus);
-        $this->setStat($new_bonus, "points_objectives", $player_id);
-
-        $objective["bonus"] = $new_bonus;
+        $objective["bonus"] = $total_bonus;
 
         return $objective;
     }
@@ -3142,8 +3131,6 @@ class Zookeepers extends Table
 
     function stBetweenActions()
     {
-        $player_id = $this->getActivePlayerId();
-
         $this->setGameStateValue("totalToReturn", 0);
         $this->setGameStateValue("previouslyReturned", 0);
         $this->setGameStateValue("selectedPosition", 0);
@@ -3154,9 +3141,9 @@ class Zookeepers extends Table
 
         $this->autoDrawNewSpecies();
 
-        if ($this->hasSecretObjectives()) {
-            $this->calcObjectiveBonus($player_id);
-        }
+        // if ($this->hasSecretObjectives()) {
+        //     $this->calcObjectiveBonus($player_id);
+        // }
 
         if ($this->isOutOfActions()) {
             $this->gamestate->nextState("betweenPlayers");
