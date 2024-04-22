@@ -1054,6 +1054,14 @@ define([
             "red"
           );
 
+          const species_id = args.args.species_id;
+          const position = args.args.position;
+
+          dojo.addClass(
+            `zkp_visible_species_${position}_item_${species_id}`,
+            "zkp_highlight"
+          );
+
           this.addSelectableStyle(".zkp_playmat_container", null, (element) => {
             return !!this.possibleZoos[element.id.split(":")[1]];
           });
@@ -1140,6 +1148,7 @@ define([
 
       if (stateName === "selectZoo") {
         this.removeSelectableStyle(".zkp_playmat_container");
+        dojo.query(".stockitem").removeClass("zkp_hightlight");
         return;
       }
     },

@@ -2724,7 +2724,7 @@ class Zookeepers extends Table
 
         $players = $this->loadPlayersBasicInfos();
 
-        $this->setGameStateInitialValue("selectedSpecies", $species_id);
+        $this->setGameStateValue("selectedSpecies", $species_id);
 
         $species_in_location = $this->species->getCardsInLocation("shop_visible");
         $species = $this->findCardByTypeArg($species_in_location, $species_id);
@@ -3076,11 +3076,14 @@ class Zookeepers extends Table
     function argSelectZoo()
     {
         $species_id = $this->getGameStateValue("selectedSpecies");
-        return array(
+        $species_in_location = $this->species->getCardsInLocation("shop_visible");
+        $species = $this->findCardByTypeArg($species_in_location, $species_id);
 
+        return array(
             "i18n" => array("species_name"),
             "species_name" => $this->species_info[$species_id]["name"],
             "species_id" => $species_id,
+            "position" => $species["location_arg"],
             "possible_zoos" => $this->getPossibleZoos(),
         );
     }
