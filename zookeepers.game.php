@@ -776,7 +776,8 @@ class Zookeepers extends Table
                     $returned_cost["kit"] = $fund_cost;
                 }
 
-                $returned_cost[$type] = $this->getResourceCounters()[$player_id][$type];
+                $returned_cost[$type] = $type_cost - $fund_cost * 2;
+
                 $resources_in_hand = array_keys($this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id));
                 $resources_returned = array_merge($kits_returned, array_slice($resources_in_hand, 0, $returned_cost[$type]));
             } else {
