@@ -29,12 +29,20 @@ define([
       // Here, you can init the global variables of your user interface
       this.cardWidth = 120;
       this.cardHeight = 166;
+
       this.topsPositions = {
         1: "",
         2: "-100% 0",
         3: "-200% 0",
         4: "-100% -100%",
         5: "0 -100%",
+      };
+      this.topsSpritePositions = {
+        1: 0,
+        2: 1,
+        3: 2,
+        4: 4,
+        5: 3,
       };
 
       this.filters = {
@@ -323,18 +331,36 @@ define([
       this.pileCounters = gamedatas.pileCounters;
       this.pilesTops = gamedatas.pilesTops;
 
-      for (pile in this.pileCounters) {
-        const element = `zkp_keeper_pile:${pile}`;
+      for (const pile in this.pileCounters) {
+        const element = $(`zkp_keeper_pile:${pile}`);
         const className = "zkp_empty_pile";
         const top = this.pilesTops[pile];
 
-        dojo.style(element, "backgroundPosition", this.topsPositions[top]);
+        const stockKey = `keeper_pile:${pile}`;
+        this[stockKey] = new ebg.stock();
+        this[stockKey].create(this, element, this.cardWidth, this.cardHeight);
 
-        if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
-          dojo.addClass(element, className);
+        dojo.connect(this[stockKey], "onChangeSelection", this, () => {
+          this.onSelectKeeperPile(this[stockKey], pile);
+        });
+
+        this[stockKey].image_items_per_row = 3;
+        this[stockKey].extraClasses = "zkp_keeper_pile zkp_card";
+        this[stockKey].setSelectionMode(1);
+
+        for (let level = 1; level <= 5; level++) {
+          this[stockKey].addItemType(
+            level,
+            0,
+            g_gamethemeurl + "img/keepers_backs.png",
+            this.topsSpritePositions[level]
+          );
         }
 
-        if (this.pileCounters > 0 && dojo.hasClass(element, className)) {
+        if (this.pileCounters[pile] <= 0) {
+          dojo.addClass(element, className);
+        } else {
+          this[stockKey].addToStockWithId(top, top);
           dojo.removeClass(element, className);
         }
       }
@@ -507,10 +533,6 @@ define([
       this.updateSpeciesCounters(gamedatas.speciesCounters);
 
       //event connections
-      dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
-        this.onSelectKeeperPile(event);
-      });
-
       dojo.query(".zkp_keeper_pile").connect("onclick", this, (event) => {
         this.onSelectDismissedPile(event);
       });
@@ -1276,14 +1298,6 @@ define([
         }
 
         if (this.mainAction < 1) {
-          if (openBoardPosition > 0) {
-            this.addActionButton(
-              "hire_keeper_btn",
-              _("Hire Keeper"),
-              "onHireKeeper"
-            );
-          }
-
           if (
             !this.isBagEmpty &&
             this.speciesCounters[playerId].getValue() > 0
@@ -1613,6 +1627,39 @@ define([
         */
 
     // stock selections
+
+    onSelectKeeperPile: function (stock, pile) {
+      const stockItemsNbr = stock.getSelectedItems().length;
+
+      if (stockItemsNbr > 0) {
+        if (!this.isCurrentPlayerActive()) {
+          this.showMessage(_("It's not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+      }
+
+      if (this.gamedatas.gamestate.name === "playerTurn") {
+        this.removeActionButtons();
+
+        if (stockItemsNbr > 0) {
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} can hire a keeper from this pile"
+          );
+          this.updatePageTitle();
+
+          this.addActionButton("hire_keeper_btn", _("Hire"), () => {
+            stock.unselectAll();
+            this.onHireKeeper(pile);
+          });
+
+          return;
+        }
+
+        this.addPlayerTurnButtons();
+      }
+    },
+
     onSelectKeeper: function (stock) {
       const stockItemsNbr = stock.getSelectedItems().length;
 
@@ -1969,18 +2016,8 @@ define([
       }
     },
 
-    onHireKeeper: function () {
+    onHireKeeper: function (pile) {
       const action = "hireKeeper";
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
-    },
-
-    onSelectKeeperPile: function (event) {
-      const action = "selectHiredPile";
-
-      const pile = event.target.id.split(":")[1];
-      dojo.stopEvent(event);
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, { pile: parseInt(pile) });
@@ -2324,25 +2361,26 @@ define([
       const player_id = notif.args.player_id;
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
-      const stockKey = `board_${player_id}:${position}`;
+      const pile = notif.args.pile;
+      const pileKey = `keeper_pile:${pile}`;
+      const houseKey = `board_${player_id}:${position}`;
 
       this.image_items_per_row = 6;
-      this[stockKey].addToStockWithId(
+      this[houseKey].addToStockWithId(
         keeper_id,
         keeper_id,
         `zkp_keeper_pile:${notif.args.pile}`
       );
+      this[pileKey].removeAll();
 
-      for (const pile in this.pileCounters) {
-        const element = `zkp_keeper_pile:${pile}`;
-        const className = "zkp_empty_pile";
+      const pileElement = $(`zkp_keeper_pile:${pile}`);
+      const className = "zkp_empty_pile";
+      const top = this.pilesTops[pile];
 
-        const top = this.pilesTops[pile];
-        dojo.style(element, "backgroundPosition", this.topsPositions[top]);
-
-        if (this.pileCounters[pile] < 1 && !dojo.hasClass(element, className)) {
-          dojo.addClass(element, className);
-        }
+      if (this.pileCounters[pile] <= 0) {
+        dojo.addClass(pileElement, className);
+      } else {
+        this[pileKey].addToStockWithId(top, top);
       }
     },
 
@@ -2354,36 +2392,19 @@ define([
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
       const pile = notif.args.pile;
+      const level = this.allKeepers[keeper_id].level;
 
-      const stockKey = `board_${player_id}:${position}`;
-      const pileElement = `zkp_keeper_pile:${pile}`;
+      const houseKey = `board_${player_id}:${position}`;
+      const houseElement = `zkp_keeper_${player_id}:${position}`;
+      const pileKey = `keeper_pile:${pile}`;
+      const pileElement = `zkp_${pileKey}`;
       const className = "zkp_empty_pile";
-      const container = `zkp_keeper_${player_id}:${position}`;
-      const item = `${container}_item_${keeper_id}`;
 
-      dojo.place(this.format_block("jstpl_dismissed_keeper"), container);
+      this[pileKey].removeAll();
+      this[pileKey].addToStockWithId(level, level, houseElement);
+      this[houseKey].removeFromStockById(keeper_id);
 
-      this.placeOnObject("zkp_dismissed_keeper", item);
-
-      const animation = this.slideToObject("zkp_dismissed_keeper", pileElement);
-
-      dojo.connect(animation, "onEnd", () => {
-        dojo.destroy("zkp_dismissed_keeper");
-
-        this[stockKey].removeFromStockById(keeper_id, pileElement);
-
-        const top = this.pilesTops[pile];
-        dojo.style(pileElement, "backgroundPosition", this.topsPositions[top]);
-
-        if (
-          this.pileCounters[pile] > 0 &&
-          dojo.hasClass(pileElement, className)
-        ) {
-          dojo.removeClass(pileElement, className);
-        }
-      });
-
-      animation.play();
+      dojo.removeClass(pileElement, className);
     },
 
     notif_collectResources: function (notif) {

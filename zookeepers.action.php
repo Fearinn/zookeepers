@@ -63,16 +63,8 @@ class action_zookeepers extends APP_GameAction
   {
     $this->setAjaxMode();
     $this->checkVersion();
-    $this->game->hireKeeper();
-    $this->ajaxResponse();
-  }
-
-  public function selectHiredPile()
-  {
-    $this->setAjaxMode();
-    $this->checkVersion();
     $pile = $this->getArg("pile", AT_enum, true, null, range(1, 4));
-    $this->game->selectHiredPile($pile);
+    $this->game->hireKeeper($pile);
     $this->ajaxResponse();
   }
 

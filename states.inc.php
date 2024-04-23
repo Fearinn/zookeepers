@@ -78,7 +78,6 @@ $machinestates = array(
             "pass" => 8,
             "zombiePass" => 8,
             "exchangeCollection" => 21,
-            "selectHiredPile" => 24,
             "selectDismissedPile" => 25,
             "selectReplacedPile" => 26,
             "selectAssignedKeeper" => 27,
@@ -117,15 +116,6 @@ $machinestates = array(
         "type" => "activeplayer",
         "action" => "stBetweenExchangeReturns",
         "transitions" => array("nextReturn" => 22, "betweenActions" => 7, "zombiePass" => 8,)
-    ),
-
-    24 => array(
-        "name" => "selectHiredPile",
-        "description" => clienttranslate('${actplayer} can pick a pile to hire from'),
-        "descriptionmyturn" => clienttranslate('${you} can pick a pile to hire from'),
-        "type" => "activeplayer",
-        "possibleactions" => array("selectHiredPile", "cancelMngKeepers"),
-        "transitions" => array("betweenActions" => 7, "cancel" => 2, "zombiePass" => 8,)
     ),
 
     25 => array(

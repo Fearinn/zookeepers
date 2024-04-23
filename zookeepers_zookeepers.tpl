@@ -26,10 +26,10 @@
       </div>
     </div>
     <div id="zkp_keeper_piles" class="zkp_keeper_piles">
-      <div id="zkp_keeper_pile:1" class="zkp_keeper_pile zkp_card"></div>
-      <div id="zkp_keeper_pile:2" class="zkp_keeper_pile zkp_card"></div>
-      <div id="zkp_keeper_pile:3" class="zkp_keeper_pile zkp_card"></div>
-      <div id="zkp_keeper_pile:4" class="zkp_keeper_pile zkp_card"></div>
+      <div id="zkp_keeper_pile:1"></div>
+      <div id="zkp_keeper_pile:2"></div>
+      <div id="zkp_keeper_pile:3"></div>
+      <div id="zkp_keeper_pile:4"></div>
     </div>
     <div id="zkp_bag" class="zkp_bag zkp_column_container whiteblock">
       <h3>{RESOURCES}</h3>

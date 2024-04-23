@@ -1388,7 +1388,7 @@ class Zookeepers extends Table
         $this->gamestate->nextState("pass");
     }
 
-    function hireKeeper()
+    function hireKeeper($pile)
     {
         $this->checkAction("hireKeeper");
 
@@ -1398,27 +1398,17 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        $keepers_on_board_nbr = 0;
+        $keepers_hired_nbr = 0;
 
-        for ($i = 1; $i <= 4; $i++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $i, $player_id);
+        for ($position = 1; $position <= 4; $position++) {
+            $keepers_hired_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
-        if ($keepers_on_board_nbr >= 4) {
+        if ($keepers_hired_nbr >= 4) {
             throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
         }
 
-        $this->gamestate->nextState("selectHiredPile");
-    }
-
-    function selectHiredPile($pile)
-    {
-        $this->checkAction("selectHiredPile");
-
-        $player_id = $this->getActivePlayerId();
-
         $board_position = 0;
-
         for ($position = 1; $position <= 4; $position++) {
             if ($this->keepers->countCardsInLocation("board:" . $position, $player_id) < 1) {
                 $board_position = $position;
@@ -1426,21 +1416,17 @@ class Zookeepers extends Table
             }
         }
 
-        if ($board_position === 0) {
-            throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
-        }
-
         $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
         if ($keeper === null) {
-            throw new BgaUserException($this->_("The selected pile is out of cards"));
+            throw new BgaVisibleSystemException("The selected pile is out of cards");
         }
-        $keeper_id = $keeper["id"];
+
+        $card_id = $keeper["id"];
 
         $pile_counters = $this->getPileCounters();
 
-        $sql = "UPDATE keeper SET pile=$pile WHERE card_id=$keeper_id";
-        $this->DbQuery($sql);
+        $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$card_id");
 
         $this->notifyAllPlayers(
             "hireKeeper",
@@ -1461,6 +1447,56 @@ class Zookeepers extends Table
 
         $this->gamestate->nextState("betweenActions");
     }
+
+    // function selectHiredPile($pile)
+    // {
+    //     $this->checkAction("selectHiredPile");
+
+    //     $player_id = $this->getActivePlayerId();
+
+    //     $board_position = 0;
+    //     for ($position = 1; $position <= 4; $position++) {
+    //         if ($this->keepers->countCardsInLocation("board:" . $position, $player_id) < 1) {
+    //             $board_position = $position;
+    //             break;
+    //         }
+    //     }
+
+    //     if ($board_position === 0) {
+    //         throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
+    //     }
+
+    //     $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
+
+    //     if ($keeper === null) {
+    //         throw new BgaUserException($this->_("The selected pile is out of cards"));
+    //     }
+    //     $keeper_id = $keeper["id"];
+
+    //     $pile_counters = $this->getPileCounters();
+
+    //     $sql = "UPDATE keeper SET pile=$pile WHERE card_id=$keeper_id";
+    //     $this->DbQuery($sql);
+
+    //     $this->notifyAllPlayers(
+    //         "hireKeeper",
+    //         clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}'),
+    //         array(
+    //             "player_id" => $this->getActivePlayerId(),
+    //             "player_name" => $this->getActivePlayerName(),
+    //             "keeper_name" => $keeper["type"],
+    //             "keeper_id" => $keeper["type_arg"],
+    //             "board_position" => $board_position,
+    //             "pile" => $pile,
+    //             "pile_counters" => $pile_counters,
+    //             "piles_tops" => $this->getPilesTops()
+    //         )
+    //     );
+
+    //     $this->setGameStateValue("mainAction", 5);
+
+    //     $this->gamestate->nextState("betweenActions");
+    // }
 
     function dismissKeeper($board_position)
     {
