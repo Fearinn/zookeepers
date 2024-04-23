@@ -980,9 +980,8 @@ class Zookeepers extends Table
         return $quarantinable_species;
     }
 
-    function canLiveInQuarantine($species_id, $quarantine)
+    function canLiveInQuarantine($species_id, $quarantine, $player_id)
     {
-        $player_id = $this->getActivePlayerId();
         $canLiveInQuarantine = false;
 
         $species_habitats = $this->species_info[$species_id]["habitat"];
@@ -995,14 +994,12 @@ class Zookeepers extends Table
         return $canLiveInQuarantine;
     }
 
-    function getPossibleQuarantines($species_id)
+    function getPossibleQuarantines($species_id, $player_id)
     {
         $possible_quarantines = array();
 
-        $player_id = $this->getActivePlayerId();
-
         foreach ($this->quarantines as $quarantine) {
-            if ($this->canLiveInQuarantine($species_id, $quarantine)) {
+            if ($this->canLiveInQuarantine($species_id, $quarantine, $player_id)) {
                 $possible_quarantines[$quarantine] = $quarantine;
             }
         }
@@ -1174,6 +1171,45 @@ class Zookeepers extends Table
     function canZooHelp()
     {
         return count($this->getPossibleZoos()) > 0 && $this->getGameStateValue("mainAction") == 2 && $this->getGameStateValue("zooHelp") == 0;
+    }
+
+    function moveToHelpZoo($card, $quarantine, $selected_zoo, $automatic = false)
+    {
+        $this->species->moveCard($card["id"], "quarantine:" . $quarantine, $selected_zoo);
+        $this->updateScore($selected_zoo, -2);
+
+        $quarantine_label = $quarantine === "ALL" ? "generic" : $quarantine;
+
+        $selected_zoo_info = $this->loadPlayersBasicInfos()[$selected_zoo];
+
+        $species_id = $card["type_arg"];
+
+        $message = $automatic ? clienttranslate('The ${species_name} is automatically moved to ${player_name}&apos;s ${quarantine_label} quarantine')
+            : clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine');
+
+        $this->notifyAllPlayers(
+            "quarantineSpecies",
+            $message,
+            array(
+                "player_id" => $selected_zoo,
+                "player_name" => $selected_zoo_info["player_name"],
+                "player_color" => $selected_zoo_info["player_color"],
+                "species_id" => $species_id,
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
+                "shop_position" => $card["location_arg"],
+                "quarantine" => $quarantine,
+                "quarantine_label" => $quarantine_label,
+                "quarantined_species" => $this->getQuarantinedSpecies(),
+                "visible_species" => $this->getVisibleSpecies(),
+                "open_quarantines" => $this->getOpenQuarantines(),
+            )
+        );
     }
 
     function isLastTurn()
@@ -2427,7 +2463,7 @@ class Zookeepers extends Table
         $is_quarantinable = false;
 
         foreach ($this->getOpenQuarantines()[$player_id] as $quarantine) {
-            if ($this->canLiveInQuarantine($species_id, $quarantine)) {
+            if ($this->canLiveInQuarantine($species_id, $quarantine, $player_id)) {
                 $is_quarantinable = true;
                 break;
             }
@@ -2456,7 +2492,7 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Species not found");
         }
 
-        if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
+        if (!$this->canLiveInQuarantine($species_id, $quarantine, $player_id)) {
             throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
 
@@ -2601,7 +2637,7 @@ class Zookeepers extends Table
             throw new BgaSystemException("Species not found");
         }
 
-        if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
+        if (!$this->canLiveInQuarantine($species_id, $quarantine, $player_id)) {
             throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
 
@@ -2790,6 +2826,15 @@ class Zookeepers extends Table
         $this->setGameStateValue("selectedZoo", $selected_zoo);
         $this->setGameStateValue("zooHelp", 1);
 
+        $possible_quarantines = $this->getPossibleQuarantines($species_id, $selected_zoo);
+
+        if (count($possible_quarantines) == 1) {
+            $quarantine = array_shift($possible_quarantines);
+            $this->moveToHelpZoo($species, $quarantine, $selected_zoo, true);
+            $this->gamestate->nextState("betweenActions");
+            return;
+        }
+
         $this->gamestate->nextState("activateZoo");
     }
 
@@ -2807,40 +2852,11 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Species not found");
         }
 
-        if (!$this->canLiveInQuarantine($species_id, $quarantine)) {
+        if (!$this->canLiveInQuarantine($species_id, $quarantine, $player_id)) {
             throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
 
-        $this->species->moveCard($species["id"], "quarantine:" . $quarantine, $player_id);
-
-        $quarantine_label = $quarantine === "ALL" ? "generic" : $quarantine;
-
-        $this->updateScore($player_id, -2);
-
-        $this->notifyAllPlayers(
-            "quarantineSpecies",
-            clienttranslate('${player_name} moves the ${species_name} to his ${quarantine_label} quarantine'),
-            array(
-
-                "player_id" => $player_id,
-                "player_name" => $this->getActivePlayerName(),
-                "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
-                "species_id" => $species_id,
-                "species_name" => array(
-                    "log" => $this->styledSpeciesName(),
-                    "args" => array(
-                        "i18n" => array("species_name_tr"),
-                        "species_name_tr" => $this->species_info[$species_id]["name"]
-                    )
-                ),
-                "shop_position" => $species["location_arg"],
-                "quarantine" => $quarantine,
-                "quarantine_label" => $quarantine_label,
-                "quarantined_species" => $this->getQuarantinedSpecies(),
-                "visible_species" => $this->getVisibleSpecies(),
-                "open_quarantines" => $this->getOpenQuarantines(),
-            )
-        );
+        $this->moveToHelpZoo($species, $quarantine, $player_id);
 
         $this->gamestate->nextState("activatePrevZoo");
     }
@@ -3022,19 +3038,22 @@ class Zookeepers extends Table
 
     function argSelectQuarantine()
     {
+        $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
+
         return array(
             "i18n" => array("species_name"),
             "species_name" => $this->species_info[$species_id]["name"],
             "species_id" => $species_id,
             "position" => $species["location_arg"],
-            "possible_quarantines" => $this->getPossibleQuarantines($species_id),
+            "possible_quarantines" => $this->getPossibleQuarantines($species_id, $player_id),
         );
     }
 
     function argSelectBackupQuarantine()
     {
+        $player_id = $this->getActivePlayerId();
         $species = $this->getLookedBackup();
         $species_id = $species["type_arg"];
 
@@ -3044,7 +3063,7 @@ class Zookeepers extends Table
                     "i18n" => array("species_name"),
                     "species_name" => $this->species_info[$species_id]["name"],
                     "looked_backup" => $species,
-                    "possible_quarantines" => $this->getPossibleQuarantines($species_id),
+                    "possible_quarantines" => $this->getPossibleQuarantines($species_id, $player_id),
                 )
             )
         );
@@ -3052,6 +3071,7 @@ class Zookeepers extends Table
 
     function argSelectHelpQuarantine()
     {
+        $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
         $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
         return array(
@@ -3060,7 +3080,7 @@ class Zookeepers extends Table
             "species_name" => $this->species_info[$species_id]["name"],
             "species_id" => $species_id,
             "position" => $species["location_arg"],
-            "possible_quarantines" => $this->getPossibleQuarantines($species_id),
+            "possible_quarantines" => $this->getPossibleQuarantines($species_id, $player_id),
         );
     }
 

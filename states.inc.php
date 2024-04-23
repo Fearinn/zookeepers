@@ -215,7 +215,7 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argSelectZoo",
         "possibleactions" => array("selectZoo", "cancelMngSpecies"),
-        "transitions" => array("activateZoo" => 34, "cancel" => 2, "zombiePass" => 8),
+        "transitions" => array("activateZoo" => 34, "betweenActions" => 7, "cancel" => 2, "zombiePass" => 8),
     ),
 
     34 => array(
