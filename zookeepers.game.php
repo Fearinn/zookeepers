@@ -677,7 +677,7 @@ class Zookeepers extends Table
             if ($operator === "single" || $operator === "or") {
                 foreach ($keeper_info as $key => $keeper_value) {
                     if (
-                        in_array($key, $species_keys, true)
+                        in_array($key, $species_keys)
                     ) {
                         $species_value = $species_info[$key];
 
@@ -687,7 +687,7 @@ class Zookeepers extends Table
                                 break;
                             }
 
-                            if (!is_array($species_value) && in_array($species_value, $keeper_value, true)) {
+                            if (!is_array($species_value) && in_array($species_value, $keeper_value)) {
                                 $assignable_keepers[$keeper_id] = $keeper_card;
                                 break;
                             }
@@ -705,23 +705,23 @@ class Zookeepers extends Table
                 $conditions_met = 0;
                 foreach ($keeper_info as $key => $keeper_value) {
                     if (
-                        in_array($key, $species_keys, true)
+                        in_array($key, $species_keys)
                     ) {
                         $species_value = $species_info[$key];
                         if (is_array($keeper_value)) {
                             if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
-                                $assignable_keepers[$keeper_id] = $keeper_card;
+                                $conditions_met++;
                                 continue;
                             }
 
-                            if (!is_array($species_value) && in_array($species_value, $keeper_value, true)) {
-                                $assignable_keepers[$keeper_id] = $keeper_card;
+                            if (!is_array($species_value) && in_array($species_value, $keeper_value)) {
+                                $conditions_met++;
                                 continue;
                             }
                         }
 
                         if (!is_array($keeper_value) && $species_value == $keeper_value) {
-                            $assignable_keepers[$keeper_id] = $keeper_card;
+                            $conditions_met++;
                             continue;
                         }
                     }
