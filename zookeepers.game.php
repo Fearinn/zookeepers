@@ -2779,7 +2779,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "zooHelp",
-            clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name} '),
+            clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name}'),
             array(
                 "selected_zoo_name" => $this->loadPlayersBasicInfos()[$selected_zoo]["player_name"],
                 "active_zoo_name" => $this->getActivePlayerName(),
