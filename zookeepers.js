@@ -1185,9 +1185,9 @@ define([
 
           if (hasSpecies) {
             dojo.removeClass(button, "zkp_hide");
-            return;
+          } else {
+            dojo.addClass(button, "zkp_hide");
           }
-          dojo.addClass(button, "zkp_hide");
         }
       }
     },
