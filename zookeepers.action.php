@@ -159,7 +159,7 @@ class action_zookeepers extends APP_GameAction
   {
     $this->setAjaxMode();
     $this->checkVersion();
-    $lastly_returned_nbr = $this->getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 8));
+    $lastly_returned_nbr = $this->getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 6));
     $lastly_returned_type = $this->getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
     $this->game->returnExcess($lastly_returned_nbr, $lastly_returned_type);
     $this->ajaxResponse();

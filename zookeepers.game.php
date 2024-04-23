@@ -1725,13 +1725,14 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
 
         $species_nbr = $this->getSpeciesCounters()[$player_id];
+        $collected_nbr = $species_nbr <= 6 ? $species_nbr : 6;
 
-        if ($species_nbr === 0) {
+        if ($collected_nbr === 0) {
             throw new BgaUserException($this->_("You must have at least one saved species to collect resources"));
         }
 
         $this->resources->shuffle("deck");
-        $collected_resources = $this->resources->pickCards($species_nbr, "deck", $player_id);
+        $collected_resources = $this->resources->pickCards($collected_nbr, "deck", $player_id);
         $collected_nbr = count($collected_resources);
 
         $collected_plant = $this->filterByResourceType("plant", $collected_resources);
