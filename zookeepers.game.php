@@ -1745,8 +1745,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "collectResources",
-            clienttranslate('${player_name} collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
-           ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s)'),
+            clienttranslate('${player_name} collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s)'),
             array(
                 "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
@@ -1811,8 +1810,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "collectResources",
-            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), 
-            ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s). ${return_nbr} resource(s) must be returned to the bag'),
+            clienttranslate('${player_name} activates the conservation fund and collects ${collected_nbr} resource(s): ${collected_plant_nbr} plant(s), ${collected_meat_nbr} meat/fish, ${collected_kit_nbr} medical kit(s). ${return_nbr} resource(s) must be returned to the bag'),
             array(
                 "player_name" => $this->getActivePlayerName(),
                 "player_id" => $player_id,
@@ -2057,8 +2055,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "saveQuarantined",
-            clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}, 
-            scoring ${species_points} point(s)'),
+            clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
             array(
 
                 "player_name" => $this->getActivePlayerName(),
