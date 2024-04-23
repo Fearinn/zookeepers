@@ -315,54 +315,54 @@ $this->objectives_info = array(
 
 $this->keepers_info = array(
   1 => array(
-    "name" => "Abdul",
+    "keeper_name" => "Abdul",
     "level" => 3,
-    "class" => "mammal",
+    "class" => array("mammal"),
     "operator" => "single"
   ),
   2 => array(
-    "name" => "Adaeze",
+    "keeper_name" => "Adaeze",
     "level" => 2,
     "continent" => array("AS"),
     "operator" => "single"
   ),
   3 => array(
-    "name" => "Afonso",
+    "keeper_name" => "Afonso",
     "level" => 5,
-    "class" => "mammal",
-    "diet" => "herbivore",
+    "class" => array("mammal"),
+    "diet" => array("herbivore"),
     "operator" => "and"
   ),
   4 => array(
-    "name" => "Ben",
+    "keeper_name" => "Ben",
     "level" => 1,
     "operator" => "any"
   ),
   5 => array(
-    "name" => "Dimitri",
+    "keeper_name" => "Dimitri",
     "level" => 3,
     "continent" => array("AM"),
     "operator" => "single"
   ),
   6 => array(
-    "name" => "John",
+    "keeper_name" => "John",
     "level" => 5,
-    "diet" => "omnivore",
+    "diet" => array("omnivore"),
     "operator" => "single"
   ),
   7 => array(
-    "name" => "Aiko",
+    "keeper_name" => "Aiko",
     "level" => 1,
     "operator" => "any"
   ),
   8 => array(
-    "name" => "Ana",
+    "keeper_name" => "Ana",
     "level" => 3,
     "habitat" => array("PRA"),
     "operator" => "single"
   ),
   9 => array(
-    "name" => "Ayaan",
+    "keeper_name" => "Ayaan",
     "level" => 3,
     "continent" => array(
       "EU",
@@ -371,63 +371,63 @@ $this->keepers_info = array(
     "operator" => "or"
   ),
   10 => array(
-    "name" => "Bjorn",
+    "keeper_name" => "Bjorn",
     "level" => 4,
-    "class" => "reptile",
+    "class" => array("reptile"),
     "operator" => "single"
   ),
   11 => array(
-    "name" => "Gabriela",
+    "keeper_name" => "Gabriela",
     "level" => 4,
     "habitat" => array("TEM"),
     "operator" => "single"
   ),
   12 => array(
-    "name" => "Kulap",
+    "keeper_name" => "Kulap",
     "level" => 2,
     "continent" => array("AF"),
     "operator" => "single"
   ),
   13 => array(
-    "name" => "Heidi",
+    "keeper_name" => "Heidi",
     "level" => 4,
-    "diet" => "carnivore",
-    "continent" => "AS",
+    "diet" => array("carnivore"),
+    "continent" => array("AS"),
     "operator" => "and"
   ),
   14 => array(
-    "name" => "Helen",
+    "keeper_name" => "Helen",
     "level" => 5,
-    "diet" => "herbivore",
-    "continent" => "AF",
+    "diet" => array("herbivore"),
+    "continent" => array("AF"),
     "operator" => "and"
   ),
   15 => array(
-    "name" => "Isabela",
+    "keeper_name" => "Isabela",
     "level" => 4,
-    "habitat" => "TRO",
-    "continent" => "AS",
+    "habitat" => array("TRO"),
+    "continent" => array("AS"),
     "operator" => "and"
   ),
   16 => array(
-    "name" => "Jen",
+    "keeper_name" => "Jen",
     "level" => 5,
-    "status" => "EN",
+    "status" => array("EN"),
     "operator" => "single"
   ),
   17 => array(
-    "name" => "Jung-woo",
+    "keeper_name" => "Jung-woo",
     "level" => 2,
     "habitat" => array("TRO"),
     "operator" => "single"
   ),
   18 => array(
-    "name" => "Penélope",
+    "keeper_name" => "Penélope",
     "level" => 1,
     "operator" => "any"
   ),
   19 => array(
-    "name" => "Kareena",
+    "keeper_name" => "Kareena",
     "level" => 5,
     "habitat" => array(
       "AQU",
@@ -436,32 +436,32 @@ $this->keepers_info = array(
     "operator" => "or"
   ),
   20 => array(
-    "name" => "Rui",
+    "keeper_name" => "Rui",
     "level" => 4,
     "habitat" => array("SAV"),
     "operator" => "single"
   ),
   21 => array(
-    "name" => "Mario",
+    "keeper_name" => "Mario",
     "level" => 1,
     "operator" => "any"
   ),
   22 => array(
-    "name" => "Paco",
+    "keeper_name" => "Paco",
     "level" => 2,
-    "diet" => "herbivore",
+    "diet" => array("herbivore"),
     "operator" => "single"
   ),
   23 => array(
-    "name" => "Yu Yan",
+    "keeper_name" => "Yu Yan",
     "level" => 2,
-    "diet" => "carnivore",
+    "diet" => array("carnivore"),
     "operator" => "single"
   ),
   24 => array(
-    "name" => "Zala",
+    "keeper_name" => "Zala",
     "level" => 3,
-    "class" => "bird",
+    "class" => array("bird"),
     "operator" => "single"
   )
 );

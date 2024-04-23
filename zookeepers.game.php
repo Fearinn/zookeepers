@@ -127,7 +127,7 @@ class Zookeepers extends Table
         $starting_keepers = array();
 
         foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
-            $starting_keepers[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
+            $starting_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
         }
         $this->keepers->createCards($starting_keepers, "deck");
         $this->keepers->shuffle("deck");
@@ -140,7 +140,7 @@ class Zookeepers extends Table
 
         $other_keepers = array();
         foreach ($this->filterByLevel($keepers_info, 1, true) as $keeper_id => $keeper) {
-            $other_keepers[] = array("type" => $keeper["name"], "type_arg" => $keeper_id, "nbr" => 1);
+            $other_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
         }
         $this->keepers->createCards($other_keepers, "deck");
         $this->keepers->shuffle("deck");
@@ -644,21 +644,26 @@ class Zookeepers extends Table
 
     function getAssignableKeepers($species_id)
     {
-
         $player_id = $this->getActivePlayerId();
         $species_info = $this->species_info[$species_id];
 
         $keepers_in_play = array();
 
-        for ($i = 1; $i <= 4; $i++) {
-            $keepers_in_play += $this->getKeepersOnBoards()[$player_id][$i];
+        for ($position = 1; $position <= 4; $position++) {
+            $keepers_in_play[$position] = $this->getKeepersOnBoards()[$player_id][$position];
         }
 
         $species_keys = array_keys($species_info);
 
         $assignable_keepers = array();
 
-        foreach ($keepers_in_play as $keeper_card) {
+        foreach ($keepers_in_play as $card_container) {
+            $keeper_card = array_shift($card_container);
+
+            if (!$keeper_card) {
+                continue;
+            }
+
             $keeper_id = $keeper_card["card_type_arg"];
             $keeper_location = $keeper_card["card_location"];
 
@@ -681,19 +686,12 @@ class Zookeepers extends Table
                     ) {
                         $species_value = $species_info[$key];
 
-                        if (is_array($keeper_value)) {
-                            if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
-                                $assignable_keepers[$keeper_id] = $keeper_card;
-                                break;
-                            }
-
-                            if (!is_array($species_value) && in_array($species_value, $keeper_value)) {
-                                $assignable_keepers[$keeper_id] = $keeper_card;
-                                break;
-                            }
+                        if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
+                            $assignable_keepers[$keeper_id] = $keeper_card;
+                            break;
                         }
 
-                        if (!is_array($keeper_value) && $species_value == $keeper_value) {
+                        if (!is_array($species_value) && in_array($species_value, $keeper_value)) {
                             $assignable_keepers[$keeper_id] = $keeper_card;
                             break;
                         }
@@ -708,19 +706,13 @@ class Zookeepers extends Table
                         in_array($key, $species_keys)
                     ) {
                         $species_value = $species_info[$key];
-                        if (is_array($keeper_value)) {
-                            if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
-                                $conditions_met++;
-                                continue;
-                            }
 
-                            if (!is_array($species_value) && in_array($species_value, $keeper_value)) {
-                                $conditions_met++;
-                                continue;
-                            }
+                        if (is_array($species_value) && count(array_intersect($keeper_value, $species_value)) > 0) {
+                            $conditions_met++;
+                            continue;
                         }
 
-                        if (!is_array($keeper_value) && $species_value == $keeper_value) {
+                        if (!is_array($species_value) && in_array($species_value, $keeper_value)) {
                             $conditions_met++;
                             continue;
                         }
