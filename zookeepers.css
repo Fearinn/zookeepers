@@ -58,7 +58,7 @@
 }
 
 .zkp_hide {
-  display: none;
+  visibility: hidden;
 }
 
 .zkp_gameplay_area *:not(.zkp_card) {

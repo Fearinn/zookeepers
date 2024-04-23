@@ -1181,14 +1181,13 @@ define([
             });
           }
 
-          const savedSpeciesNbr =
-            this[`board_${player_id}:${position}`].getAllItems().length - 1;
+          const hasSpecies = !!this.savedSpecies[player_id][position];
 
-          if (savedSpeciesNbr > 0) {
+          if (hasSpecies) {
             dojo.removeClass(button, "zkp_hide");
-          } else {
-            dojo.addClass(button, "zkp_hide");
+            return;
           }
+          dojo.addClass(button, "zkp_hide");
         }
       }
     },
