@@ -33,7 +33,7 @@
     </div>
     <div id="zkp_bag" class="zkp_bag zkp_column_container whiteblock">
       <h3>{RESOURCES}</h3>
-      <div id="zkp_bag_img" class="zkp_bag_img"></div>
+      <div id="zkp_bag_stock" style="width: 150px"></div>
       <div id="zkp_bag_counters" class="zkp_bag_counters">
         <div id="zkp_bag_plant" class="zkp_resource">
           <div

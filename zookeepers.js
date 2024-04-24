@@ -159,6 +159,7 @@ define([
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
       this.isLastTurn = gamedatas.isLastTurn;
 
+      //resources
       for (const player_id in gamedatas.players) {
         const player = gamedatas.players[player_id];
 
@@ -195,6 +196,23 @@ define([
         this.addTooltip(`zkp_meat_icon_${player_id}`, _("meat/fish"), "");
         this.addTooltip(`zkp_kit_icon_${player_id}`, _("medical kit"), "");
       }
+
+      const bagKey = "bag";
+      this[bagKey] = new ebg.stock();
+      this[bagKey].create(this, $("zkp_bag_stock"), 150, 150);
+
+      this[bagKey].image_items_per_row = 1;
+      this[bagKey].extraClasses = "zkp_bag_img";
+      this[bagKey].setSelectionMode(1);
+
+      this[bagKey].addItemType(0, 0, g_gamethemeurl + "img/bag.png", 0);
+      this[bagKey].addToStockWithId(0, 0);
+
+      console.log(this[bagKey].getAllItems());
+
+      dojo.connect(this[bagKey], "onChangeSelection", this, () => {
+        this.onSelectBag(this[bagKey]);
+      });
 
       if (!this.isBagHidden) {
         const plantBagCounter = new ebg.counter();
@@ -1306,37 +1324,12 @@ define([
           );
         }
 
-        if (this.mainAction < 1) {
-          if (
-            !this.isBagEmpty &&
-            this.speciesCounters[playerId].getValue() > 0
-          ) {
-            this.addActionButton(
-              "collect_resources_btn",
-              _("Collect Resources"),
-              "onCollectResources"
-            );
-          }
-
-          if (this.hasSecretObjectives) {
-            this.addActionButton(
-              "replace_objective_btn",
-              _("Replace Objective"),
-              "onReplaceObjective"
-            );
-          }
-
-          if (
-            this.resourcesInHandNbr > 1 &&
-            this.freeAction < 1 &&
-            !this.isBagEmpty
-          ) {
-            this.addActionButton(
-              "exchange_resources_btn",
-              _("Conservation Fund"),
-              "onExchangeResources"
-            );
-          }
+        if (this.hasSecretObjectives) {
+          this.addActionButton(
+            "replace_objective_btn",
+            _("Replace Objective"),
+            "onReplaceObjective"
+          );
         }
 
         this.addActionButton(
@@ -1637,7 +1630,103 @@ define([
         
         */
 
-    // stock selections
+    //stock selections
+
+    onSelectBag: function (stock) {
+      if (this.gamedatas.gamestate.name === "playerTurn") {
+        const stockItemsNbr = stock.getSelectedItems().length;
+
+        if (stockItemsNbr > 0) {
+          if (!this.isCurrentPlayerActive()) {
+            this.showMessage(_("It's not your turn"), "error");
+            stock.unselectAll();
+            return;
+          }
+        }
+
+        if (this.isBagEmpty) {
+          this.showMessage(_("The bag is empty", "error"));
+          stock.unselectAll();
+          return;
+        }
+
+        this.removeActionButtons();
+
+        const playerId = this.getActivePlayerId();
+
+        const canCollect = this.speciesCounters[playerId].getValue() > 0;
+        const canConservationFund =
+          this.freeAction < 1 && this.resourcesInHandNbr > 1;
+
+        if (stockItemsNbr > 0) {
+          if (this.mainAction < 1) {
+            if (canCollect && !canConservationFund) {
+              this.gamedatas.gamestate.descriptionmyturn = _(
+                "${you} can collect resources"
+              );
+              this.updatePageTitle();
+
+              this.addActionButton(
+                "collect_resources_btn",
+                _("Collect"),
+                () => {
+                  stock.unselectAll();
+                  this.onCollectResources();
+                }
+              );
+              return;
+            }
+
+            if (canConservationFund && !canCollect) {
+              this.gamedatas.gamestate.descriptionmyturn = _(
+                "${you} can use the conservation fund"
+              );
+              this.updatePageTitle();
+
+              this.addActionButton(
+                "collect_fund_btn",
+                _("Conservation Fund"),
+                () => {
+                  stock.unselectAll();
+                  this.onExchangeResources();
+                }
+              );
+              return;
+            }
+
+            if (canCollect && canConservationFund) {
+              this.gamedatas.gamestate.descriptionmyturn = _(
+                "${you} can collect resources or use the conservation fund"
+              );
+              this.updatePageTitle();
+
+              this.addActionButton(
+                "collect_resources_btn",
+                _("Collect"),
+                () => {
+                  stock.unselectAll();
+                  this.onCollectResources();
+                }
+              );
+
+              this.addActionButton(
+                "collect_fund_btn",
+                _("Fund"),
+                () => {
+                  stock.unselectAll();
+                  this.onExchangeResources();
+                }
+              );
+              return;
+            }
+          }
+
+          return;
+        }
+
+        this.addPlayerTurnButtons();
+      }
+    },
 
     onSelectKeeperPile: function (stock, pile) {
       const stockItemsNbr = stock.getSelectedItems().length;
@@ -2442,10 +2531,10 @@ define([
                 type: type,
                 nbr: i,
               }),
-              "zkp_bag_img"
+              $("zkp_bag_stock")
             );
 
-            this.placeOnObject(`zkp_${type}_cube_${i}`, "zkp_bag_img");
+            this.placeOnObject(`zkp_${type}_cube_${i}`, $("zkp_bag_stock"));
 
             const animation = this.slideToObject(
               `zkp_${type}_cube_${i}`,
@@ -2491,7 +2580,7 @@ define([
 
           const animation = this.slideToObject(
             `zkp_${type}_cube_${i}`,
-            "zkp_bag_img",
+            $("zkp_bag_stock"),
             500,
             (i - 1) * 100
           );

@@ -174,14 +174,15 @@
   gap: 8px;
 }
 
+.zkp_bag_stock {
+  height: 150px;
+  width: 150px;
+}
+
 .zkp_bag_img {
-  background-image: url("img/bag.png");
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  margin-top: -16px;
-  height: 150px;
-  width: 150px;
 }
 
 .zkp_bag_counters {
