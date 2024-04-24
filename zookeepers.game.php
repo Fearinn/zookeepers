@@ -1481,7 +1481,7 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        if ($this->canDismissKeeper($board_position, $player_id)) {
+        if (!$this->canDismissKeeper($board_position, $player_id)) {
             throw new BgaVisibleSystemException("Dismissing this keeper would make you unable to continue this match");
         }
 
@@ -1635,7 +1635,7 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        if ($this->canDismissKeeper($board_position, $player_id)) {
+        if (!$this->canDismissKeeper($board_position, $player_id)) {
             throw new BgaVisibleSystemException("Replacing this keeper would make you unable to continue this match");
         }
 

@@ -254,7 +254,7 @@ define([
           );
 
           this[stockKey].setSelectionMode(1);
-          dojo.connect(this[stockKey], "onChangeSelection", this, () => {
+          dojo.connect(this[stockKey], "onChangeSelection", this, (target) => {
             this.onSelectKeeper(this[stockKey]);
           });
 
@@ -1753,6 +1753,7 @@ define([
 
     onSelectKeeper: function (stock) {
       const stockItemsNbr = stock.getSelectedItems().length;
+      const playerId = this.getActivePlayerId();
 
       if (stockItemsNbr > 0) {
         const itemId = stock.getSelectedItems()[0].id;
@@ -1764,6 +1765,24 @@ define([
 
         if (!this.isCurrentPlayerActive()) {
           this.showMessage(_("It's not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+
+        const position = this.checkKeeperOwner(itemId).position;
+
+        console.log(this.savedSpecies);
+        console.log(this.speciesCounters);
+
+        if (
+          this.resourcesInHandNbr < 1 &&
+          Object.keys(this.savedSpecies[playerId][position]).length ==
+            this.speciesCounters[playerId].getValue()
+        ) {
+          this.showMessage(
+            "You'd be unable to continue this match if you dismissed or replaced this keeper",
+            "error"
+          );
           stock.unselectAll();
           return;
         }
