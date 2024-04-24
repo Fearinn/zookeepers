@@ -877,29 +877,46 @@ class Zookeepers extends Table
         return $completed_keepers;
     }
 
+    function canDismissKeeper($board_position, $player_id)
+    {
+        $can_dismiss = true;
+
+        $total_species_nbr = $this->getSpeciesCounters()[$player_id];
+
+        if (
+            $this->species->countCardsInLocation("board:" . $board_position, $player_id) == $total_species_nbr
+            && $this->resources->countCardsInLocation("hand", $player_id) == 0
+        ) {
+            $can_dismiss = false;
+        }
+
+        return $can_dismiss;
+    }
+
     function discardAllKeptSpecies($board_position, $keeper_name)
     {
         $player_id = $this->getActivePlayerId();
-        if ($board_position) {
-            $discarded_species = $this->species->getCardsInLocation("board:" . $board_position, $player_id);
-            $discarded_species_nbr = count($discarded_species);
-            if ($discarded_species_nbr > 0) {
-                $this->species->moveAllCardsInLocation("board:" . $board_position, "deck", $player_id);
-                $this->incStat($discarded_species_nbr, "discarded_saved_species", $player_id);
 
-                $this->notifyAllPlayers(
-                    "discardAllKeptSpecies",
-                    clienttranslate('All species kept by ${keeper_name} are moved to the bottom of the deck'),
-                    array(
-                        "player_id" => $player_id,
-                        "board_position" => $board_position,
-                        "keeper_name" => $keeper_name,
-                        "discarded_species" => $discarded_species,
-                        "saved_species" => $this->getSavedSpecies(),
-                        "species_counters" => $this->getSpeciesCounters(),
-                    )
-                );
-            }
+        $discarded_species = $this->species->getCardsInLocation("board:" . $board_position, $player_id);
+        $discarded_species_nbr = count($discarded_species);
+
+        if ($discarded_species_nbr > 0) {
+            $this->species->moveAllCardsInLocation("board:" . $board_position, "deck", $player_id);
+            $this->incStat($discarded_species_nbr, "discarded_saved_species", $player_id);
+
+            $this->notifyAllPlayers(
+                "discardAllKeptSpecies",
+                clienttranslate('All species kept by ${keeper_name} are moved to the bottom of the deck'),
+                array(
+                    "player_id" => $player_id,
+                    "board_position" => $board_position,
+                    "keeper_name" => $keeper_name,
+                    "discarded_species" => $discarded_species,
+                    "saved_species" => $this->getSavedSpecies(),
+                    "species_counters" => $this->getSpeciesCounters(),
+                )
+            );
+
 
             $score = 0;
             foreach ($discarded_species as $species) {
@@ -1450,56 +1467,6 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
-    // function selectHiredPile($pile)
-    // {
-    //     $this->checkAction("selectHiredPile");
-
-    //     $player_id = $this->getActivePlayerId();
-
-    //     $board_position = 0;
-    //     for ($position = 1; $position <= 4; $position++) {
-    //         if ($this->keepers->countCardsInLocation("board:" . $position, $player_id) < 1) {
-    //             $board_position = $position;
-    //             break;
-    //         }
-    //     }
-
-    //     if ($board_position === 0) {
-    //         throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
-    //     }
-
-    //     $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
-
-    //     if ($keeper === null) {
-    //         throw new BgaUserException($this->_("The selected pile is out of cards"));
-    //     }
-    //     $keeper_id = $keeper["id"];
-
-    //     $pile_counters = $this->getPileCounters();
-
-    //     $sql = "UPDATE keeper SET pile=$pile WHERE card_id=$keeper_id";
-    //     $this->DbQuery($sql);
-
-    //     $this->notifyAllPlayers(
-    //         "hireKeeper",
-    //         clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}'),
-    //         array(
-    //             "player_id" => $this->getActivePlayerId(),
-    //             "player_name" => $this->getActivePlayerName(),
-    //             "keeper_name" => $keeper["type"],
-    //             "keeper_id" => $keeper["type_arg"],
-    //             "board_position" => $board_position,
-    //             "pile" => $pile,
-    //             "pile_counters" => $pile_counters,
-    //             "piles_tops" => $this->getPilesTops()
-    //         )
-    //     );
-
-    //     $this->setGameStateValue("mainAction", 5);
-
-    //     $this->gamestate->nextState("betweenActions");
-    // }
-
     function dismissKeeper($board_position)
     {
         $this->checkAction("dismissKeeper");
@@ -1514,10 +1481,13 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        $keepers_on_board_nbr = 0;
+        if ($this->canDismissKeeper($board_position, $player_id)) {
+            throw new BgaVisibleSystemException("Dismissing this keeper would make you unable to continue this match");
+        }
 
-        for ($i = 1; $i <= 4; $i++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $i, $player_id);
+        $keepers_on_board_nbr = 0;
+        for ($position = 1; $position <= 4; $position++) {
+            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
         if ($keepers_on_board_nbr === 0) {
@@ -1664,8 +1634,12 @@ class Zookeepers extends Table
         }
 
         $player_id = $this->getActivePlayerId();
-        $keepers_on_board_nbr = 0;
 
+        if ($this->canDismissKeeper($board_position, $player_id)) {
+            throw new BgaVisibleSystemException("Replacing this keeper would make you unable to continue this match");
+        }
+
+        $keepers_on_board_nbr = 0;
         for ($position = 1; $position <= 4; $position++) {
             $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
