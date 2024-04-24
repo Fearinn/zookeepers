@@ -2944,10 +2944,12 @@ define([
     notif_pass: function (notif) {},
 
     notif_lastTurn: function (notif) {
-      const player_name = notif.args.player_name;
       this.showMessage(
-        _(
-          `${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends`
+        this.format_string_recursive(
+          _(
+            "${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends"
+          ),
+          { player_name: notif.args.player_name }
         ),
         "warning"
       );
