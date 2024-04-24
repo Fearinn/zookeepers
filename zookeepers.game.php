@@ -2116,14 +2116,14 @@ class Zookeepers extends Table
             }
         }
 
-        $points = $this->species_info[$species_id]["points"] + 2;
+        $points = $this->species_info[$species_id]["points"];
 
         $quarantine = explode(":", $species["location"])[1];
         $quarantine_label = $quarantine === "ALL" ? "generic" : $quarantine;
 
         $this->notifyAllPlayers(
             "saveQuarantined",
-            clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
+            clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}. ${species_points} point(s) scored'),
             array(
 
                 "player_name" => $this->getActivePlayerName(),
@@ -2149,7 +2149,7 @@ class Zookeepers extends Table
             )
         );
 
-        $this->updateScore($player_id, $points);
+        $this->updateScore($player_id, $points + 2);
         $this->incStat(1, "species_saved", $player_id);
 
         if ($this->species_info[$species_id]["status"] === "CR") {
@@ -2301,7 +2301,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "saveSpecies",
-            clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}, scoring ${species_points} point(s)'),
+            clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}. ${species_points} point(s) scored'),
             array(
 
                 "player_name" => $this->getActivePlayerName(),
