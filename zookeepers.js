@@ -297,7 +297,10 @@ define([
                 `species_${species_id}`
               );
 
-              const speciesName = _(this.allSpecies[species_id].name);
+              const speciesName = this.format_string_recursive(
+                _("${species_name}"),
+                { species_name: this.allSpecies[species_id].name }
+              );
               const backgroundPosition = this.calcBackgroundPosition(
                 species_id - 1
               );
@@ -403,7 +406,10 @@ define([
             "zkp_species_deck"
           );
 
-          const speciesName = _(this.allSpecies[species_id].name);
+          const speciesName = this.format_string_recursive(
+            _("${species_name}"),
+            { species_name: this.allSpecies[species_id].name }
+          );
           const backgroundPosition = this.calcBackgroundPosition(
             species_id - 1
           );
@@ -484,7 +490,10 @@ define([
           for (const species_id in speciesInQuarantine) {
             this[stockKey].addToStockWithId(species_id, species_id);
 
-            const speciesName = _(this.allSpecies[species_id].name);
+            const speciesName = this.format_string_recursive(
+              _("${species_name}"),
+              { species_name: this.allSpecies[species_id].name }
+            );
             const backgroundPosition = this.calcBackgroundPosition(
               species_id - 1
             );
@@ -1597,7 +1606,9 @@ define([
       this[stockKey].addToStockWithId(itemId, itemId);
       this[stockKey].image_items_per_row = 1;
 
-      const speciesName = _(this.allSpecies[species_id].name);
+      const speciesName = this.format_string_recursive(_("${species_name}"), {
+        species_name: this.allSpecies[species_id].name,
+      });
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
       this.addSpeciesTooltipHtml(
@@ -2520,7 +2531,9 @@ define([
       );
       this[destinationKey].image_items_per_row = 6;
 
-      const speciesName = _(this.allSpecies[species_id].name);
+      const speciesName = this.format_string_recursive(_("${species_name}"), {
+        species_name: this.allSpecies[species_id].name,
+      });
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
       this.addSpeciesTooltipHtml(
@@ -2616,7 +2629,9 @@ define([
 
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
-      const speciesName = _(this.allSpecies[species_id].name);
+      const speciesName = this.format_string_recursive(_("${species_name}"), {
+        species_name: this.allSpecies[species_id].name,
+      });
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
       this.addSpeciesTooltipHtml(
@@ -2656,7 +2671,9 @@ define([
 
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
-      const speciesName = _(this.allSpecies[species_id].name);
+      const speciesName = this.format_string_recursive(_("${species_name}"), {
+        species_name: this.allSpecies[species_id].name,
+      });
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
       this.addSpeciesTooltipHtml(
@@ -2777,7 +2794,9 @@ define([
         originElement
       );
 
-      const speciesName = _(this.allSpecies[species_id].name);
+      const speciesName = this.format_string_recursive(_("${species_name}"), {
+        species_name: this.allSpecies[species_id].name,
+      });
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
       this.addSpeciesTooltipHtml(
@@ -2885,7 +2904,9 @@ define([
       const species_id = notif.args.species_id;
       const column = notif.args.shop_position;
 
-      const speciesName = _(this.allSpecies[species_id].name);
+      const speciesName = this.format_string_recursive(_("${species_name}"), {
+        species_name: this.allSpecies[species_id].name,
+      });
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addSpeciesTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
