@@ -366,7 +366,7 @@ define([
         });
 
         this[stockKey].image_items_per_row = 3;
-        this[stockKey].extraClasses = "zkp_keeper_pile zkp_card";
+        this[stockKey].extraClasses = "zkp_card";
         this[stockKey].setSelectionMode(1);
 
         for (let level = 1; level <= 5; level++) {
