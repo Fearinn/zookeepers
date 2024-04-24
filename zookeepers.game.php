@@ -238,6 +238,7 @@ class Zookeepers extends Table
         $species_info = $this->species_info;
         $keepers_info = $this->keepers_info;
         $objectives_info = $this->objectives_info;
+        $players = $this->loadPlayersBasicInfos();
 
         $result["gameVersion"] = intval($this->gamestate->table_globals[300]);
 
@@ -269,10 +270,11 @@ class Zookeepers extends Table
         $result["speciesCounters"] = $this->getSpeciesCounters();
         $result["emptyColumnNbr"] = $this->getEmptyColumnNbr();
         $result["allObjectives"] = $objectives_info;
-        $result["secretObjective"] = $this->getObjectives()[$current_player_id];
         $result["isLastTurn"] = $this->isLastTurn();
 
-        $players = $this->loadPlayersBasicInfos();
+        if (in_array($current_player_id, array_keys($players))) {
+            $result["secretObjective"] = $this->getObjectives()[$current_player_id];
+        }
 
         return $result;
     }
