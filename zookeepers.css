@@ -197,10 +197,6 @@
   gap: 8px;
 }
 
-.zkp_keeper_pile {
-  background-image: url("img/keepers_backs.png");
-}
-
 .zkp_bigger_species {
   display: block;
   background-image: url("img/bigger_species.png");

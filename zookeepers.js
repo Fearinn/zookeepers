@@ -730,11 +730,7 @@ define([
 
       if (stateName === "selectHiredPile") {
         if (this.isCurrentPlayerActive()) {
-          dojo.query(".zkp_keeper_pile").forEach((element) => {
-            if (!dojo.hasClass(element, "zkp_empty_pile")) {
-              this.addSelectableStyle(".zkp_keeper_pile");
-            }
-          });
+          this.addSelectableStyle(".zkp_keeper_pile", ".stockitem");
 
           this.addActionButton(
             "cancel_btn",
@@ -758,7 +754,7 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(".zkp_keeper_pile");
+          this.addSelectableStyle(".zkp_keeper_pile", ".stockitem");
 
           const keeper_id = args.args.keeper_id;
           const position = args.args.position;
@@ -781,7 +777,7 @@ define([
             "red"
           );
 
-          this.addSelectableStyle(".zkp_keeper_pile");
+          this.addSelectableStyle(".zkp_keeper_pile", ".stockitem");
 
           const keeper_id = args.args.keeper_id;
           const position = args.args.position;
@@ -1142,7 +1138,7 @@ define([
       const playerId = this.getActivePlayerId();
 
       if (stateName === "selectHiredPile") {
-        this.removeSelectableStyle(".zkp_keeper_pile");
+        this.removeSelectableStyle(".zkp_keeper_pile", ".stockitem");
         return;
       }
 
@@ -1153,7 +1149,7 @@ define([
       }
 
       if (stateName === "selectDismissedPile") {
-        this.removeSelectableStyle(".zkp_keeper_pile");
+        this.removeSelectableStyle(".zkp_keeper_pile", ".stockitem");
         dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
@@ -1165,7 +1161,7 @@ define([
       }
 
       if (stateName === "selectReplacedPile") {
-        this.removeSelectableStyle(".zkp_keeper_pile");
+        this.removeSelectableStyle(".zkp_keeper_pile", ".stockitem");
         dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
@@ -1491,11 +1487,9 @@ define([
       });
 
       if (itemSelector) {
-        const query = dojo.query(
-          `${containerSelector} > ${itemSelector}:first-child`
-        );
-        query.style({
+        dojo.query(`${containerSelector} > ${itemSelector}:first-child`).style({
           border: "0 solid red",
+          cursor: "pointer",
           ["pointer-events"]: "all",
         });
       }
