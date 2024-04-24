@@ -1927,6 +1927,14 @@ define([
 
         this.removeActionButtons();
 
+        if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+          this.addActionButton(
+            "new_species_btn",
+            _("New Species"),
+            "onNewSpecies"
+          );
+        }
+
         this.addActionButton(
           "cancel_btn",
           _("Cancel"),
@@ -2006,6 +2014,14 @@ define([
         }
 
         this.removeActionButtons();
+
+        if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+          this.addActionButton(
+            "new_species_btn",
+            _("New Species"),
+            "onNewSpecies"
+          );
+        }
 
         this.addActionButton(
           "cancel_btn",
