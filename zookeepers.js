@@ -624,8 +624,6 @@ define([
             this.cardHeight
           );
 
-          this[stockKey].setSelectionMode(0);
-
           this[stockKey].addItemType(
             0,
             0,
@@ -648,12 +646,17 @@ define([
 
             this[stockKey].extraClasses = "zkp_card";
             this[stockKey].image_items_per_row = 4;
+            this[stockKey].setSelectionMode(1);
 
             this[stockKey].addToStockWithId(
               objective_id,
               objective_id,
               "zkp_objectives_deck"
             );
+
+            dojo.connect(this[stockKey], "onChangeSelection", this, () => {
+              this.onSelectObjective(this[stockKey]);
+            });
 
             const backgroundPosition = this.calcBackgroundPosition(
               this.allObjectives[objective_id].sprite_pos,
@@ -667,6 +670,7 @@ define([
           } else {
             this[stockKey].extraClasses = "zkp_card zkp_background_contain";
             this[stockKey].image_items_per_row = 1;
+            this[stockKey].setSelectionMode(0);
 
             this[stockKey].addToStockWithId(0, 0, "zkp_objectives_deck");
           }
@@ -1324,14 +1328,6 @@ define([
           );
         }
 
-        if (this.hasSecretObjectives) {
-          this.addActionButton(
-            "replace_objective_btn",
-            _("Replace Objective"),
-            "onReplaceObjective"
-          );
-        }
-
         this.addActionButton(
           "pass_btn",
           _("Pass Turn"),
@@ -1631,7 +1627,6 @@ define([
         */
 
     //stock selections
-
     onSelectBag: function (stock) {
       if (this.gamedatas.gamestate.name === "playerTurn") {
         const stockItemsNbr = stock.getSelectedItems().length;
@@ -1709,14 +1704,10 @@ define([
                 }
               );
 
-              this.addActionButton(
-                "collect_fund_btn",
-                _("Fund"),
-                () => {
-                  stock.unselectAll();
-                  this.onExchangeResources();
-                }
-              );
+              this.addActionButton("collect_fund_btn", _("Fund"), () => {
+                stock.unselectAll();
+                this.onExchangeResources();
+              });
               return;
             }
           }
@@ -2080,6 +2071,45 @@ define([
               this.onSaveQuarantined(itemId);
             });
           }
+
+          return;
+        }
+
+        this.addPlayerTurnButtons();
+      }
+    },
+
+    onSelectObjective(stock) {
+      const stockItemsNbr = stock.getSelectedItems().length;
+
+      if (this.gamedatas.gamestate.name === "playerTurn") {
+        if (stockItemsNbr > 0) {
+          if (!this.isCurrentPlayerActive()) {
+            this.showMessage(_("It's not your turn"), "error");
+            stock.unselectAll();
+            return;
+          }
+
+          if (this.mainAction > 0) {
+            this.showMessage(
+              _("You can't replace this objective now"),
+              "error"
+            );
+            stock.unselectAll();
+            return;
+          }
+
+          this.removeActionButtons();
+
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "${you} can replace this objective"
+          );
+          this.updatePageTitle();
+
+          this.addActionButton("replace_objective_btn", _("Replace"), () => {
+            stock.unselectAll();
+            this.onReplaceObjective();
+          });
 
           return;
         }
