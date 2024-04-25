@@ -387,6 +387,7 @@
 
 .zkp_empty_pile {
   background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
   box-shadow: none;
 }
 

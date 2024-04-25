@@ -763,6 +763,7 @@ define([
           );
 
           this.addSelectableStyle(".zkp_keeper_pile", ".stockitem");
+          this.addSelectableStyle(".zkp_empty_pile");
 
           const keeper_id = args.args.keeper_id;
           const position = args.args.position;
@@ -1158,6 +1159,7 @@ define([
 
       if (stateName === "selectDismissedPile") {
         this.removeSelectableStyle(".zkp_keeper_pile", ".stockitem");
+        this.removeSelectableStyle(".zkp_empty_pile");
         dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
