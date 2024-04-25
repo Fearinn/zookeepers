@@ -159,6 +159,16 @@ define([
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
       this.isLastTurn = gamedatas.isLastTurn;
 
+      for (const player_id in this.gamedatas.players) {
+        if (player_id != this.getCurrentPlayerId()) {
+          const player_name = this.gamedatas.players[player_id].name;
+          $(`zkp_zoo_title:${player_id}`).textContent =
+            this.format_string_recursive(_("${player_name}'s zoo"), {
+              player_name: player_name,
+            });
+        }
+      }
+
       //resources
       for (const player_id in gamedatas.players) {
         const player = gamedatas.players[player_id];

@@ -45,15 +45,27 @@ class view_zookeepers_zookeepers extends game_view
 
         $template = $this->getGameName() . "_" . $this->getGameName();
 
-        $this->page->begin_block($template, "playmatblock");
+        global $g_user;
+        $current_player_id = $g_user->get_id();
+
+        $this->page->begin_block($template, "myzooblock");
+        $this->page->insert_block("myzooblock", array(
+            "PLAYER_ID" => $current_player_id,
+            "PLAYER_COLOR" => $players[$current_player_id]["player_color"],
+        ));
+
+        $this->page->begin_block($template, "zooblock");
         foreach ($players as $player_id => $player) {
-            $this->page->insert_block("playmatblock", array(
-                "PLAYER_NAME" => $player["player_name"],
-                "PLAYER_ID" => $player_id,
-                "PLAYER_COLOR" => $player["player_color"],
-            ));
+            if ($player_id != $current_player_id) {
+                $this->page->insert_block("zooblock", array(
+                    "PLAYER_NAME" => $player["player_name"],
+                    "PLAYER_ID" => $player_id,
+                    "PLAYER_COLOR" => $player["player_color"],
+                ));
+            }
         }
 
+        $this->tpl["YOUR ZOO"] = $this->_("Your zoo");
         $this->tpl["RESOURCES"] = $this->_("Resources");
 
         /*********** Do not change anything below this line  ************/

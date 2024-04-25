@@ -63,12 +63,12 @@
   </div>
 
   <div id="zkp_playmats" class="zkp_playmats">
-    <!-- BEGIN playmatblock -->
+    <!-- BEGIN myzooblock -->
     <div
       id="zkp_playmat_container:{PLAYER_ID}"
       class="zkp_playmat_container:{PLAYER_ID} zkp_playmat_container whiteblock"
     >
-      <h3 style="color: #{PLAYER_COLOR}">{PLAYER_NAME}</h3>
+      <h3 id="zkp_my_zoo_title" style="color: #{PLAYER_COLOR}">{YOUR ZOO}</h3>
       <div id="zkp_playmat:{PLAYER_ID}" class="zkp_playmat">
         <button
           id="zkp_expand_house_{PLAYER_ID}:1"
@@ -176,7 +176,123 @@
         ></div>
       </div>
     </div>
-    <!-- END playmatblock -->
+    <!-- END myzooblock -->
+    <!-- BEGIN zooblock -->
+    <div
+      id="zkp_playmat_container:{PLAYER_ID}"
+      class="zkp_playmat_container:{PLAYER_ID} zkp_playmat_container whiteblock"
+    >
+      <h3 id="zkp_zoo_title:{PLAYER_ID}" style="color: #{PLAYER_COLOR}">
+        {PLAYER_NAME}
+      </h3>
+      <div id="zkp_playmat:{PLAYER_ID}" class="zkp_playmat">
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:1"
+          class="zkp_expand_house zkp_expand_house_1"
+        ></button>
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:2"
+          class="zkp_expand_house zkp_expand_house_2"
+        ></button>
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:3"
+          class="zkp_expand_house zkp_expand_house_3"
+        ></button>
+        <button
+          id="zkp_expand_house_{PLAYER_ID}:4"
+          class="zkp_expand_house zkp_expand_house_4"
+        ></button>
+        <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
+          <div
+            id="zkp_keeper_{PLAYER_ID}:1"
+            class="zkp_house zkp_keeper_{PLAYER_ID}"
+          ></div>
+          <div
+            id="zkp_keeper_{PLAYER_ID}:2"
+            class="zkp_house zkp_keeper_{PLAYER_ID}"
+          ></div>
+          <div
+            id="zkp_keeper_{PLAYER_ID}:3"
+            class="zkp_house zkp_keeper_{PLAYER_ID}"
+          ></div>
+          <div
+            id="zkp_keeper_{PLAYER_ID}:4"
+            class="zkp_house zkp_keeper_{PLAYER_ID}"
+          ></div>
+        </div>
+        <div id="zkp_playmat_counters" class="zkp_playmat_counters">
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:0"
+            class="zkp_playmat_counter_0 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:1"
+            class="zkp_playmat_counter_1 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:2"
+            class="zkp_playmat_counter_2 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:3"
+            class="zkp_playmat_counter_3 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:4"
+            class="zkp_playmat_counter_4 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:5"
+            class="zkp_playmat_counter_5 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:6"
+            class="zkp_playmat_counter_6 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:7"
+            class="zkp_playmat_counter_7 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:8"
+            class="zkp_playmat_counter_8 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_{PLAYER_ID}:9"
+            class="zkp_playmat_counter_9 zkp_playmat_counter"
+          ></div>
+        </div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:ALL"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_ALL"
+        ></div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:TEM"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TEM"
+        ></div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:SAV"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_SAV"
+        ></div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:PRA"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_PRA"
+        ></div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:DES"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_DES"
+        ></div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:AQU"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_AQU"
+        ></div>
+        <div
+          id="zkp_quarantine_{PLAYER_ID}:TRO"
+          class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TRO"
+        ></div>
+      </div>
+    </div>
+    <!-- END zooblock -->
   </div>
 </div>
 
