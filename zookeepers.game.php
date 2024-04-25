@@ -1189,7 +1189,10 @@ class Zookeepers extends Table
 
     function canZooHelp()
     {
-        return count($this->getPossibleZoos()) > 0 && $this->getGameStateValue("mainAction") == 2 && $this->getGameStateValue("zooHelp") == 0;
+        return count($this->getPossibleZoos()) > 0
+            && $this->getGameStateValue("mainAction") == 2
+            && $this->getGameStateValue("zooHelp") == 0
+            && !$this->isLastTurn();
     }
 
     function moveToHelpZoo($card, $quarantine, $selected_zoo, $automatic = false)
