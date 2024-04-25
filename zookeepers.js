@@ -86,7 +86,7 @@ define([
       this.allKeepers = {};
       this.pileCounters = {};
       this.pilesTops = {};
-      this.keepersOnBoards = {};
+      this.keepersAtHouses = {};
       this.allSpecies = {};
       this.backupSpecies = {};
       this.visibleSpecies = {};
@@ -133,8 +133,8 @@ define([
       this.hasSecretObjectives = gamedatas.hasSecretObjectives;
 
       this.allKeepers = gamedatas.allKeepers;
-      this.keepersOnBoards = this.formatKeepersOnBoards(
-        gamedatas.keepersOnBoards
+      this.keepersAtHouses = this.formatKeepersAtHouses(
+        gamedatas.keepersAtHouses
       );
       this.completedKeepers = gamedatas.completedKeepers;
 
@@ -278,7 +278,7 @@ define([
             );
           }
 
-          const addedKeeper = this.keepersOnBoards[player_id][position];
+          const addedKeeper = this.keepersAtHouses[player_id][position];
 
           if (addedKeeper && addedKeeper.card_type_arg) {
             const pile = addedKeeper.pile;
@@ -723,8 +723,8 @@ define([
         );
         this.savableQuarantined = args.args.savableQuarantined;
         this.savableQuarantinedWithFund = args.args.savableQuarantinedWithFund;
-        this.keepersOnBoards = this.formatKeepersOnBoards(
-          args.args.keepersOnBoards
+        this.keepersAtHouses = this.formatKeepersAtHouses(
+          args.args.keepersAtHouses
         );
         this.emptyColumnNbr = args.args.emptyColumnNbr;
         this.resourcesInHandNbr = args.args.resourcesInHandNbr;
@@ -1315,8 +1315,8 @@ define([
       const playerId = this.getActivePlayerId();
 
       let openBoardPosition = 0;
-      for (const position in this.keepersOnBoards[playerId]) {
-        const keeperOnPosition = this.keepersOnBoards[playerId][position];
+      for (const position in this.keepersAtHouses[playerId]) {
+        const keeperOnPosition = this.keepersAtHouses[playerId][position];
         if (!keeperOnPosition) {
           openBoardPosition = position;
           break;
@@ -1364,7 +1364,7 @@ define([
       let result = { isOwner: false, position: 0 };
 
       if (keeperId) {
-        const ownedKeepers = this.keepersOnBoards[playerId];
+        const ownedKeepers = this.keepersAtHouses[playerId];
 
         for (const position in ownedKeepers) {
           if (
@@ -1544,24 +1544,24 @@ define([
       }
     },
 
-    formatKeepersOnBoards: function (keepersOnBoards) {
-      for (const playerId in keepersOnBoards) {
-        for (const position in keepersOnBoards[playerId]) {
-          const keeperOnPosition = keepersOnBoards[playerId][position];
+    formatKeepersAtHouses: function (keepersAtHouses) {
+      for (const playerId in keepersAtHouses) {
+        for (const position in keepersAtHouses[playerId]) {
+          const keeperOnPosition = keepersAtHouses[playerId][position];
 
           if (Array.isArray(keeperOnPosition)) {
             if (keeperOnPosition.length < 1) {
-              keepersOnBoards[playerId][position] = null;
+              keepersAtHouses[playerId][position] = null;
             } else {
-              keepersOnBoards[playerId][position] = keeperOnPosition[0];
+              keepersAtHouses[playerId][position] = keeperOnPosition[0];
             }
           } else if (!keeperOnPosition.card_id) {
             for (const keeper in keeperOnPosition)
-              keepersOnBoards[playerId][position] = keeperOnPosition[keeper];
+              keepersAtHouses[playerId][position] = keeperOnPosition[keeper];
           }
         }
       }
-      return keepersOnBoards;
+      return keepersAtHouses;
     },
 
     formatSavableSpecies: function (savableSpecies) {

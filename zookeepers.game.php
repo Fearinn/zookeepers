@@ -253,7 +253,7 @@ class Zookeepers extends Table
         $result["allKeepers"] = $keepers_info;
         $result["pileCounters"] = $this->getPileCounters();
         $result["pilesTops"] = $this->getPilesTops();
-        $result["keepersOnBoards"] = $this->getKeepersOnBoards();
+        $result["keepersAtHouses"] = $this->getKeepersAtHouses();
         $result["allSpecies"] = $species_info;
         $result["backupSpecies"] = $this->getBackupSpecies();
         $result["visibleSpecies"] = $this->getVisibleSpecies();
@@ -435,16 +435,16 @@ class Zookeepers extends Table
         return $this->resources->countCardInLocation("deck") == 0;
     }
 
-    function getKeepersOnBoards()
+    function getKeepersAtHouses()
     {
         $players = $this->loadPlayersBasicInfos();
 
         $keepers = array();
         foreach ($players as $player_id => $player) {
-            for ($i = 1; $i <= 4; $i++) {
-                $location = "board:" . $i;
+            for ($position = 1; $position <= 4; $position++) {
+                $location = "board:" . $position;
                 $sql = "SELECT pile, card_id, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
-                $keepers[$player_id][$i] = $this->getCollectionFromDb($sql);
+                $keepers[$player_id][$position] = $this->getCollectionFromDb($sql);
             }
         }
 
@@ -652,7 +652,7 @@ class Zookeepers extends Table
         $keepers_in_play = array();
 
         for ($position = 1; $position <= 4; $position++) {
-            $keepers_in_play[$position] = $this->getKeepersOnBoards()[$player_id][$position];
+            $keepers_in_play[$position] = $this->getKeepersAtHouses()[$player_id][$position];
         }
 
         $species_keys = array_keys($species_info);
@@ -1294,7 +1294,7 @@ class Zookeepers extends Table
     function sumKeepersLevels($player_id)
     {
         $sum = 0;
-        foreach ($this->getKeepersOnBoards()[$player_id] as $location) {
+        foreach ($this->getKeepersAtHouses()[$player_id] as $location) {
             foreach ($location as $keeper) {
                 if (is_array($keeper) && count($keeper) > 0) {
                     $keeper_id = $keeper["card_type_arg"];
@@ -1485,12 +1485,12 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Dismissing this keeper would make you unable to continue this match");
         }
 
-        $keepers_on_board_nbr = 0;
+        $keepers_at_houses_nbr = 0;
         for ($position = 1; $position <= 4; $position++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
+            $keepers_at_houses_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
-        if ($keepers_on_board_nbr === 0) {
+        if ($keepers_at_houses_nbr === 0) {
             throw new BgaVisibleSystemException("You don't have any keeper to dismiss");
         }
 
@@ -1499,7 +1499,7 @@ class Zookeepers extends Table
         $keeper = null;
         $keeper_id = null;
 
-        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+        foreach ($this->getKeepersAtHouses()[$player_id][$board_position] as $card) {
             $pile = $card["pile"];
             $keeper_level = $keepers_info[$card["card_type_arg"]]["level"];
             $keeper = $card;
@@ -1577,7 +1577,7 @@ class Zookeepers extends Table
         $keeper = null;
         $keeper_id = null;
 
-        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+        foreach ($this->getKeepersAtHouses()[$player_id][$board_position] as $card) {
             $keeper = $card;
             $keeper_id = $card["card_type_arg"];
         }
@@ -1639,12 +1639,12 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Replacing this keeper would make you unable to continue this match");
         }
 
-        $keepers_on_board_nbr = 0;
+        $keepers_at_houses_nbr = 0;
         for ($position = 1; $position <= 4; $position++) {
-            $keepers_on_board_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
+            $keepers_at_houses_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
-        if ($keepers_on_board_nbr === 0) {
+        if ($keepers_at_houses_nbr === 0) {
             throw new BgaVisibleSystemException("You don't have any keeper to replace");
         }
 
@@ -1654,7 +1654,7 @@ class Zookeepers extends Table
 
         $keeper = null;
 
-        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+        foreach ($this->getKeepersAtHouses()[$player_id][$board_position] as $card) {
             $keeper = $card;
         }
 
@@ -1677,7 +1677,7 @@ class Zookeepers extends Table
 
         $replaced_keeper = null;
 
-        foreach ($this->getKeepersOnBoards()[$player_id][$board_position] as $card) {
+        foreach ($this->getKeepersAtHouses()[$player_id][$board_position] as $card) {
             $replaced_keeper = $card;
         }
 
@@ -2976,7 +2976,7 @@ class Zookeepers extends Table
             "freeAction" => $this->getGameStateValue("freeAction"),
             "isBagEmpty" => $this->isBagEmpty(),
             "canZooHelp" => $this->canZooHelp(),
-            "keepersOnBoards" => $this->getKeepersOnBoards(),
+            "keepersAtHouses" => $this->getKeepersAtHouses(),
             "savableSpecies" => $this->getSavableSpecies(),
             "savableWithFund" => $this->getSavableWithFund(),
             "savableQuarantined" => $this->getSavableQuarantined(),
