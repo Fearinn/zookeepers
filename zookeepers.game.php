@@ -3288,7 +3288,7 @@ class Zookeepers extends Table
                                     "player_color" => $player["player_color"],
                                     "board_position" => $position,
                                     "keeper_id" => $keeper_id,
-                                    "keeper_name" => $this->keepers_info[$keeper_id]["name"],
+                                    "keeper_name" => $this->keepers_info[$keeper_id]["keeper_name"],
                                     "points" => $points
                                 )
                             );
