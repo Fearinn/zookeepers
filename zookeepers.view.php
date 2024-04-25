@@ -49,10 +49,12 @@ class view_zookeepers_zookeepers extends game_view
         $current_player_id = $g_user->get_id();
 
         $this->page->begin_block($template, "myzooblock");
-        $this->page->insert_block("myzooblock", array(
-            "PLAYER_ID" => $current_player_id,
-            "PLAYER_COLOR" => $players[$current_player_id]["player_color"],
-        ));
+        if (in_array($current_player_id, array_keys($players))) {
+            $this->page->insert_block("myzooblock", array(
+                "PLAYER_ID" => $current_player_id,
+                "PLAYER_COLOR" => $players[$current_player_id]["player_color"],
+            ));
+        }
 
         $this->page->begin_block($template, "zooblock");
         foreach ($players as $player_id => $player) {
