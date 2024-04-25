@@ -1475,10 +1475,6 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        if ($board_position < 1 || $board_position > 4) {
-            throw new BgaVisibleSystemException("Invalid board position");
-        }
-
         $player_id = $this->getActivePlayerId();
 
         if (!$this->canDismissKeeper($board_position, $player_id)) {
@@ -1520,10 +1516,6 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("This keeper isn't hired by you");
         }
 
-        if ($pile < 0 || $pile > 4) {
-            throw new BgaVisibleSystemException("Invalid keeper pile");
-        }
-
         $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
 
         if ($completed_keeper && $keeper_id == $completed_keeper["type_arg"]) {
@@ -1563,14 +1555,6 @@ class Zookeepers extends Table
         $this->checkAction("selectDismissedPile");
 
         $board_position = $this->getGameStateValue("selectedPosition");
-
-        if ($board_position < 1 || $board_position > 4) {
-            throw new BgaVisibleSystemException("Invalid board position");
-        }
-
-        if ($pile < 1 || $board_position > 4) {
-            throw new BgaVisibleSystemException("Invalid keeper pile");
-        }
 
         $player_id = $this->getActivePlayerId();
 
@@ -1647,10 +1631,6 @@ class Zookeepers extends Table
 
         if ($keepers_at_houses_nbr === 0) {
             throw new BgaVisibleSystemException("You don't have any keeper to replace");
-        }
-
-        if ($board_position < 1 || $board_position > 4) {
-            throw new BgaVisibleSystemException("Invalid board position");
         }
 
         $keeper = null;
@@ -2070,10 +2050,6 @@ class Zookeepers extends Table
     {
         $this->checkAction("selectQuarantinedKeeper");
 
-        if ($board_position < 1 || $board_position > 4) {
-            throw new BgaVisibleSystemException("Invalid board position");
-        }
-
         $player_id = $this->getActivePlayerId();
 
         $species = $this->species->getCard($this->getGameStateValue("selectedSpecies"));
@@ -2215,10 +2191,6 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You can't save any of the available species"));
         }
 
-        if ($shop_position < 1 || $shop_position > 4) {
-            throw new BgaVisibleSystemException("Invalid shop position");
-        }
-
         $species_id = null;
         $species_card_id = null;
         foreach ($this->species->getCardsInLocation("shop_visible", $shop_position) as $card) {
@@ -2243,10 +2215,6 @@ class Zookeepers extends Table
     function selectAssignedKeeper($board_position)
     {
         $this->checkAction("selectAssignedKeeper");
-
-        if ($board_position < 1 || $board_position > 4) {
-            throw new BgaVisibleSystemException("Invalid board position");
-        }
 
         $player_id = $this->getActivePlayerId();
 
@@ -2390,10 +2358,6 @@ class Zookeepers extends Table
         }
 
         $player_id = $this->getActivePlayerId();
-
-        if ($shop_position < 0 || $shop_position > 4) {
-            throw new BgaVisibleSystemException("Invalid shop position");
-        }
 
         $species_in_location = $this->species->getCardsInLocation("shop_backup", $shop_position);
         $species = array_shift($species_in_location);
