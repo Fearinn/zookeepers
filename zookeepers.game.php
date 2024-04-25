@@ -1910,6 +1910,44 @@ class Zookeepers extends Table
             )
         );
 
+        $resources_by_type = array(
+            "plant" => $this->resources->getCardsOfTypeInLocation("plant", null, "hand", $player_id),
+            "meat" => $this->resources->getCardsOfTypeInLocation("meat", null, "hand", $player_id),
+            "kit" => $this->resources->getCardsOfTypeInLocation("kit", null, "hand", $player_id),
+        );
+
+        $types_with_resources = array();
+        foreach ($resources_by_type as $type => $type_resources) {
+            if (count($type_resources) > 0) {
+                $types_with_resources[$type] = $type_resources;
+            }
+        }
+
+        if (count($types_with_resources) == 1) {
+            foreach ($types_with_resources as $type => $type_resources) {
+                $keys = array_keys($type_resources);
+                $needed_resources = array_slice($keys, 0, $to_return);
+                $this->resources->moveCards($needed_resources, "deck");
+
+                $this->notifyAllPlayers(
+                    "returnResources",
+                    clienttranslate('${player_name} automatically returns ${returned_nbr} ${type_label}(s) to the bag'),
+                    array(
+                        "i18n" => array("type_label"),
+                        "player_name" => $this->getActivePlayerName(),
+                        "player_id" => $player_id,
+                        "returned_nbr" => $to_return,
+                        "type" => $type,
+                        "type_label" => $this->resource_types[$type]["label"],
+                        "resource_counters" => $this->getResourceCounters(),
+                        "bag_counters" => $this->getBagCounters(),
+                    )
+                );
+
+                $to_return = 0;
+            }
+        }
+
         if ($to_return === 0) {
             $this->gamestate->nextState("betweenActions");
             return;

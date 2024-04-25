@@ -218,8 +218,6 @@ define([
       this[bagKey].addItemType(0, 0, g_gamethemeurl + "img/bag.png", 0);
       this[bagKey].addToStockWithId(0, 0);
 
-      console.log(this[bagKey].getAllItems());
-
       dojo.connect(this[bagKey], "onChangeSelection", this, () => {
         this.onSelectBag(this[bagKey]);
       });
@@ -1774,9 +1772,6 @@ define([
         }
 
         const position = this.checkKeeperOwner(itemId).position;
-
-        console.log(this.savedSpecies);
-        console.log(this.speciesCounters);
 
         if (
           this.resourcesInHandNbr < 1 &&
