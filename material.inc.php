@@ -42,7 +42,7 @@ $this->freeActions = array(
 
 $this->resource_types = array(
   "plant" => array(
-    "label" => clienttranslate("plant"),
+    "label" => clienttranslate("plant(s)"),
     "total" => 20,
     "per_player" => 4
   ),
@@ -52,7 +52,7 @@ $this->resource_types = array(
     "per_player" => 4,
   ),
   "kit" => array(
-    "label" => clienttranslate("medical kit"),
+    "label" => clienttranslate("medical kit(s)"),
     "total" => 15,
     "per_player" => 3,
   )

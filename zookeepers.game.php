@@ -1880,7 +1880,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) to the bag'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type_label} to the bag'),
             array(
                 "i18n" => array("type_label"),
                 "player_name" => $this->getActivePlayerName(),
@@ -1914,7 +1914,7 @@ class Zookeepers extends Table
 
                 $this->notifyAllPlayers(
                     "returnResources",
-                    clienttranslate('${player_name} automatically returns ${returned_nbr} ${type_label}(s) to the bag'),
+                    clienttranslate('${player_name} automatically returns ${returned_nbr} ${type_label} to the bag'),
                     array(
                         "i18n" => array("type_label"),
                         "player_name" => $this->getActivePlayerName(),
@@ -1958,7 +1958,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "returnResources",
-            clienttranslate('${player_name} returns ${returned_nbr} ${type_label}(s) to the bag as excess'),
+            clienttranslate('${player_name} returns ${returned_nbr} ${type_label} to the bag as excess'),
             array(
                 "i18n" => array("type_label"),
                 "player_name" => $this->getActivePlayerName(),
