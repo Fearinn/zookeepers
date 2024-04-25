@@ -302,9 +302,9 @@
   var jstpl_player_board =
     '<div id="zkp_board" class="zkp_board zkp_column_container">\
       <div class="zkp_board_resources">\
-        <div class="zkp_resource"><div id="zkp_plant_icon_${id}" class="zkp_resource_icon zkp_plant_icon"></div><span id="plant_count_${id}">0</span></div>\
-        <div class="zkp_resource"><div id="zkp_meat_icon_${id}" class="zkp_resource_icon zkp_meat_icon"></div><span id="meat_count_${id}">0</span></div>\
-        <div class="zkp_resource"><div id="zkp_kit_icon_${id}" class="zkp_resource_icon zkp_kit_icon"></div><span id="kit_count_${id}">0</span></div>\
+        <div class="zkp_resource"><div id="zkp_plant_icon_${id}" class="zkp_resource_icon zkp_plant_icon"></div><span id="zkp_plant_count_${id}">0</span></div>\
+        <div class="zkp_resource"><div id="zkp_meat_icon_${id}" class="zkp_resource_icon zkp_meat_icon"></div><span id="zkp_meat_count_${id}">0</span></div>\
+        <div class="zkp_resource"><div id="zkp_kit_icon_${id}" class="zkp_resource_icon zkp_kit_icon"></div><span id="zkp_kit_count_${id}">0</span></div>\
         <div class="zkp_resource"><div id="zkp_species_icon_${id}" class="zkp_species_icon"></div><span id="zkp_species_count_${id}"></span></div>\
       </div>\
       <div id="zkp_objective:${id}" class="zkp_objective"></div>\
@@ -317,12 +317,6 @@
 
   var jstpl_discarded_species =
     '<div id="zkp_discarded_species_${species}"></div>';
-
-  // var jstpl_down_objective =
-  //   '<div id="zkp_down_objective_${player_id}" class="zkp_objective zkp_down_objective zkp_card zkp_background_contain"></div>';
-
-  // var jstpl_up_objective =
-  //   '<div id="zkp_up_objective_${player_id}" class="zkp_objective zkp_up_objective zkp_card" style="background-position: ${backgroundPosition}"></div>';
 </script>
 
 {OVERALL_GAME_FOOTER}

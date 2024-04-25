@@ -180,13 +180,13 @@ define([
         );
 
         const plantCounter = new ebg.counter();
-        plantCounter.create(`plant_count_${player_id}`);
+        plantCounter.create(`zkp_plant_count_${player_id}`);
 
         const meatCounter = new ebg.counter();
-        meatCounter.create(`meat_count_${player_id}`);
+        meatCounter.create(`zkp_meat_count_${player_id}`);
 
         const kitCounter = new ebg.counter();
-        kitCounter.create(`kit_count_${player_id}`);
+        kitCounter.create(`zkp_kit_count_${player_id}`);
 
         this.resourceCounters = {
           ...this.resourceCounters,
@@ -741,7 +741,7 @@ define([
           this.addSelectableStyle(".zkp_keeper_pile", ".stockitem");
 
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngKeepers",
             null,
@@ -754,7 +754,7 @@ define([
       if (stateName === "selectDismissedPile") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngKeepers",
             null,
@@ -778,7 +778,7 @@ define([
       if (stateName === "selectReplacedPile") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngKeepers",
             null,
@@ -803,7 +803,7 @@ define([
 
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelExchange",
             null,
@@ -829,14 +829,14 @@ define([
           for (const type in activePlayerCounters) {
             if (activePlayerCounters[type].getValue() > 0) {
               this.addActionButton(
-                "image_btn_" + type,
+                "zkp_image_btn_" + type,
                 `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
                 () => {},
                 null,
                 null,
                 "gray"
               );
-              dojo.addClass("image_btn_" + type, "bgaimagebutton");
+              dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
 
               for (
                 let i = 1;
@@ -864,14 +864,14 @@ define([
           for (const type in activePlayerCounters) {
             if (activePlayerCounters[type].getValue() > 0) {
               this.addActionButton(
-                "image_btn_" + type,
+                "zkp_image_btn_" + type,
                 `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
                 () => {},
                 null,
                 null,
                 "gray"
               );
-              dojo.addClass("image_btn_" + type, "bgaimagebutton");
+              dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
 
               for (
                 let i = 1;
@@ -894,7 +894,7 @@ define([
       if (stateName === "selectAssignedKeeper") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngSpecies",
             null,
@@ -927,7 +927,7 @@ define([
       if (stateName === "selectQuarantinedKeeper") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngSpecies",
             null,
@@ -959,7 +959,7 @@ define([
       if (stateName === "selectQuarantine") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngSpecies",
             null,
@@ -990,7 +990,7 @@ define([
       if (stateName === "selectBackupQuarantine") {
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             "Cancel",
             "onCancelMngSpecies",
             null,
@@ -1061,13 +1061,13 @@ define([
               species_id: species_id,
             });
 
-            this.addActionButton("discard_backup_btn", _("Discard"), () => {
+            this.addActionButton("zkp_discard_backup_btn", _("Discard"), () => {
               this.onDiscardBackup();
             });
 
             if (this.isQuarantinable(species_id)) {
               this.addActionButton(
-                "quarantine_backup_btn",
+                "zkp_quarantine_backup_btn",
                 _("Quarantine"),
                 () => {
                   this.onQuarantineBackup();
@@ -1083,13 +1083,13 @@ define([
         if (this.isCurrentPlayerActive()) {
           if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
             this.addActionButton(
-              "new_species_btn",
+              "zkp_new_species_btn",
               _("New Species"),
               "onNewSpecies"
             );
           }
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             _("Cancel"),
             "onCancelMngSpecies",
             null,
@@ -1104,7 +1104,7 @@ define([
 
         if (this.isCurrentPlayerActive()) {
           this.addActionButton(
-            "cancel_btn",
+            "zkp_cancel_btn",
             _("Cancel"),
             "onCancelMngSpecies",
             null,
@@ -1328,14 +1328,14 @@ define([
       if (this.isCurrentPlayerActive()) {
         if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
           this.addActionButton(
-            "new_species_btn",
+            "zkp_new_species_btn",
             _("New Species"),
             "onNewSpecies"
           );
         }
 
         this.addActionButton(
-          "pass_btn",
+          "zkp_pass_btn",
           _("Pass Turn"),
           "onPass",
           null,
@@ -1666,7 +1666,7 @@ define([
               this.updatePageTitle();
 
               this.addActionButton(
-                "collect_resources_btn",
+                "zkp_collect_resources_btn",
                 _("Collect"),
                 () => {
                   stock.unselectAll();
@@ -1683,7 +1683,7 @@ define([
               this.updatePageTitle();
 
               this.addActionButton(
-                "collect_fund_btn",
+                "zkp_collect_fund_btn",
                 _("Conservation Fund"),
                 () => {
                   stock.unselectAll();
@@ -1700,7 +1700,7 @@ define([
               this.updatePageTitle();
 
               this.addActionButton(
-                "collect_resources_btn",
+                "zkp_collect_resources_btn",
                 _("Collect"),
                 () => {
                   stock.unselectAll();
@@ -1708,7 +1708,7 @@ define([
                 }
               );
 
-              this.addActionButton("collect_fund_btn", _("Fund"), () => {
+              this.addActionButton("zkp_collect_fund_btn", _("Fund"), () => {
                 stock.unselectAll();
                 this.onExchangeResources();
               });
@@ -1743,7 +1743,7 @@ define([
           );
           this.updatePageTitle();
 
-          this.addActionButton("hire_keeper_btn", _("Hire"), () => {
+          this.addActionButton("zkp_hire_keeper_btn", _("Hire"), () => {
             stock.unselectAll();
             this.onHireKeeper(pile);
           });
@@ -1809,12 +1809,12 @@ define([
           );
           this.updatePageTitle();
 
-          this.addActionButton("replace_keeper_btn", _("Replace"), () => {
+          this.addActionButton("zkp_replace_keeper_btn", _("Replace"), () => {
             stock.unselectAll();
             this.onReplaceKeeper(itemId);
           });
 
-          this.addActionButton("dismiss_keeper_btn", _("Dismiss"), () => {
+          this.addActionButton("zkp_dismiss_keeper_btn", _("Dismiss"), () => {
             stock.unselectAll();
             this.onDismissKeeper(itemId);
           });
@@ -1860,7 +1860,7 @@ define([
             );
             this.updatePageTitle();
 
-            this.addActionButton("zoo_help_btn", _("Zoo Help"), () => {
+            this.addActionButton("zkp_zoo_help_btn", _("Zoo Help"), () => {
               stock.unselectAll();
               this.onZooHelp(itemId);
             });
@@ -1874,7 +1874,7 @@ define([
 
           if (this.savableWithFund && this.savableWithFund[itemId]) {
             this.addActionButton(
-              "save_species_btn",
+              "zkp_save_species_btn",
               _("Save (with conservation fund)"),
               () => {
                 stock.unselectAll();
@@ -1882,20 +1882,20 @@ define([
               }
             );
           } else if (this.savableSpecies && this.savableSpecies[itemId]) {
-            this.addActionButton("save_species_btn", _("Save"), () => {
+            this.addActionButton("zkp_save_species_btn", _("Save"), () => {
               stock.unselectAll();
               this.onSaveSpecies(itemId);
             });
           }
 
-          this.addActionButton("discard_species_btn", _("Discard"), () => {
+          this.addActionButton("zkp_discard_species_btn", _("Discard"), () => {
             stock.unselectAll();
             this.onDiscardSpecies(itemId);
           });
 
           if (this.isQuarantinable(itemId)) {
             this.addActionButton(
-              "quarantine_species_btn",
+              "zkp_quarantine_species_btn",
               _("Quarantine"),
               () => {
                 stock.unselectAll();
@@ -1914,14 +1914,14 @@ define([
         if (stock.getSelectedItems().length > 0) {
           const itemId = stock.getSelectedItems()[0].id;
 
-          this.addActionButton("discard_species_btn", _("Discard"), () => {
+          this.addActionButton("zkp_discard_species_btn", _("Discard"), () => {
             stock.unselectAll();
             this.onDiscardSpecies(itemId);
           });
 
           if (this.isQuarantinable(itemId)) {
             this.addActionButton(
-              "quarantine_species_btn",
+              "zkp_quarantine_species_btn",
               _("Quarantine"),
               () => {
                 stock.unselectAll();
@@ -1936,14 +1936,14 @@ define([
 
         if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
           this.addActionButton(
-            "new_species_btn",
+            "zkp_new_species_btn",
             _("New Species"),
             "onNewSpecies"
           );
         }
 
         this.addActionButton(
-          "cancel_btn",
+          "zkp_cancel_btn",
           _("Cancel"),
           () => {
             stock.unselectAll();
@@ -1991,7 +1991,7 @@ define([
           this.updatePageTitle();
 
           this.addActionButton(
-            "manage_backup_species_btn",
+            "zkp_manage_backup_species_btn",
             _("Look at and discard/quarantine"),
             () => {
               stock.unselectAll();
@@ -2010,7 +2010,7 @@ define([
           const item = stock.getSelectedItems()[0].id;
 
           this.addActionButton(
-            "manage_backup_species_btn",
+            "zkp_manage_backup_species_btn",
             _("Look at and discard/quarantine"),
             () => {
               stock.unselectAll();
@@ -2024,14 +2024,14 @@ define([
 
         if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
           this.addActionButton(
-            "new_species_btn",
+            "zkp_new_species_btn",
             _("New Species"),
             "onNewSpecies"
           );
         }
 
         this.addActionButton(
-          "cancel_btn",
+          "zkp_cancel_btn",
           _("Cancel"),
           () => {
             stock.unselectAll();
@@ -2094,7 +2094,7 @@ define([
 
           if (this.savableQuarantinedWithFund[playerId][itemId]) {
             this.addActionButton(
-              "save_species_btn",
+              "zkp_save_species_btn",
               _("Save (with conservation fund)"),
               () => {
                 stock.unselectAll();
@@ -2102,7 +2102,7 @@ define([
               }
             );
           } else {
-            this.addActionButton("save_species_btn", _("Save"), () => {
+            this.addActionButton("zkp_save_species_btn", _("Save"), () => {
               stock.unselectAll();
               this.onSaveQuarantined(itemId);
             });
@@ -2142,7 +2142,7 @@ define([
           );
           this.updatePageTitle();
 
-          this.addActionButton("replace_objective_btn", _("Replace"), () => {
+          this.addActionButton("zkp_replace_objective_btn", _("Replace"), () => {
             stock.unselectAll();
             this.onReplaceObjective();
           });
