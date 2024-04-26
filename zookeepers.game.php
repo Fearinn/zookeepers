@@ -797,6 +797,10 @@ class Zookeepers extends Table
             $this->resources->moveCards($resources_returned, "deck");
         }
 
+        foreach ($returned_cost as $cost) {
+            $this->incStat($cost, "resources_consumed", $player_id);
+        }
+
         return $returned_cost;
     }
 
@@ -2257,8 +2261,6 @@ class Zookeepers extends Table
 
         foreach ($returned_cost as $type => $cost) {
             if ($cost > 0) {
-                $this->incStat($cost, "resources_consumed", $player_id);
-
                 $this->notifyAllPlayers(
                     "returnResources",
                     "",
