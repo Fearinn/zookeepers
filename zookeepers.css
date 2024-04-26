@@ -437,7 +437,12 @@
 
 .zkp_house.zkp_expanded > .stockitem {
   top: 0 !important;
+  pointer-events: all;
   transition: all 1s;
+}
+
+.zkp_house.zkp_expanded > .stockitem:active {
+  pointer-events: none;
 }
 
 .zkp_house.zkp_expanded > .stockitem:nth-child(2) {
