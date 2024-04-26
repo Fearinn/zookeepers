@@ -3312,7 +3312,7 @@ class Zookeepers extends Table
                 if ($species_id !== null) {
                     $this->notifyAllPlayers(
                         "quarantinePenalties",
-                        clienttranslate('${player_name} loses 2 points due to having a species in his ${quarantine_label} quarantine'),
+                        clienttranslate('${player_name} finishes the match with a species in his ${quarantine_label} quarantine. 2-point penalty applied'),
                         array(
                             "player_name" => $player["player_name"],
                             "player_id" => $player_id,
