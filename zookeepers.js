@@ -608,6 +608,7 @@ define([
       //secret objectives
       if (!this.hasSecretObjectives) {
         dojo.destroy("zkp_objectives_deck");
+        dojo.query(".zkp_objective").forEach(dojo.destroy);
       }
 
       if (this.hasSecretObjectives) {
