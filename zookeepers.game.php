@@ -291,7 +291,7 @@ class Zookeepers extends Table
     */
     function getGameProgression()
     {
-        return 10 * $this->getGameStateValue("highestSaved");
+        return (100 / 9) * $this->getGameStateValue("highestSaved");
     }
 
     //////////////////////////////////////////////////////////////////////////////
