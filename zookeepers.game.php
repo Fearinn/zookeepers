@@ -1585,7 +1585,6 @@ class Zookeepers extends Table
         }
 
         $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
-        $this->warn($pile . " pile");
         $this->incStat(1, "keepers_dismissed", $player_id);
 
         $pile_counters = $this->getPileCounters();
@@ -1674,8 +1673,6 @@ class Zookeepers extends Table
         }
 
         $hired_keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
-
-        $this->warn($this->keepers->getCardsInLocation("deck:" . $pile));
 
         if ($hired_keeper === null) {
             throw new BgaUserException($this->_("The selected pile is out of cards"));

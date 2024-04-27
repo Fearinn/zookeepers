@@ -2545,9 +2545,6 @@ define([
     },
 
     notif_dismissKeeper: function (notif) {
-      this.pileCounters = notif.args.pile_counters;
-      this.pilesTops = notif.args.piles_tops;
-
       const player_id = notif.args.player_id;
       const keeper_id = notif.args.keeper_id;
       const position = notif.args.board_position;
@@ -2555,16 +2552,20 @@ define([
       const level = this.allKeepers[keeper_id].level;
 
       const houseKey = `board_${player_id}:${position}`;
-      const houseElement = `zkp_keeper_${player_id}:${position}`;
       const pileKey = `keeper_pile:${pile}`;
       const pileElement = `zkp_${pileKey}`;
       const className = "zkp_empty_pile";
 
-      this[pileKey].removeAll();
-      this[pileKey].addToStockWithId(level, level, houseElement);
-      this[houseKey].removeFromStockById(keeper_id);
+      this[houseKey].removeFromStockById(keeper_id, pileElement);
+
+      if (dojo.hasClass(pileElement, className)) {
+        this[pileKey].addToStockWithId(level);
+      }
 
       dojo.removeClass(pileElement, className);
+
+      this.pileCounters = notif.args.pile_counters;
+      this.pilesTops = notif.args.piles_tops;
     },
 
     notif_collectResources: function (notif) {
