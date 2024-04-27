@@ -268,16 +268,17 @@
   width: 600px;
 }
 
-.zkp_keepers {
+.zkp_houses {
   position: absolute;
   top: 173px;
   left: 173px;
   display: grid;
   grid-template-columns: repeat(2, 120px);
-  gap: 16px;
+  column-gap: 16px;
+  row-gap: 8px;
 }
 
-.zkp_keepers > * {
+.zkp_houses > * {
   height: 175px !important;
 }
 

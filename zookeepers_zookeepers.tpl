@@ -86,7 +86,7 @@
           id="zkp_expand_house_{PLAYER_ID}:4"
           class="zkp_expand_house zkp_expand_house_4"
         ></button>
-        <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
+        <div id="zkp_houses_{PLAYER_ID}" class="zkp_houses">
           <div
             id="zkp_keeper_{PLAYER_ID}:1"
             class="zkp_house zkp_keeper_{PLAYER_ID}"
@@ -202,7 +202,7 @@
           id="zkp_expand_house_{PLAYER_ID}:4"
           class="zkp_expand_house zkp_expand_house_4"
         ></button>
-        <div id="zkp_keepers_{PLAYER_ID}" class="zkp_keepers">
+        <div id="zkp_houses_{PLAYER_ID}" class="zkp_houses">
           <div
             id="zkp_keeper_{PLAYER_ID}:1"
             class="zkp_house zkp_keeper_{PLAYER_ID}"
