@@ -1174,8 +1174,9 @@ class Zookeepers extends Table
         return false;
     }
 
-    function getPossibleZoos()
+    function getPossibleZoos($species_id = null)
     {
+
         $possible_zoos = array();
         $species_counters = $this->getSpeciesCounters();
 
@@ -1183,7 +1184,31 @@ class Zookeepers extends Table
         $active_counter = $species_counters[$active_player_id];
 
         foreach ($species_counters as $player_id => $counter) {
-            if ($active_counter <= $counter && $active_player_id != $player_id) {
+            if ($player_id == $active_player_id) {
+                continue;
+            }
+
+            $fewer_species = false;
+            if ($active_counter <= $counter) {
+                $fewer_species = true;
+            }
+
+            $has_quarantines = false;
+            if ($species_id) {
+                if (count($this->getPossibleQuarantines($species_id, $player_id)) > 0) {
+                    $has_quarantines = true;
+                }
+            } else {
+                foreach ($this->species->getCardsInLocation("shop_visible") as $species) {
+                    $species_id = $species["type_arg"];
+                    if (count($this->getPossibleQuarantines($species_id, $player_id)) > 0) {
+                        $has_quarantines = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($fewer_species && $has_quarantines) {
                 $possible_zoos[$player_id] = $player_id;
             }
         }
@@ -2764,8 +2789,8 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("You already asked a zoo for help this turn");
         }
 
-        if (!$this->canZooHelp()) {
-            throw new BgaVisibleSystemException("No zoo can help with this species now");
+        if (count($this->getPossibleZoos($species_id)) == 0) {
+            throw new BgaUserException($this->_("No zoo can help with this species now"));
         }
 
         $players = $this->loadPlayersBasicInfos();
@@ -2828,7 +2853,7 @@ class Zookeepers extends Table
 
         $this->notifyAllPlayers(
             "zooHelp",
-            clienttranslate('${selected_zoo_name} asks ${active_zoo_name} for help with the ${species_name}'),
+            clienttranslate('${active_zoo_name} asks ${selected_zoo_name} for help with the ${species_name}'),
             array(
                 "selected_zoo_name" => $this->loadPlayersBasicInfos()[$selected_zoo]["player_name"],
                 "active_zoo_name" => $this->getActivePlayerName(),
