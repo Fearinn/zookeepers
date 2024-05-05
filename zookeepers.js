@@ -2973,18 +2973,19 @@ define([
           container
         );
 
-        this.placeOnObject(`zkp_discarded_species_${species_id}`, item);
+        const discardedElement = $(`zkp_discarded_species_${species_id}`);
 
-        const animation = this.slideToObject(
-          `zkp_discarded_species_${species_id}`,
-          deckElement
-        );
+        this.placeOnObject(discardedElement, item);
+
+        const animation = this.slideToObject(discardedElement, deckElement);
 
         dojo.connect(animation, "onEnd", () => {
           this[stockKey].removeFromStockById(
             `species_${species_id}`,
             deckElement
           );
+
+          dojo.destroy(discardedElement);
         });
 
         animation.play();
