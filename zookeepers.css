@@ -442,7 +442,7 @@
   transition: all 1s;
 }
 
-.zkp_house.zkp_expanded > .stockitem:active {
+.zkp_house.zkp_expanded > .stockitem:not(:first-child):active {
   pointer-events: none;
 }
 

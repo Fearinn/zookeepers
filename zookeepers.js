@@ -2553,8 +2553,12 @@ define([
 
       const houseKey = `board_${player_id}:${position}`;
       const pileKey = `keeper_pile:${pile}`;
-      const pileElement = `zkp_${pileKey}`;
+      const pileElement = $(`zkp_${pileKey}`);
       const className = "zkp_empty_pile";
+
+      const houseElement = $(`zkp_keeper_${player_id}:${position}`);
+      console.log(houseElement, "element");
+      dojo.removeClass(houseElement, "zkp_expanded");
 
       this[houseKey].removeFromStockById(keeper_id, pileElement);
 
