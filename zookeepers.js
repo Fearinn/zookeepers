@@ -1674,7 +1674,7 @@ define([
 
               this.addActionButton(
                 "zkp_collect_fund_btn",
-                _("Conservation Fund"),
+                _("Fund"),
                 () => {
                   stock.unselectAll();
                   this.onExchangeResources();
@@ -1702,10 +1702,17 @@ define([
                 stock.unselectAll();
                 this.onExchangeResources();
               });
+
               return;
             }
+
+            this.showMessage(_("You can't collect resources now"), "error");
+            stock.unselectAll();
+            return;
           }
 
+          this.showMessage(_("You can't collect resources now"), "error");
+          stock.unselectAll();
           return;
         }
 
@@ -1719,6 +1726,12 @@ define([
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
           this.showMessage(_("It's not your turn"), "error");
+          stock.unselectAll();
+          return;
+        }
+
+        if (this.mainAction > 0) {
+          this.showMessage(_("You can't hire a keeper now"), "error");
           stock.unselectAll();
           return;
         }
