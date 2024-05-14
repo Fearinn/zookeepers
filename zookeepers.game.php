@@ -1935,7 +1935,7 @@ class Zookeepers extends Table
             }
         }
 
-        if (count($types_with_resources) == 1) {
+        if (count($types_with_resources) == 1 && $to_return > 0) {
             foreach ($types_with_resources as $type => $type_resources) {
                 $keys = array_keys($type_resources);
                 $needed_resources = array_slice($keys, 0, $to_return);
@@ -1960,7 +1960,7 @@ class Zookeepers extends Table
             }
         }
 
-        if ($to_return === 0) {
+        if ($to_return == 0) {
             $this->gamestate->nextState("betweenActions");
             return;
         }
