@@ -27,8 +27,8 @@ define([
       console.log("zookeepers constructor");
 
       // Here, you can init the global variables of your user interface
-      this.cardWidth = 120;
-      this.cardHeight = 166;
+      this.cardWidth = 180;
+      this.cardHeight = 249;
 
       this.topsPositions = {
         1: "",
@@ -296,7 +296,7 @@ define([
             }
           }
 
-          this[stockKey].container_div.width = "120px";
+          this[stockKey].container_div.width = "180px";
           this[stockKey].autowidth = false;
           this[stockKey].use_vertical_overlap_as_offset = false;
           this[stockKey].vertical_overlap = 95;

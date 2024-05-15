@@ -46,6 +46,11 @@
 
 /********* You can start writing your CSS below this line: **********/
 
+:root {
+  --zkpCardHeight: 249px;
+  --zkpCardRadius: 16px;
+}
+
 .bgaimagebutton {
   padding: 0;
   min-height: 28px;
@@ -66,7 +71,7 @@
 }
 
 .zkp_gameplay_area .whiteblock {
-  border-radius: 12px;
+  border-radius: var(--zkpCardRadius);
   margin: 0;
 }
 
@@ -75,10 +80,10 @@
 }
 
 .zkp_card {
-  border-radius: 12px;
+  border-radius: var(--zkpCardRadius);
   box-shadow: 1px 1px 3px black;
-  height: 166px;
-  width: 120px;
+  height: var(--zkpCardHeight);
+  width: 180px;
 }
 
 .zkp_highlight {
@@ -116,22 +121,21 @@
 .zkp_resource_icon {
   display: inline-block;
   position: relative;
-  background-repeat: no-repeat;
   background-image: url("img/cubes.png");
   height: 30px;
   width: 30px;
 }
 
 .zkp_plant_icon {
-  background-position: -120px 0;
+  background-position: -400% 0;
 }
 
 .zkp_meat_icon {
-  background-position: -60px 0;
+  background-position: -200% 0;
 }
 
 .zkp_kit_icon {
-  background-position: -150px 0;
+  background-position: -500% 0;
 }
 
 .zkp_species_icon {
@@ -146,8 +150,8 @@
 }
 
 .zkp_objective {
-  height: 166px;
-  width: 120px;
+  height: var(--zkpCardHeight);
+  width: 180px;
 }
 
 .zkp_bigger_objective {
@@ -193,7 +197,7 @@
 
 .zkp_keeper_piles {
   display: grid;
-  grid-template-columns: repeat(2, 122px);
+  grid-template-columns: repeat(2, 180px);
   gap: 8px;
 }
 
@@ -219,14 +223,14 @@
 
 .zkp_backup_shop {
   display: grid;
-  grid-template-columns: repeat(4, 120px);
+  grid-template-columns: repeat(4, 180px);
   align-items: end;
   gap: 8px;
 }
 
 .zkp_visible_shop {
   display: grid;
-  grid-template-columns: repeat(4, 120px);
+  grid-template-columns: repeat(4, 180px);
   gap: 8px;
 }
 
@@ -273,7 +277,7 @@
   top: 173px;
   left: 173px;
   display: grid;
-  grid-template-columns: repeat(2, 120px);
+  grid-template-columns: repeat(2, 180px);
   column-gap: 16px;
   row-gap: 8px;
 }
@@ -339,9 +343,9 @@
 }
 
 .zkp_quarantine {
-  border-radius: 12px;
-  height: 166px;
-  width: 120px;
+  border-radius: var(--zkpCardRadius);
+  height: var(--zkpCardHeight);
+  width: 180px;
 }
 
 .zkp_quarantine_ALL {
@@ -388,7 +392,7 @@
 
 .zkp_empty_pile {
   background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+  border-radius: var(--zkpCardRadius);
   box-shadow: none;
 }
 
