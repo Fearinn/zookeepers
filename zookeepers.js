@@ -1214,6 +1214,13 @@ define([
 
     ///////////////////////////////////////////////////
     //// Utility methods
+    unselectOtherStocks: function (stock) {
+      for (field in this) {
+        if (this[field]?.unselectAll && this[field] !== stock) {
+          this[field].unselectAll();
+        }
+      }
+    },
 
     setupExpandHouses: function () {
       for (const player_id in this.gamedatas.players) {
@@ -1622,6 +1629,8 @@ define([
 
     //stock selections
     onSelectBag: function (stock) {
+      this.unselectOtherStocks(stock);
+
       if (this.gamedatas.gamestate.name === "playerTurn") {
         const stockItemsNbr = stock.getSelectedItems().length;
 
@@ -1672,14 +1681,10 @@ define([
               );
               this.updatePageTitle();
 
-              this.addActionButton(
-                "zkp_collect_fund_btn",
-                _("Fund"),
-                () => {
-                  stock.unselectAll();
-                  this.onExchangeResources();
-                }
-              );
+              this.addActionButton("zkp_collect_fund_btn", _("Fund"), () => {
+                stock.unselectAll();
+                this.onExchangeResources();
+              });
               return;
             }
 
@@ -1721,6 +1726,7 @@ define([
     },
 
     onSelectKeeperPile: function (stock, pile) {
+      this.unselectOtherStocks(stock);
       const stockItemsNbr = stock.getSelectedItems().length;
 
       if (stockItemsNbr > 0) {
@@ -1830,6 +1836,8 @@ define([
     },
 
     onSelectSpecies: function (stock) {
+      this.unselectOtherStocks(stock);
+
       const stateName = this.gamedatas.gamestate.name;
 
       const stockItemsNbr = stock.getSelectedItems().length;
@@ -1960,6 +1968,8 @@ define([
     },
 
     onSelectBackup: function (target, stock) {
+      this.unselectOtherStocks(stock);
+
       const stockItemsNbr = stock.getSelectedItems().length;
 
       if (stockItemsNbr > 0) {
@@ -2049,6 +2059,8 @@ define([
     },
 
     onSelectQuarantined: function (stock) {
+      this.unselectOtherStocks(stock);
+
       const stockItemsNbr = stock.getSelectedItems().length;
       const playerId = this.getActivePlayerId();
 
@@ -2119,6 +2131,8 @@ define([
     },
 
     onSelectObjective(stock) {
+      this.unselectOtherStocks(stock);
+
       const stockItemsNbr = stock.getSelectedItems().length;
 
       if (this.gamedatas.gamestate.name === "playerTurn") {
