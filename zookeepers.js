@@ -1215,8 +1215,16 @@ define([
     ///////////////////////////////////////////////////
     //// Utility methods
     unselectOtherStocks: function (stock) {
+      if (stock.getSelectedItems().length === 0) {
+        return;
+      }
       for (field in this) {
-        if (this[field]?.unselectAll && this[field] !== stock) {
+        if (
+          this[field] &&
+          this[field].unselectAll &&
+          this[field].getSelectedItems().length > 0 &&
+          this[field].control_name != stock.control_name
+        ) {
           this[field].unselectAll();
         }
       }

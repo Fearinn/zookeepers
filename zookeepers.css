@@ -87,7 +87,7 @@
 }
 
 .zkp_highlight {
-  border: 2px solid blue !important;
+  border: 3px solid blue !important;
 }
 
 .zkp_column_container {
@@ -198,7 +198,7 @@
 .zkp_keeper_piles {
   display: grid;
   grid-template-columns: repeat(2, 180px);
-  gap: 8px;
+  gap: 12px;
 }
 
 .zkp_bigger_species {
@@ -278,8 +278,8 @@
   left: 259.5px;
   display: grid;
   grid-template-columns: repeat(2, 180px);
-  column-gap: 16px;
-  row-gap: 8px;
+  column-gap: 24px;
+  row-gap: 12px;
 }
 
 .zkp_houses > * {
