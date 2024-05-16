@@ -537,7 +537,7 @@ define([
           const element = $(`zkp_playmat_counter_${player_id}:${count}`);
 
           this[stockKey] = new ebg.stock();
-          this[stockKey].create(this, element, 15, 15);
+          this[stockKey].create(this, element, 30, 30);
 
           this[stockKey].setSelectionMode(0);
           this[stockKey].image_items_per_row = 10;

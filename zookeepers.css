@@ -246,7 +246,7 @@
 
 .zkp_playmats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 620px);
+  grid-template-columns: repeat(auto-fit, 930px);
   justify-content: center;
   gap: 8px;
   width: 100%;
@@ -264,18 +264,18 @@
 .zkp_playmat {
   position: relative;
   background-image: url("img/playmat.png");
-  background-size: 467px 467px;
-  background-position: bottom 45px center;
+  background-size: 700.5px 700.5px;
+  background-position: bottom 67.5px center;
   background-repeat: no-repeat;
   margin: 0 auto;
-  height: 625px;
-  width: 600px;
+  height: 937.5px;
+  width: 900px;
 }
 
 .zkp_houses {
   position: absolute;
-  top: 173px;
-  left: 173px;
+  top: 259.5px;
+  left: 259.5px;
   display: grid;
   grid-template-columns: repeat(2, 180px);
   column-gap: 16px;
@@ -288,18 +288,19 @@
 
 .zkp_playmat_counters {
   position: absolute;
-  top: 125px;
-  left: 308px;
-  height: 32px;
+  top: 184px;
+  left: 459px;
+  height: 48px;
+  width: 170px;
 }
 
 .zkp_playmat_counter {
-  height: 15px;
-  width: 15px;
+  height: 30px;
+  width: 30px;
 }
 
 .zkp_playmat_counter:nth-child(odd) {
-  top: 20px;
+  top: 30px;
 }
 
 .zkp_playmat_counter_0 {
@@ -307,39 +308,39 @@
 }
 .zkp_playmat_counter_1 {
   position: absolute;
-  left: 10px;
+  left: 15px;
 }
 .zkp_playmat_counter_2 {
   position: absolute;
-  left: 22px;
+  left: 33px;
 }
 .zkp_playmat_counter_3 {
   position: absolute;
-  left: 33px;
+  left: 49.5px;
 }
 .zkp_playmat_counter_4 {
   position: absolute;
-  left: 44px;
+  left: 66px;
 }
 .zkp_playmat_counter_5 {
   position: absolute;
-  left: 54px;
+  left: 81px;
 }
 .zkp_playmat_counter_6 {
   position: absolute;
-  left: 66px;
+  left: 99px;
 }
 .zkp_playmat_counter_7 {
   position: absolute;
-  left: 76px;
+  left: 114px;
 }
 .zkp_playmat_counter_8 {
   position: absolute;
-  left: 87px;
+  left: 130.5px;
 }
 .zkp_playmat_counter_9 {
   position: absolute;
-  left: 99px;
+  left: 150px;
 }
 
 .zkp_quarantine {
@@ -351,38 +352,38 @@
 .zkp_quarantine_ALL {
   position: absolute;
   top: 0;
-  left: 173px;
+  left: 259.5px;
 }
 
 .zkp_quarantine_TEM {
   position: absolute;
-  top: 100px;
+  top: 150px;
   left: 0;
 }
 .zkp_quarantine_SAV {
   position: absolute;
-  top: 270px;
+  top: 405px;
   left: 0;
 }
 .zkp_quarantine_PRA {
   position: absolute;
-  top: 440px;
+  top: 660px;
   left: 0;
 }
 
 .zkp_quarantine_DES {
   position: absolute;
-  top: 100px;
+  top: 150px;
   right: 0;
 }
 .zkp_quarantine_AQU {
   position: absolute;
-  top: 270px;
+  top: 405px;
   right: 0;
 }
 .zkp_quarantine_TRO {
   position: absolute;
-  top: 440px;
+  top: 660px;
   right: 0;
 }
 
@@ -406,38 +407,38 @@
   position: absolute;
   background-image: url("img/expand.svg");
   background-color: #4871b6;
-  background-size: 14px;
+  background-size: 21px;
   background-clip: padding-box;
   background-repeat: no-repeat;
   background-position: center;
-  border: 1px solid #37578c;
+  border: 1.5px solid #37578c;
   border-radius: 100%;
-  box-shadow: 0 1px 0 #000;
+  box-shadow: 0 1.5px 0 #000;
   color: white;
   cursor: pointer;
-  height: 24px;
-  width: 24px;
+  height: 36px;
+  width: 36px;
   overflow: hidden;
-  padding: 4px;
+  padding: 6px;
   z-index: 98;
 }
 
 .zkp_expand_house_1 {
-  top: 170px;
-  left: 280px;
+  top: 255px;
+  left: 420px;
 }
 
 .zkp_expand_house_2 {
-  top: 170px;
-  left: 415px;
+  top: 255px;
+  left: 622.5px;
 }
 .zkp_expand_house_3 {
-  top: 350px;
-  left: 280px;
+  top: 525px;
+  left: 420px;
 }
 .zkp_expand_house_4 {
-  top: 350px;
-  left: 415px;
+  top: 525px;
+  left: 622.5px;
 }
 
 .zkp_house.zkp_expanded > .stockitem {
@@ -451,14 +452,14 @@
 }
 
 .zkp_house.zkp_expanded > .stockitem:nth-child(2) {
-  transform: translate(0, 180px);
+  transform: translate(0, 255px);
   z-index: 99 !important;
 }
 .zkp_house.zkp_expanded > .stockitem:nth-child(3) {
-  transform: translate(-124px, 180px);
+  transform: translate(-186px, 255px);
   z-index: 99 !important;
 }
 .zkp_house.zkp_expanded > .stockitem:nth-child(4) {
-  transform: translate(124px, 180px);
+  transform: translate(186px, 255px);
   z-index: 99 !important;
 }
