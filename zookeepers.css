@@ -280,6 +280,7 @@
   grid-template-columns: repeat(2, 180px);
   column-gap: 24px;
   row-gap: 12px;
+  height: 540px;
 }
 
 .zkp_houses > * {
