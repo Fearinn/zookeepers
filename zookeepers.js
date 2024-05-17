@@ -1773,6 +1773,8 @@ define([
     },
 
     onSelectKeeper: function (stock) {
+      this.unselectOtherStocks(stock);
+
       const stockItemsNbr = stock.getSelectedItems().length;
       const playerId = this.getActivePlayerId();
 
