@@ -289,9 +289,10 @@ class Zookeepers extends Table
         This method is called each time we are in a game state with the "updateGameProgression" property set to true 
         (see states.inc.php)
     */
-    function getGameProgression()
+    function getGameProgression(): int
     {
-        return (100 / 9) * $this->getGameStateValue("highestSaved");
+        $progression = (100 / 9) * $this->getGameStateValue("highestSaved");
+        return round($progression);
     }
 
     //////////////////////////////////////////////////////////////////////////////
