@@ -1511,7 +1511,7 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
 
         if (!$this->canDismissKeeper($board_position, $player_id)) {
-            throw new BgaVisibleSystemException("Dismissing this keeper would make you unable to continue this match");
+            throw new BgaUserException($this->_("You'd be unable to continue this match if you dismissed or replaced this keeper"));
         }
 
         $keepers_at_houses_nbr = 0;
@@ -1653,7 +1653,7 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
 
         if (!$this->canDismissKeeper($board_position, $player_id)) {
-            throw new BgaVisibleSystemException("Replacing this keeper would make you unable to continue this match");
+            throw new BgaUserException($this->_("You'd be unable to continue this match if you dismissed or replaced this keeper"));
         }
 
         $keepers_at_houses_nbr = 0;
@@ -2014,15 +2014,21 @@ class Zookeepers extends Table
         $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
-            if ($player["player_zombie"] == 1) {
+            if ($player["player_zombie"] == 1 && $this->resources->countCardsInLocation("hand", $player_id) > 0) {
                 $this->resources->moveAllCardsInLocation("hand", "deck", $player_id);
+
+                $this->notifyAllPlayers(
+                    "zombieQuit",
+                    clienttranslate('${player_name} quits the game. All his resources are automatically returned to the bag'),
+                    array("player_name" => $this->getPlayerNameById($player_id))
+                );
 
                 foreach ($this->getResourceCounters()[$player_id] as $type => $counter) {
                     $this->notifyAllPlayers(
                         "returnResources",
                         "",
                         array(
-                            "player_name" => $this->getActivePlayerName(),
+                            "player_name" => $this->getPlayerNameById($player_id),
                             "player_id" => $player_id,
                             "returned_nbr" => $counter,
                             "type" => $type,
