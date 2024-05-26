@@ -87,6 +87,7 @@ define([
       this.pileCounters = {};
       this.pilesTops = {};
       this.keepersAtHouses = {};
+      this.openHouse = 0;
       this.allSpecies = {};
       this.backupSpecies = {};
       this.visibleSpecies = {};
@@ -1323,11 +1324,10 @@ define([
 
       const playerId = this.getActivePlayerId();
 
-      let openBoardPosition = 0;
       for (const position in this.keepersAtHouses[playerId]) {
-        const keeperOnPosition = this.keepersAtHouses[playerId][position];
-        if (!keeperOnPosition) {
-          openBoardPosition = position;
+        const keepersAtHouse = this.keepersAtHouses[playerId][position];
+        if (!keepersAtHouse) {
+          this.openHouse = position;
           break;
         }
       }
@@ -1744,7 +1744,7 @@ define([
           return;
         }
 
-        if (this.mainAction > 0) {
+        if (this.mainAction > 0 || !this.openHouse) {
           this.showMessage(_("You can't hire a keeper now"), "error");
           stock.unselectAll();
           return;
