@@ -1199,7 +1199,7 @@ define([
 
       if (stateName === "selectZoo") {
         this.removeSelectableStyle(".zkp_playmat_container");
-        dojo.query(".stockitem").removeClass("zkp_hightlight");
+        dojo.query(".stockitem").removeClass("zkp_highlight");
         return;
       }
     },

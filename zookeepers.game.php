@@ -1196,13 +1196,13 @@ class Zookeepers extends Table
 
             $has_quarantines = false;
             if ($species_id) {
-                if (count($this->getPossibleQuarantines($species_id, $player_id)) > 0) {
+                if ($this->getPossibleQuarantines($species_id, $player_id)) {
                     $has_quarantines = true;
                 }
             } else {
                 foreach ($this->species->getCardsInLocation("shop_visible") as $species) {
                     $species_id = $species["type_arg"];
-                    if (count($this->getPossibleQuarantines($species_id, $player_id)) > 0) {
+                    if ($this->getPossibleQuarantines($species_id, $player_id)) {
                         $has_quarantines = true;
                         break;
                     }
@@ -1219,7 +1219,7 @@ class Zookeepers extends Table
 
     function canZooHelp()
     {
-        return count($this->getPossibleZoos()) > 0
+        return !!$this->getPossibleZoos()
             && $this->getGameStateValue("mainAction") == 2
             && $this->getGameStateValue("zooHelp") == 0
             && !$this->isLastTurn();
@@ -2796,7 +2796,7 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("You already asked a zoo for help this turn");
         }
 
-        if (count($this->getPossibleZoos($species_id)) == 0) {
+        if (!$this->getPossibleZoos($species_id)) {
             throw new BgaUserException($this->_("No zoo can help with this species now"));
         }
 
@@ -2849,7 +2849,7 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Species not found");
         }
 
-        if (!in_array($selected_zoo, $this->getPossibleZoos())) {
+        if (!in_array($selected_zoo, $this->getPossibleZoos($species_id))) {
             throw new BgaUserException($this->_("You can't ask this zoo for help"));
         }
 
