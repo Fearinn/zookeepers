@@ -49,7 +49,8 @@ class Zookeepers extends Table
 
             "scoreTracking" => 100,
             "bagHidden" => 101,
-            "secretObjectives" => 102
+            "secretObjectives" => 102,
+            "gameVariant" => 103,
         ));
 
         $this->resources = $this->getNew("module.common.deck");
@@ -193,7 +194,9 @@ class Zookeepers extends Table
         $this->species->shuffle("deck");
 
         for ($position = 1; $position <= $this->shopPositions; $position++) {
-            $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
+            if (!$this->fastMode()) {
+                $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
+            }
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
@@ -335,8 +338,7 @@ class Zookeepers extends Table
 
     function fastMode(): bool
     {
-        //tests;
-        return true;
+        return $this->getGameStateValue("gameVariant") == 1;
     }
 
     function isRealTimeScoreTracking(): bool
