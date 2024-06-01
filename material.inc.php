@@ -58,8 +58,12 @@ $this->resource_types = array(
   )
 );
 
-$this->quarantines = array(
+$this->quarantines_info = array(
   1 => "ALL", 2 => "TEM", 3 => "SAV", 4 => "PRA", 5 => "DES", 6 => "AQU", 7 => "TRO"
+);
+
+$this->FM_quarantines_info = array(
+  1 => "ALL", 3 => "SAV", 4 => "PRA", 7 => "TRO"
 );
 
 $this->status = array(
@@ -466,7 +470,7 @@ $this->keepers_info = array(
   )
 );
 
-$this->fm_keepers_info = array(
+$this->FM_keepers_info = array(
   1 => array(
     "keeper_name" => "Abdul",
     "level" => 3,

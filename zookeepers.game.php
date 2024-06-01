@@ -70,6 +70,7 @@ class Zookeepers extends Table
         $this->keeperHouses = $fastMode ? 2 : 4;
         $this->keeperPiles = $fastMode ? 1 : 4;
         $this->speciesGoal = $fastMode ? 6 : 9;
+        $this->quarantines = $fastMode ? $this->FM_quarantines_info : $this->quarantines_info;
 
         // experimental flag to prevent deadlocks
         $this->bSelectGlobalsForUpdate = true;
@@ -129,7 +130,7 @@ class Zookeepers extends Table
         $this->resources->shuffle("deck");
 
         if ($this->fastMode()) {
-            $keepers_info = $this->fm_keepers_info;
+            $keepers_info = $this->FM_keepers_info;
             $starting_keepers = array();
 
             foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
