@@ -127,32 +127,55 @@ class Zookeepers extends Table
         $this->resources->createCards($resources_deck, "deck");
         $this->resources->shuffle("deck");
 
-        $keepers_info = $this->keepers_info;
-        $starting_keepers = array();
+        if ($this->fastMode()) {
+            $keepers_info = $this->fm_keepers_info;
+            $starting_keepers = array();
 
-        foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
-            $starting_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
-        }
-        $this->keepers->createCards($starting_keepers, "deck");
-        $this->keepers->shuffle("deck");
-        foreach ($players as $player_id => $player) {
-            $this->DbQuery("UPDATE keeper SET pile=0 WHERE card_location='deck'");
-            $this->keepers->pickCardForLocation("deck", "board:1", $player_id);
-        }
+            foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
+                $starting_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
+            }
+            $this->keepers->createCards($starting_keepers, "deck");
+            $this->keepers->shuffle("deck");
+            foreach ($players as $player_id => $player) {
+                $this->DbQuery("UPDATE keeper SET pile=1 WHERE card_location='deck'");
+                $this->keepers->pickCardForLocation("deck", "board:1", $player_id);
+            }
+            $this->keepers->moveAllCardsInLocation("deck", "box");
 
-        $this->keepers->moveAllCardsInLocation("deck", "box");
+            $other_keepers = array();
+            foreach ($this->filterByLevel($keepers_info, 1, true) as $keeper_id => $keeper) {
+                $other_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
+            }
+            $this->keepers->createCards($other_keepers, "deck:1");
+            $this->keepers->shuffle("deck:1");
+            $this->DbQuery("UPDATE keeper SET pile=1 WHERE card_location='deck:1'");
+        } else {
+            $keepers_info = $this->keepers_info;
+            $starting_keepers = array();
 
-        $other_keepers = array();
-        foreach ($this->filterByLevel($keepers_info, 1, true) as $keeper_id => $keeper) {
-            $other_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
-        }
-        $this->keepers->createCards($other_keepers, "deck");
-        $this->keepers->shuffle("deck");
-        for ($pile = 1; $pile <= $this->keeperPiles; $pile++) {
-            $location = "deck:" . $pile;
-            $this->keepers->pickCardsForLocation(5, "deck", $location);
-            $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
-            $this->keepers->shuffle($location);
+            foreach ($this->filterByLevel($keepers_info, 1) as $keeper_id => $keeper) {
+                $starting_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
+            }
+            $this->keepers->createCards($starting_keepers, "deck");
+            $this->keepers->shuffle("deck");
+            foreach ($players as $player_id => $player) {
+                $this->DbQuery("UPDATE keeper SET pile=0 WHERE card_location='deck'");
+                $this->keepers->pickCardForLocation("deck", "board:1", $player_id);
+            }
+            $this->keepers->moveAllCardsInLocation("deck", "box");
+
+            $other_keepers = array();
+            foreach ($this->filterByLevel($keepers_info, 1, true) as $keeper_id => $keeper) {
+                $other_keepers[] = array("type" => $keeper["keeper_name"], "type_arg" => $keeper_id, "nbr" => 1);
+            }
+            $this->keepers->createCards($other_keepers, "deck");
+            $this->keepers->shuffle("deck");
+            for ($pile = 1; $pile <= $this->keeperPiles; $pile++) {
+                $location = "deck:" . $pile;
+                $this->keepers->pickCardsForLocation(5, "deck", $location);
+                $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
+                $this->keepers->shuffle($location);
+            }
         }
 
         $species_deck = array();
@@ -174,7 +197,7 @@ class Zookeepers extends Table
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
-        //secret objectives 
+        //secret objectives
         if ($this->hasSecretObjectives()) {
             $objectives_deck = array();
             foreach ($this->objectives_info as $objective_id => $objective) {
@@ -817,7 +840,7 @@ class Zookeepers extends Table
 
     function revealSpecies()
     {
-        for ($position = 1; $position <= $this->keeperHouses; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             if ($this->species->countCardsInLocation("shop_visible", $position) == 0) {
                 $species_in_location = $this->species->getCardsInLocation("shop_backup", $position);
                 $species = array_shift($species_in_location);
@@ -946,7 +969,7 @@ class Zookeepers extends Table
     {
         $backup_species = array();
 
-        for ($position = 1; $position <= $this->keeperHouses; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             $backup_species[$position] = $this->species->countCardsInLocation("shop_backup", $position);
         }
 
