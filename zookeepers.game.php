@@ -61,10 +61,14 @@ class Zookeepers extends Table
         $this->species = $this->getNew("module.common.deck");
         $this->species->init("species");
 
-
         $this->objectives = $this->getNew("module.common.deck");
         $this->objectives->init("objective");
 
+        $fastMode = $this->fastMode();
+        $this->shopPositions = $fastMode ? 6 : 4;
+        $this->keeperHouses = $fastMode ? 2 : 4;
+        $this->keeperPiles = $fastMode ? 1 : 4;
+        $this->speciesGoal = $fastMode ? 6 : 9;
 
         // experimental flag to prevent deadlocks
         $this->bSelectGlobalsForUpdate = true;
@@ -144,7 +148,7 @@ class Zookeepers extends Table
         }
         $this->keepers->createCards($other_keepers, "deck");
         $this->keepers->shuffle("deck");
-        for ($pile = 1; $pile <= 4; $pile++) {
+        for ($pile = 1; $pile <= $this->keeperPiles; $pile++) {
             $location = "deck:" . $pile;
             $this->keepers->pickCardsForLocation(5, "deck", $location);
             $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_location='$location'");
@@ -165,13 +169,12 @@ class Zookeepers extends Table
         $this->species->createCards($species_deck, "deck");
         $this->species->shuffle("deck");
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
         //secret objectives 
-
         if ($this->hasSecretObjectives()) {
             $objectives_deck = array();
             foreach ($this->objectives_info as $objective_id => $objective) {
@@ -242,6 +245,7 @@ class Zookeepers extends Table
 
         $result["gameVersion"] = intval($this->gamestate->table_globals[300]);
 
+        $result["fastMode"] = $this->fastMode();
         $result["isRealTimeScoreTracking"] = $this->isRealTimeScoreTracking();
         $result["isBagHidden"] = $this->isBagHidden();
         $result["hasSecretObjectives"] = $this->hasSecretObjectives();
@@ -291,7 +295,7 @@ class Zookeepers extends Table
     */
     function getGameProgression(): int
     {
-        $progression = (100 / 9) * $this->getGameStateValue("highestSaved");
+        $progression = (100 / $this->speciesGoal) * $this->getGameStateValue("highestSaved");
         return round($progression);
     }
 
@@ -306,19 +310,25 @@ class Zookeepers extends Table
         }
     }
 
-    function isRealTimeScoreTracking()
+    function fastMode(): bool
+    {
+        //tests;
+        return true;
+    }
+
+    function isRealTimeScoreTracking(): bool
     {
         return $this->getGameStateValue("scoreTracking") == 1;
     }
 
-    function isBagHidden()
+    function isBagHidden(): bool
     {
         return $this->getGameStateValue("bagHidden") == 1;
     }
 
-    function hasSecretObjectives()
+    function hasSecretObjectives(): bool
     {
-        return $this->getGameStateValue("secretObjectives") == 1;
+        return $this->getGameStateValue("secretObjectives") == 1 && !$this->fastMode();
     }
 
     function styledSpeciesName()
@@ -364,7 +374,7 @@ class Zookeepers extends Table
     {
         $tops = array();
 
-        for ($pile = 1; $pile <= 4; $pile++) {
+        for ($pile = 1; $pile <= $this->keeperPiles; $pile++) {
             $topCard = $this->keepers->getCardOnTop("deck:" . $pile);
 
             if ($topCard) {
@@ -382,7 +392,7 @@ class Zookeepers extends Table
     {
         $counters = array();
 
-        for ($pile = 1; $pile <= 4; $pile++) {
+        for ($pile = 1; $pile <= $this->keeperPiles; $pile++) {
             $counters[$pile] = $this->keepers->countCardsInLocation("deck:" . $pile);
         }
 
@@ -442,7 +452,7 @@ class Zookeepers extends Table
 
         $keepers = array();
         foreach ($players as $player_id => $player) {
-            for ($position = 1; $position <= 4; $position++) {
+            for ($position = 1; $position <= $this->keeperHouses; $position++) {
                 $location = "board:" . $position;
                 $sql = "SELECT pile, card_id, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
                 $keepers[$player_id][$position] = $this->getCollectionFromDb($sql);
@@ -470,7 +480,7 @@ class Zookeepers extends Table
     function getVisibleSpecies()
     {
         $visible_species = array();
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             $species = $this->species->getCardsInLocation("shop_visible", $position);
             $visible_species[$position] = array_shift($species);
         }
@@ -652,7 +662,7 @@ class Zookeepers extends Table
 
         $keepers_in_play = array();
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             $keepers_in_play[$position] = $this->getKeepersAtHouses()[$player_id][$position];
         }
 
@@ -737,7 +747,7 @@ class Zookeepers extends Table
         $saved_species = array();
 
         foreach ($players as $player_id => $player) {
-            for ($position = 1; $position <= 4; $position++) {
+            for ($position = 1; $position <= $this->keeperHouses; $position++) {
                 $cards_in_location = $this->species->getCardsInLocation("board:" . $position, $player_id);
 
                 if (count($cards_in_location) > 0) {
@@ -807,7 +817,7 @@ class Zookeepers extends Table
 
     function revealSpecies()
     {
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             if ($this->species->countCardsInLocation("shop_visible", $position) == 0) {
                 $species_in_location = $this->species->getCardsInLocation("shop_backup", $position);
                 $species = array_shift($species_in_location);
@@ -866,7 +876,7 @@ class Zookeepers extends Table
         $completed_keepers = array();
 
         foreach ($this->loadPlayersBasicInfos() as $player_id => $player) {
-            for ($position = 1; $position <= 4; $position++) {
+            for ($position = 1; $position <= $this->keeperHouses; $position++) {
                 $saved_species_nbr = $this->species->countCardsInLocation("board:" . $position, $player_id);
                 $keepers = ($this->keepers->getCardsInLocation("board:" . $position, $player_id));
                 $keeper = array_shift($keepers);
@@ -936,7 +946,7 @@ class Zookeepers extends Table
     {
         $backup_species = array();
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             $backup_species[$position] = $this->species->countCardsInLocation("shop_backup", $position);
         }
 
@@ -1039,7 +1049,7 @@ class Zookeepers extends Table
 
         foreach ($players as $player_id => $player) {
             $species_nbr = 0;
-            for ($position = 1; $position <= 4; $position++) {
+            for ($position = 1; $position <= $this->keeperHouses; $position++) {
                 $species_nbr += $this->species->countCardsInLocation("board:" . $position, $player_id);
             }
 
@@ -1080,7 +1090,7 @@ class Zookeepers extends Table
     {
         $empty_column_nbr = 0;
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             $backup_species_nbr = $this->species->countCardsInLocation("shop_backup", $position);
             $visible_species_nbr = $this->species->countCardsInLocation("shop_visible", $position);
 
@@ -1111,7 +1121,7 @@ class Zookeepers extends Table
             $this->species->insertCardOnExtremePosition($card_id, "deck", false);
         }
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
@@ -1129,7 +1139,7 @@ class Zookeepers extends Table
             )
         );
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->shopPositions; $position++) {
             foreach ($this->species->getCardsInLocation("shop_visible", $position) as $species) {
                 $this->notifyAllPlayers(
                     "newVisibleSpecies",
@@ -1273,7 +1283,7 @@ class Zookeepers extends Table
     {
         $regular_points = array();
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             $regular_points[$position] = null;
 
             $keepers_in_location = $this->keepers->getCardsInLocation("board:" . $position, $player_id);
@@ -1397,7 +1407,7 @@ class Zookeepers extends Table
             $species_by_status[$status] = 0;
         }
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             foreach ($this->species->getCardsInLocation("board:" . $position, $player_id) as $species) {
                 $species_id = $species["type_arg"];
                 $status = $this->species_info[$species_id]["status"];
@@ -1452,7 +1462,7 @@ class Zookeepers extends Table
 
         $keepers_hired_nbr = 0;
 
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             $keepers_hired_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
@@ -1461,7 +1471,7 @@ class Zookeepers extends Table
         }
 
         $board_position = 0;
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             if ($this->keepers->countCardsInLocation("board:" . $position, $player_id) < 1) {
                 $board_position = $position;
                 break;
@@ -1515,7 +1525,7 @@ class Zookeepers extends Table
         }
 
         $keepers_at_houses_nbr = 0;
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             $keepers_at_houses_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
@@ -1657,7 +1667,7 @@ class Zookeepers extends Table
         }
 
         $keepers_at_houses_nbr = 0;
-        for ($position = 1; $position <= 4; $position++) {
+        for ($position = 1; $position <= $this->keeperHouses; $position++) {
             $keepers_at_houses_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
@@ -3242,14 +3252,17 @@ class Zookeepers extends Table
         ));
 
         //game end condition
-        if ($this->getGameStateValue("highestSaved") >= 9) {
+        if ($this->getGameStateValue("highestSaved") >= $this->speciesGoal) {
             $last_turn = $this->getGameStateValue("lastTurn") + 1;
 
             if ($last_turn == 1) {
                 $this->notifyAllPlayers(
                     "lastTurn",
-                    clienttranslate('${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends'),
-                    array("player_name" => $this->getActivePlayerName())
+                    clienttranslate('${player_name} reaches {species_goal} saved species. Each of the other players must play their last turn before the game ends'),
+                    array(
+                        "player_name" => $this->getActivePlayerName(),
+                        "species_goal" => $this->speciesGoal
+                    )
                 );
             }
 

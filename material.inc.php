@@ -466,6 +466,159 @@ $this->keepers_info = array(
   )
 );
 
+$this->fm_keepers_info = array(
+  1 => array(
+    "keeper_name" => "Abdul",
+    "level" => 3,
+    "class" => array("mammal"),
+    "operator" => "single"
+  ),
+  2 => array(
+    "keeper_name" => "Adaeze",
+    "level" => 2,
+    "continent" => array("AS"),
+    "operator" => "single"
+  ),
+  // 3 => array(
+  //   "keeper_name" => "Afonso",
+  //   "level" => 5,
+  //   "class" => array("mammal"),
+  //   "diet" => array("herbivore"),
+  //   "operator" => "and"
+  // ),
+  4 => array(
+    "keeper_name" => "Ben",
+    "level" => 1,
+    "operator" => "any"
+  ),
+  5 => array(
+    "keeper_name" => "Dimitri",
+    "level" => 3,
+    "continent" => array("AM"),
+    "operator" => "single"
+  ),
+  // 6 => array(
+  //   "keeper_name" => "John",
+  //   "level" => 5,
+  //   "diet" => array("omnivore"),
+  //   "operator" => "single"
+  // ),
+  7 => array(
+    "keeper_name" => "Aiko",
+    "level" => 1,
+    "operator" => "any"
+  ),
+  8 => array(
+    "keeper_name" => "Ana",
+    "level" => 3,
+    "habitat" => array("PRA"),
+    "operator" => "single"
+  ),
+  9 => array(
+    "keeper_name" => "Ayaan",
+    "level" => 3,
+    "continent" => array(
+      "EU",
+      "OC"
+    ),
+    "operator" => "or"
+  ),
+  // 10 => array(
+  //   "keeper_name" => "Bjorn",
+  //   "level" => 4,
+  //   "class" => array("reptile"),
+  //   "operator" => "single"
+  // ),
+  // 11 => array(
+  //   "keeper_name" => "Gabriela",
+  //   "level" => 4,
+  //   "habitat" => array("TEM"),
+  //   "operator" => "single"
+  // ),
+  12 => array(
+    "keeper_name" => "Kulap",
+    "level" => 2,
+    "continent" => array("AF"),
+    "operator" => "single"
+  ),
+  // 13 => array(
+  //   "keeper_name" => "Heidi",
+  //   "level" => 4,
+  //   "diet" => array("carnivore"),
+  //   "continent" => array("AS"),
+  //   "operator" => "and"
+  // ),
+  // 14 => array(
+  //   "keeper_name" => "Helen",
+  //   "level" => 5,
+  //   "diet" => array("herbivore"),
+  //   "continent" => array("AF"),
+  //   "operator" => "and"
+  // ),
+  // 15 => array(
+  //   "keeper_name" => "Isabela",
+  //   "level" => 4,
+  //   "habitat" => array("TRO"),
+  //   "continent" => array("AS"),
+  //   "operator" => "and"
+  // ),
+  // 16 => array(
+  //   "keeper_name" => "Jen",
+  //   "level" => 5,
+  //   "status" => array("EN"),
+  //   "operator" => "single"
+  // ),
+  17 => array(
+    "keeper_name" => "Jung-woo",
+    "level" => 2,
+    "habitat" => array("TRO"),
+    "operator" => "single"
+  ),
+  18 => array(
+    "keeper_name" => "Penélope",
+    "level" => 1,
+    "operator" => "any"
+  ),
+  // 19 => array(
+  //   "keeper_name" => "Kareena",
+  //   "level" => 5,
+  //   "habitat" => array(
+  //     "AQU",
+  //     "DES"
+  //   ),
+  //   "operator" => "or"
+  // ),
+  // 20 => array(
+  //   "keeper_name" => "Rui",
+  //   "level" => 4,
+  //   "habitat" => array("SAV"),
+  //   "operator" => "single"
+  // ),
+  21 => array(
+    "keeper_name" => "Mario",
+    "level" => 1,
+    "operator" => "any"
+  ),
+  22 => array(
+    "keeper_name" => "Paco",
+    "level" => 2,
+    "diet" => array("herbivore"),
+    "operator" => "single"
+  ),
+  23 => array(
+    "keeper_name" => "Yu Yan",
+    "level" => 2,
+    "diet" => array("carnivore"),
+    "operator" => "single"
+  ),
+  24 => array(
+    "keeper_name" => "Zala",
+    "level" => 3,
+    "class" => array("bird"),
+    "operator" => "single"
+  )
+);
+
 $this->species_info = array(
   1 => array(
     "name" => clienttranslate("Black-Faced Impala"),
