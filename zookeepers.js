@@ -151,7 +151,6 @@ define([
       this.savableQuarantinedWithFund = gamedatas.savableQuarantinedWithFund;
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
-      console.log(this.allQuarantines);
       this.openQuarantines = gamedatas.openQuarantines;
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
 
@@ -161,6 +160,8 @@ define([
       this.isBagEmpty = gamedatas.isBagEmpty;
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
       this.isLastTurn = gamedatas.isLastTurn;
+
+      console.log(this.fastMode, this.allQuarantines);
 
       for (const player_id in this.gamedatas.players) {
         if (player_id != this.getCurrentPlayerId()) {
