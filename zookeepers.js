@@ -129,6 +129,7 @@ define([
 
       this.gameVersion = gamedatas.gameVersion;
 
+      this.fastMode = gamedatas.fastMode;
       this.isRealTimeScoreTracking = gamedatas.isRealTimeScoreTracking;
       this.isBagHidden = gamedatas.isBagHidden;
       this.hasSecretObjectives = gamedatas.hasSecretObjectives;
@@ -150,6 +151,7 @@ define([
       this.savableQuarantinedWithFund = gamedatas.savableQuarantinedWithFund;
       this.savedSpecies = gamedatas.savedSpecies;
       this.allQuarantines = gamedatas.allQuarantines;
+      console.log(this.allQuarantines);
       this.openQuarantines = gamedatas.openQuarantines;
       this.quarantinedSpecies = gamedatas.quarantinedSpecies;
 

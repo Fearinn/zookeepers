@@ -58,16 +58,29 @@ $this->resource_types = array(
   )
 );
 
-$this->quarantines_info = array(
-  1 => "ALL", 2 => "TEM", 3 => "SAV", 4 => "PRA", 5 => "DES", 6 => "AQU", 7 => "TRO"
+$this->FM_quarantines = array(
+  1 => "ALL",
+  3 => "SAV",
+  4 => "PRA",
+  7 => "TRO"
 );
 
-$this->FM_quarantines_info = array(
-  1 => "ALL", 3 => "SAV", 4 => "PRA", 7 => "TRO"
+$this->quarantines = array(
+  1 => "ALL",
+  2 => "TEM",
+  3 => "SAV",
+  4 => "PRA",
+  5 => "DES",
+  6 => "AQU",
+  7 => "TRO"
 );
 
 $this->status = array(
-  10000 => "CR", 1000 => "EN", 100 => "VU", 10 => "NT", 1 => "LC"
+  10000 => "CR",
+  1000 => "EN",
+  100 => "VU",
+  10 => "NT",
+  1 => "LC"
 );
 
 $this->objectives_info = array(

@@ -66,12 +66,12 @@ class Zookeepers extends Table
         $this->objectives->init("objective");
 
         $fastMode = $this->fastMode();
+        $this->quarantines = $fastMode ? $this->FM_quarantines : $this->quarantines;
         $this->shopPositions = $fastMode ? 6 : 4;
         $this->shopSpecies = $fastMode ? 6 : 12;
         $this->keeperHouses = $fastMode ? 2 : 4;
         $this->keeperPiles = $fastMode ? 1 : 4;
         $this->speciesGoal = $fastMode ? 6 : 9;
-        $this->quarantines = $fastMode ? $this->FM_quarantines_info : $this->quarantines_info;
 
         // experimental flag to prevent deadlocks
         $this->bSelectGlobalsForUpdate = true;
@@ -1465,6 +1465,10 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
+        if ($this->fastMode() && $pile != 1) {
+            throw new BgaVisibleSystemException("There's only 1 keeper pile in the fast mode");
+        }
+
         $player_id = $this->getActivePlayerId();
 
         $keepers_hired_nbr = 0;
@@ -1694,12 +1698,19 @@ class Zookeepers extends Table
 
         $this->setGameStateValue("selectedPosition", $board_position);
 
+        if ($this->fastMode()) {
+            $this->selectReplacedPile(1, true);
+            return;
+        }
+
         $this->gamestate->nextState("selectReplacedPile");
     }
 
-    function selectReplacedPile($pile)
+    function selectReplacedPile($pile, $auto = false)
     {
-        $this->checkAction("selectReplacedPile");
+        if (!$auto) {
+            $this->checkAction("selectReplacedPile");
+        }
 
         $player_id = $this->getActivePlayerId();
 
@@ -2107,6 +2118,10 @@ class Zookeepers extends Table
     {
         $this->checkAction("selectQuarantinedKeeper");
 
+        if ($this->fastMode() && $board_position > 2) {
+            throw new BgaVisibleSystemException("There are only 2 houses in the fast mode");
+        }
+
         $player_id = $this->getActivePlayerId();
 
         $species = $this->species->getCard($this->getGameStateValue("selectedSpecies"));
@@ -2272,6 +2287,10 @@ class Zookeepers extends Table
     function selectAssignedKeeper($board_position)
     {
         $this->checkAction("selectAssignedKeeper");
+
+        if ($this->fastMode() && $board_position > 2) {
+            throw new BgaVisibleSystemException("There are only 2 houses in the fast mode");
+        }
 
         $player_id = $this->getActivePlayerId();
 
