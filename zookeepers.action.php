@@ -124,7 +124,7 @@ class action_zookeepers extends APP_GameAction
   {
     $this->setAjaxMode();
     $this->checkVersion();
-    $choosen_nbr = $this->getArg("choosen_nbr", AT_enum, true, null, array(1, 2, 3, 4, 5));
+    $choosen_nbr = $this->getArg("choosen_nbr", AT_enum, true, null, range(1, 5));
     $this->game->collectFromExchange($choosen_nbr);
     $this->ajaxResponse();
   }

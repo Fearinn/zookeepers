@@ -67,6 +67,7 @@ class Zookeepers extends Table
 
         $fastMode = $this->fastMode();
         $this->shopPositions = $fastMode ? 6 : 4;
+        $this->shopSpecies = $fastMode ? 6 : 12;
         $this->keeperHouses = $fastMode ? 2 : 4;
         $this->keeperPiles = $fastMode ? 1 : 4;
         $this->speciesGoal = $fastMode ? 6 : 9;
@@ -82,23 +83,11 @@ class Zookeepers extends Table
         return "zookeepers";
     }
 
-    /*
-        setupNewGame:
-        
-        This method is called only once, when a new game is launched.
-        In this method, you must setup the game according to the game rules, so that
-        the game is ready to be played.
-    */
     protected function setupNewGame($players, $options = array())
     {
-        // Set the colors of the players with HTML color code
-        // The default below is red/green/blue/orange/brown
-        // The number of colors defined here must correspond to the maximum number of players allowed for the gams
         $gameinfos = $this->getGameinfos();
         $default_colors = $gameinfos['player_colors'];
 
-        // Create players
-        // Note: if you added some extra field on "player" table in the database (dbmodel.sql), you can initialize it there.
         $sql = "INSERT INTO player (player_id, player_color, player_canal, player_name, player_avatar) VALUES ";
         $values = array();
         foreach ($players as $player_id => $player) {
@@ -262,8 +251,6 @@ class Zookeepers extends Table
 
         $current_player_id = $this->getCurrentPlayerId();    // !! We must only return informations visible by this player !!
 
-        // Get information about players
-        // Note: you can retrieve some extra field you added for "player" table in "dbmodel.sql" if you need it.
         $sql = "SELECT player_id id, player_score score FROM player ";
         $species_info = $this->species_info;
         $keepers_info = $this->keepers_info;
@@ -310,16 +297,6 @@ class Zookeepers extends Table
         return $result;
     }
 
-    /*
-        getGameProgression:
-        
-        Compute and return the current game progression.
-        The number returned must be an integer beween 0 (=the game just started) and
-        100 (= the game is finished or almost finished).
-    
-        This method is called each time we are in a game state with the "updateGameProgression" property set to true 
-        (see states.inc.php)
-    */
     function getGameProgression(): int
     {
         $progression = (100 / $this->speciesGoal) * $this->getGameStateValue("highestSaved");
@@ -637,6 +614,10 @@ class Zookeepers extends Table
 
     function canPayWithFund($species_id)
     {
+        if ($this->fastMode()) {
+            return null;
+        }
+
         $player_id = $this->getActivePlayerId();
         $resource_counters = $this->getResourceCounters()[$player_id];
 
@@ -1130,8 +1111,8 @@ class Zookeepers extends Table
 
     function drawNewSpecies($auto = false)
     {
-
         $empty_column_nbr = $this->getEmptyColumnNbr();
+
         if ($empty_column_nbr < 2) {
             throw new BgaVisibleSystemException("You can't draw new species until there are 2 or more empty species columns");
         }
@@ -1152,14 +1133,15 @@ class Zookeepers extends Table
             $this->species->pickCardForLocation("deck", "shop_visible", $position);
         }
 
-        $message = $auto ? clienttranslate('The grid is refilled with 12 new species') :
-            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws 12 new species');
+        $message = $auto ? clienttranslate('The grid is refilled with ${shop_species} new species') :
+            clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws ${shop_species} new species');
 
         $this->notifyAllPlayers(
             "newSpecies",
             $message,
             array(
                 "player_name" => $this->getActivePlayerName(),
+                "shop_species" => $this->shopSpecies,
                 "visible_species" => $this->getVisibleSpecies(),
                 "backup_species" => $this->getBackupSpecies(),
             )
@@ -1186,18 +1168,18 @@ class Zookeepers extends Table
         }
     }
 
-    function isOutOfActions($notify = true)
+    function isOutOfActions($notif = true)
     {
         $player_id = $this->getActivePlayerId();
 
         $used_main_action = $this->getGameStateValue("mainAction") > 0;
-        $can_new_species = $this->getEmptyColumnNbr() >= 2;
+        $can_new_species = $this->fastMode() ? $this->resources->countCardsInLocation("hand", $player_id) > 0 : $this->getEmptyColumnNbr() >= 2;
         $used_free_action = $this->getGameStateValue("freeAction") > 0;
-        $can_conservation_fund = $this->resources->countCardsInLocation("hand", $player_id) > 0 && !$used_main_action && !$used_free_action;
-        $can_zoo_help = $this->canZooHelp();
+        $can_conservation_fund = !$this->fastMode() && $this->resources->countCardsInLocation("hand", $player_id) > 1 && !$used_main_action && !$used_free_action;
+        $can_zoo_help = !$this->fastMode() && $this->canZooHelp();
 
         if ($used_main_action && !$can_conservation_fund && !$can_new_species && !$can_zoo_help) {
-            if ($notify) {
+            if ($notif) {
                 $this->notifyPlayer(
                     $player_id,
                     "outOfActions",
@@ -1213,6 +1195,9 @@ class Zookeepers extends Table
 
     function getPossibleZoos($species_id = null)
     {
+        if ($this->fastMode()) {
+            return array();
+        }
 
         $possible_zoos = array();
         $species_counters = $this->getSpeciesCounters();
@@ -1255,7 +1240,8 @@ class Zookeepers extends Table
 
     function canZooHelp()
     {
-        return !!$this->getPossibleZoos()
+        return !$this->fastMode() &&
+            !!$this->getPossibleZoos()
             && $this->getGameStateValue("mainAction") == 2
             && $this->getGameStateValue("zooHelp") == 0
             && !$this->isLastTurn();
@@ -1464,11 +1450,6 @@ class Zookeepers extends Table
     //////////// Player actions
     //////////// 
 
-    /*
-        Each time a player is doing some game action, one of the methods below is called.
-        (note: each method below must match an input method in zookeepers.action.php)
-    */
-
     function pass()
     {
         $this->checkAction("pass");
@@ -1492,8 +1473,8 @@ class Zookeepers extends Table
             $keepers_hired_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
 
-        if ($keepers_hired_nbr >= 4) {
-            throw new BgaVisibleSystemException("You can't have more than 4 keepers in play");
+        if ($keepers_hired_nbr >= $this->keeperHouses) {
+            throw new BgaVisibleSystemException("You don't have an open house for this keeper");
         }
 
         $board_position = 0;
@@ -1858,12 +1839,16 @@ class Zookeepers extends Table
     {
         $this->checkAction("exchangeResources");
 
+        if ($this->fastMode()) {
+            throw new BgaVisibleSystemException("This action is not allowed in the fast mode");
+        }
+
         if ($this->getGameStateValue("freeAction") || $this->getGameStateValue("mainAction")) {
-            throw new BgaUserException($this->_("The conservation fund can't be used after any other action"));
+            throw new BgaVisibleSystemException("The conservation fund can't be used after any other action");
         }
 
         if ($this->isBagEmpty()) {
-            throw new BgaUserException($this->_("The bag is out of resources"));
+            throw new BgaVisibleSystemException("The bag is out of resources");
         }
 
         $this->gamestate->nextState("exchangeCollection");
@@ -2423,6 +2408,10 @@ class Zookeepers extends Table
     ) {
         $this->checkAction("lookAtBackup");
 
+        if ($this->fastMode()) {
+            throw new BgaVisibleSystemException("This action is not allowed in the fast mode");
+        }
+
         if ($this->getGameStateValue("mainAction")) {
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
@@ -2808,6 +2797,10 @@ class Zookeepers extends Table
     {
         $this->checkAction("newSpecies");
 
+        if ($this->fastMode()) {
+            throw new BgaVisibleSystemException("This action is not allowed in the fast mode");
+        }
+
         $this->drawNewSpecies();
 
         $this->setGameStateValue("freeAction", 1);
@@ -2823,6 +2816,10 @@ class Zookeepers extends Table
     function zooHelp($species_id)
     {
         $this->checkAction("zooHelp");
+
+        if ($this->fastMode()) {
+            throw new BgaVisibleSystemException("This action is not allowed in the fast mode");
+        }
 
         if ($this->getGameStateValue("mainAction") != 2) {
             throw new BgaVisibleSystemException("The bonus action is only available after you save a species in the turn");
@@ -3241,10 +3238,6 @@ class Zookeepers extends Table
         $this->setGameStateValue("secondStep", 0);
 
         $this->autoDrawNewSpecies();
-
-        // if ($this->hasSecretObjectives()) {
-        //     $this->calcObjectiveBonus($player_id);
-        // }
 
         if ($this->isOutOfActions()) {
             $this->gamestate->nextState("betweenPlayers");
