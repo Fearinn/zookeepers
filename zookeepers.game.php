@@ -37,6 +37,7 @@ class Zookeepers extends Table
             "selectedZoo" => 17,
             "secondStep" => 18,
             "zooHelp" => 19,
+            "prevState" => 20,
 
             "highestSaved" => 80,
             "lastTurn" => 81,
@@ -1150,32 +1151,40 @@ class Zookeepers extends Table
     function drawNewSpecies($auto = false)
     {
         if ($this->fastMode()) {
-            return;
+            $visible_species = $this->species->getCardsInLocation("shop_visible");
+
+            foreach ($visible_species as $card_id => $species) {
+                $this->species->insertCardOnExtremePosition($card_id, "deck", false);
+            }
+
+            for ($position = 1; $position <= $this->shopPositions(); $position++) {
+                $this->species->pickCardForLocation("deck", "shop_visible", $position);
+            }
+        } else {
+            $empty_column_nbr = $this->getEmptyColumnNbr();
+
+            if ($empty_column_nbr < 2) {
+                throw new BgaVisibleSystemException("You can't draw new species until there are 2 or more empty species columns");
+            }
+
+            $backup_species = $this->species->getCardsInLocation("shop_backup");
+            $visible_species = $this->species->getCardsInLocation("shop_visible");
+
+            foreach ($backup_species as $card_id => $species) {
+                $this->species->insertCardOnExtremePosition($card_id, "deck", false);
+            }
+
+            foreach ($visible_species as $card_id => $species) {
+                $this->species->insertCardOnExtremePosition($card_id, "deck", false);
+            }
+
+            for ($position = 1; $position <= $this->shopPositions(); $position++) {
+                $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
+                $this->species->pickCardForLocation("deck", "shop_visible", $position);
+            }
         }
 
-        $empty_column_nbr = $this->getEmptyColumnNbr();
-
-        if ($empty_column_nbr < 2) {
-            throw new BgaVisibleSystemException("You can't draw new species until there are 2 or more empty species columns");
-        }
-
-        $backup_species = $this->species->getCardsInLocation("shop_backup");
-        $visible_species = $this->species->getCardsInLocation("shop_visible");
-
-        foreach ($backup_species as $card_id => $species) {
-            $this->species->insertCardOnExtremePosition($card_id, "deck", false);
-        }
-
-        foreach ($visible_species as $card_id => $species) {
-            $this->species->insertCardOnExtremePosition($card_id, "deck", false);
-        }
-
-        for ($position = 1; $position <= $this->shopPositions(); $position++) {
-            $this->species->pickCardsForLocation(2, "deck", "shop_backup", $position);
-            $this->species->pickCardForLocation("deck", "shop_visible", $position);
-        }
-
-        $message = $auto ? clienttranslate('The grid is refilled with ${shop_species} new species') :
+        $message = $auto ? clienttranslate('The grid is automatically refilled with ${shop_species} new species') :
             clienttranslate('${player_name} moves all species from the grid to the bottom of the deck and draws ${shop_species} new species');
 
         $this->notifyAllPlayers(
@@ -2857,15 +2866,65 @@ class Zookeepers extends Table
     {
         $this->checkAction("newSpecies");
 
-        if ($this->fastMode()) {
-            throw new BgaVisibleSystemException("This action is not allowed in the fast mode");
+        if ($this->getGameStateValue("freeAction") == 1) {
+            throw new BgaVisibleSystemException("You can draw new specie only once during your turn");
         }
 
-        $this->drawNewSpecies();
+        if ($this->fastMode()) {
+            $this->gamestate->nextState("returnFromNewSpecies");
+            return;
+        }
 
         $this->setGameStateValue("freeAction", 1);
 
+        $this->drawNewSpecies();
+
         if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
+            $this->setGameStateValue("prevState", 29);
+            $this->gamestate->nextState("mngSecondSpecies");
+            return;
+        }
+
+        $this->gamestate->nextState("betweenActions");
+    }
+
+    function returnFromNewSpecies($type)
+    {
+        $this->checkAction("returnFromNewSpecies");
+
+        $player_id = $this->getActivePlayerId();
+
+        $hand_resources = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
+
+        $resource = array_shift($hand_resources);
+
+        if ($resource === null) {
+            throw new BgaVisibleSystemException("Resource not found");
+        }
+
+        $this->setGameStateValue("freeAction", 1);
+
+        $this->resources->moveCard($resource["id"], "deck");
+
+
+        $this->notifyAllPlayers(
+            "returnResources",
+            clienttranslate('${player_name} returns ${returned_nbr} ${type_label} to the bag'),
+            array(
+                "i18n" => array("type_label"),
+                "player_name" => $this->getActivePlayerName(),
+                "player_id" => $player_id,
+                "returned_nbr" => 1,
+                "type" => $type,
+                "type_label" => $this->resource_types[$type]["label"],
+                "resource_counters" => $this->getResourceCounters(),
+                "bag_counters" => $this->getBagCounters(),
+            )
+        );
+
+        $this->drawNewSpecies();
+
+        if ($this->getGameStateValue("prevState") === 29) {
             $this->gamestate->nextState("mngSecondSpecies");
             return;
         }

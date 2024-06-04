@@ -141,9 +141,9 @@ class action_zookeepers extends APP_GameAction
   {
     $this->setAjaxMode();
     $this->checkVersion();
-    $lastly_returned_nbr = $this->getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 10));
-    $lastly_returned_type = $this->getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
-    $this->game->returnFromExchange($lastly_returned_nbr, $lastly_returned_type);
+    $nbr = $this->getArg("nbr", AT_enum, true, null, range(1, 10));
+    $type = $this->getArg("type", AT_enum, true, null, array("plant", "meat", "kit"));
+    $this->game->returnFromExchange($nbr, $type);
     $this->ajaxResponse();
   }
 
@@ -151,9 +151,9 @@ class action_zookeepers extends APP_GameAction
   {
     $this->setAjaxMode();
     $this->checkVersion();
-    $lastly_returned_nbr = $this->getArg("lastly_returned_nbr", AT_enum, true, null, range(1, 6));
-    $lastly_returned_type = $this->getArg("lastly_returned_type", AT_enum, true, null, array("plant", "meat", "kit"));
-    $this->game->returnExcess($lastly_returned_nbr, $lastly_returned_type);
+    $nbr = $this->getArg("nbr", AT_enum, true, null, range(1, 6));
+    $type = $this->getArg("type", AT_enum, true, null, array("plant", "meat", "kit"));
+    $this->game->returnExcess($nbr, $type);
     $this->ajaxResponse();
   }
 
@@ -280,6 +280,15 @@ class action_zookeepers extends APP_GameAction
     $this->setAjaxMode();
     $this->checkVersion();
     $this->game->newSpecies();
+    $this->ajaxResponse();
+  }
+
+  public function returnFromNewSpecies()
+  {
+    $this->setAjaxMode();
+    $this->checkVersion();
+    $type = $this->getArg("type", AT_enum, true, null, array("plant", "meat", "kit"));
+    $this->game->returnFromNewSpecies($type);
     $this->ajaxResponse();
   }
 

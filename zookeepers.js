@@ -161,8 +161,6 @@ define([
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
       this.isLastTurn = gamedatas.isLastTurn;
 
-      console.log(this.fastMode, this.allQuarantines);
-
       for (const player_id in this.gamedatas.players) {
         if (player_id != this.getCurrentPlayerId()) {
           const player_name = this.gamedatas.players[player_id].name;
@@ -852,6 +850,26 @@ define([
         return;
       }
 
+      if (stateName === "newSpeciesReturn") {
+        const playerId = this.getActivePlayerId();
+        const activePlayerCounters = this.resourceCounters[playerId];
+
+        if (this.isCurrentPlayerActive()) {
+          for (const type in activePlayerCounters) {
+            if (activePlayerCounters[type].getValue() > 0) {
+              this.addActionButton(
+                "zkp_image_btn_" + type,
+                `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
+                () => {
+                  this.onReturnFromNewSpecies(type);
+                }
+              );
+              // dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
+            }
+          }
+        }
+      }
+
       if (stateName === "returnExcess") {
         const playerId = this.getActivePlayerId();
         const activePlayerCounters = this.resourceCounters[playerId];
@@ -1077,13 +1095,18 @@ define([
         this.emptyColumnNbr = args.args.empty_column_nbr;
 
         if (this.isCurrentPlayerActive()) {
-          if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+          if (
+            this.freeAction != 1 &&
+            ((this.fastMode && this.resourcesInHandNbr > 0) ||
+              this.emptyColumnNbr >= 2)
+          ) {
             this.addActionButton(
               "zkp_new_species_btn",
               _("New Species"),
               "onNewSpecies"
             );
           }
+
           this.addActionButton(
             "zkp_cancel_btn",
             _("Cancel"),
@@ -1336,7 +1359,11 @@ define([
       }
 
       if (this.isCurrentPlayerActive()) {
-        if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+        if (
+          this.freeAction != 1 &&
+          ((this.fastMode && this.resourcesInHandNbr > 0) ||
+            this.emptyColumnNbr >= 2)
+        ) {
           this.addActionButton(
             "zkp_new_species_btn",
             _("New Species"),
@@ -1958,7 +1985,11 @@ define([
 
         this.removeActionButtons();
 
-        if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+        if (
+          this.freeAction != 1 &&
+          ((this.fastMode && this.resourcesInHandNbr > 0) ||
+            this.emptyColumnNbr >= 2)
+        ) {
           this.addActionButton(
             "zkp_new_species_btn",
             _("New Species"),
@@ -2048,7 +2079,11 @@ define([
 
         this.removeActionButtons();
 
-        if (this.emptyColumnNbr >= 2 && this.freeAction != 1) {
+        if (
+          this.freeAction != 1 &&
+          ((this.fastMode && this.resourcesInHandNbr > 0) ||
+            this.emptyColumnNbr >= 2)
+        ) {
           this.addActionButton(
             "zkp_new_species_btn",
             _("New Species"),
@@ -2303,8 +2338,8 @@ define([
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, {
-          lastly_returned_nbr: parseInt(choosen_nbr),
-          lastly_returned_type: resource_type,
+          nbr: parseInt(choosen_nbr),
+          type: resource_type,
         });
       }
     },
@@ -2314,8 +2349,8 @@ define([
 
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action, {
-          lastly_returned_nbr: parseInt(choosen_nbr),
-          lastly_returned_type: resource_type,
+          nbr: parseInt(choosen_nbr),
+          type: resource_type,
         });
       }
     },
@@ -2453,6 +2488,14 @@ define([
       if (this.checkAction(action, true)) {
         this.sendAjaxCall(action);
       }
+    },
+
+    onReturnFromNewSpecies: function (resource_type) {
+      const action = "returnFromNewSpecies";
+
+      this.sendAjaxCall(action, {
+        type: resource_type,
+      });
     },
 
     onZooHelp: function (speciesId) {
@@ -3068,6 +3111,8 @@ define([
       this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;
 
+      console.log(this.visibleSpecies);
+
       const deckElement = "zkp_species_deck";
       for (let column = 1; column <= 4; column++) {
         const backupKey = `backupShop_${column}`;
@@ -3076,11 +3121,14 @@ define([
         this[backupKey].removeAllTo(deckElement);
         this[visibleKey].removeAllTo(deckElement);
 
-        for (let backup = 1; backup <= 2; backup++) {
-          this[backupKey].addToStockWithId(0, backup, deckElement);
+        if (!this.fastMode) {
+          for (let backup = 1; backup <= 2; backup++) {
+            this[backupKey].addToStockWithId(0, backup, deckElement);
+          }
         }
 
         const speciesId = this.visibleSpecies[column]?.type_arg;
+
         if (speciesId) {
           this[visibleKey].addToStockWithId(speciesId, speciesId, deckElement);
         }

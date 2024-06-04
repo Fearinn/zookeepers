@@ -68,9 +68,22 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} can select a card and/or do any available actions, limited to one of the four main ones'),
         "type" => "activeplayer",
         "possibleactions" => array(
-            "saveSpecies", "saveQuarantined", "collectResources", "exchangeResources", "collectFromExchange", "returnFromExchange",
-            "quarantineSpecies", "discardSpecies", "lookAtBackup", "replaceKeeper", "dismissKeeper",
-            "hireKeeper", "zooHelp", "newSpecies", "replaceObjective", "pass"
+            "saveSpecies",
+            "saveQuarantined",
+            "collectResources",
+            "exchangeResources",
+            "collectFromExchange",
+            "returnFromExchange",
+            "quarantineSpecies",
+            "discardSpecies",
+            "lookAtBackup",
+            "replaceKeeper",
+            "dismissKeeper",
+            "hireKeeper",
+            "zooHelp",
+            "newSpecies",
+            "replaceObjective",
+            "pass"
         ),
         "args" => "argPlayerTurn",
         "transitions" => array(
@@ -86,6 +99,7 @@ $machinestates = array(
             "mngBackup" => 30,
             "selectQuarantinedKeeper" => 32,
             "selectZoo" => 33,
+            "returnFromNewSpecies" => 37
         )
     ),
 
@@ -234,6 +248,16 @@ $machinestates = array(
         "type" => "game",
         "action" => "stActivatePrevZoo",
         "transitions" => array("betweenActions" => 7),
+    ),
+
+    37 => array(
+        "name" => "newSpeciesReturn",
+        "description" => clienttranslate('${actplayer} must return a resource to the bag to refill the grid of species'),
+        "descriptionmyturn" => clienttranslate('${you} must return a resource to the bag to refill the grid of species'),
+        "type" => "activeplayer",
+        // "args" => "argNewSpeciesReturn",
+        "possibleactions" => array("returnFromNewSpecies"),
+        "transitions" => array("betweenActions" => 7, "mngSecondSpecies" => 29)
     ),
 
     7 => array(
