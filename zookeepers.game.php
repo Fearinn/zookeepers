@@ -490,6 +490,10 @@ class Zookeepers extends Table
     {
         $objectives = array();
 
+        if (!$this->hasSecretObjectives()) {
+            return;
+        }
+
         $players = $this->loadPlayersBasicInfos();
         foreach ($players as $player_id => $player) {
             $objectives_in_hand = $this->objectives->getCardsInLocation("hand", $player_id);
@@ -534,6 +538,10 @@ class Zookeepers extends Table
     function getSavableWithFund()
     {
         $savable_with_fund = array();
+
+        if ($this->fastMode()) {
+            return array();
+        }
 
         foreach ($this->species->getCardsInLocation("shop_visible") as $species_card) {
             $species_id = $species_card["type_arg"];
@@ -584,6 +592,11 @@ class Zookeepers extends Table
     function getSavableQuarantinedWithFund()
     {
         $savable_with_fund = array();
+
+        if ($this->fastMode()) {
+            return array();
+        }
+
         $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
@@ -975,7 +988,7 @@ class Zookeepers extends Table
         $backup_species = array();
 
         for ($position = 1; $position <= $this->shopPositions(); $position++) {
-            $backup_species[$position] = $this->species->countCardsInLocation("shop_backup", $position);
+            $backup_species[$position] = $this->fastMode() ? 0 : $this->species->countCardsInLocation("shop_backup", $position);
         }
 
         return $backup_species;
@@ -983,6 +996,10 @@ class Zookeepers extends Table
 
     function getLookedBackup()
     {
+        if ($this->fastMode()) {
+            return null;
+        }
+
         $backup_id = $this->getGameStateValue("selectedBackup");
         $species_id = $this->getGameStateValue("selectedSpecies");
 
@@ -1114,6 +1131,10 @@ class Zookeepers extends Table
 
     function getEmptyColumnNbr()
     {
+        if (!$this->fastMode()) {
+            return 0;
+        }
+
         $empty_column_nbr = 0;
 
         for ($position = 1; $position <= $this->shopPositions(); $position++) {
@@ -1130,6 +1151,10 @@ class Zookeepers extends Table
 
     function drawNewSpecies($auto = false)
     {
+        if ($this->fastMode()) {
+            return;
+        }
+
         $empty_column_nbr = $this->getEmptyColumnNbr();
 
         if ($empty_column_nbr < 2) {
@@ -1179,6 +1204,10 @@ class Zookeepers extends Table
 
     function autoDrawNewSpecies()
     {
+        if ($this->fastMode()) {
+            return;
+        }
+
         $backup_species_nbr = $this->species->countCardsInLocation("shop_backup");
         $visible_species_nbr = $this->species->countCardsInLocation("shop_visible");
 
@@ -1259,7 +1288,8 @@ class Zookeepers extends Table
 
     function canZooHelp()
     {
-        return !$this->fastMode() &&
+        return
+            !$this->fastMode() &&
             !!$this->getPossibleZoos()
             && $this->getGameStateValue("mainAction") == 2
             && $this->getGameStateValue("zooHelp") == 0
@@ -1945,6 +1975,7 @@ class Zookeepers extends Table
     function returnFromExchange($lastly_returned_nbr, $type)
     {
         $this->checkAction("returnFromExchange");
+        
         $player_id = $this->getActivePlayerId();
 
         $resources_in_hand = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
