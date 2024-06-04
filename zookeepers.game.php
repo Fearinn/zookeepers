@@ -1148,7 +1148,44 @@ class Zookeepers extends Table
         return $empty_column_nbr;
     }
 
-    function drawNewSpecies($auto = false)
+    function drawSingleSpecies(int $position, $player_id)
+    {
+        if (!$this->fastMode()) {
+            return;
+        }
+
+        $species = $this->species->pickCardForLocation("deck", "shop_visible", $position);
+        $species_id = $species["type_arg"];
+
+        $this->notifyAllPlayers(
+            "drawSingleSpecies",
+            clienttranslate('${player_name} draws a new species from the deck. It&apos;s the ${species_name}'),
+            array(
+                "player_id" => $player_id,
+                "player_name" => $this->getPlayerNameById($player_id),
+                "species_id" => $species_id,
+                "species_name" => array(
+                    "log" => $this->styledSpeciesName(),
+                    "args" => array(
+                        "i18n" => array("species_name_tr"),
+                        "species_name_tr" => $this->species_info[$species_id]["name"]
+                    )
+                ),
+                "shop_position" => $position
+            )
+        );
+
+        $this->notifyAllPlayers(
+            "newVisibleSpecies",
+            "",
+            array(
+                "species_id" => $species["type_arg"],
+                "shop_position" => $position
+            )
+        );
+    }
+
+    function drawNewSpecies(bool $auto = false)
     {
         if ($this->fastMode()) {
             $visible_species = $this->species->getCardsInLocation("shop_visible");
@@ -1228,7 +1265,7 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
 
         $used_main_action = $this->getGameStateValue("mainAction") > 0;
-        $can_new_species = $this->fastMode() ? $this->resources->countCardsInLocation("hand", $player_id) > 0 : $this->getEmptyColumnNbr() >= 2;
+        $can_new_species = $this->getGameStateValue("freeAction") != 1 && ($this->fastMode() ? $this->resources->countCardsInLocation("hand", $player_id) > 0 : $this->getEmptyColumnNbr() >= 2);
         $used_free_action = $this->getGameStateValue("freeAction") > 0;
         $can_conservation_fund = !$this->fastMode() && $this->resources->countCardsInLocation("hand", $player_id) > 1 && !$used_main_action && !$used_free_action;
         $can_zoo_help = $this->canZooHelp();
@@ -2356,6 +2393,7 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Species not found");
         }
 
+        $shop_position = $species["location_arg"];
         $species_id = $species["type_arg"];
 
         $keeper = null;
@@ -2390,16 +2428,6 @@ class Zookeepers extends Table
                     "returnResources",
                     "",
                     array(
-                        // "i18n" => array("type_label"),
-                        // "player_name" => $this->getActivePlayerName(),
-                        // "type_label" => $this->resource_types[$type]["label"],
-                        // "species_name" => array(
-                        //     "log" => $this->styledSpeciesName(),
-                        //     "args" => array(
-                        //         "i18n" => array("species_name_tr"),
-                        //         "species_name_tr" => $this->species_info[$species_id]["name"]
-                        //     )
-                        // ),
                         "player_id" => $player_id,
                         "returned_nbr" => $cost,
                         "type" => $type,
@@ -2441,6 +2469,8 @@ class Zookeepers extends Table
                 "open_quarantines" => $this->getOpenQuarantines()
             )
         );
+
+        $this->drawSingleSpecies($shop_position, $player_id);
 
         $this->updateScore($player_id, $points);
         $this->incStat(1, "species_saved", $player_id);
@@ -2731,6 +2761,8 @@ class Zookeepers extends Table
             ),
         );
 
+        $this->drawSingleSpecies($shop_position, $player_id);
+
         if ($this->getGameStateValue("secondStep") > 0) {
             $this->setGameStateValue("mainAction", 4);
             $this->gamestate->nextState("betweenActions");
@@ -2782,6 +2814,8 @@ class Zookeepers extends Table
             throw new BgaSystemException("Species not found");
         }
 
+        $shop_position = $species["location_arg"];
+
         if (!$this->canLiveInQuarantine($species_id, $quarantine, $player_id)) {
             throw new BgaUserException($this->_("This species can't live in that quarantine"));
         }
@@ -2816,6 +2850,8 @@ class Zookeepers extends Table
                 "open_quarantines" => $this->getOpenQuarantines()
             )
         );
+
+        $this->drawSingleSpecies($shop_position, $player_id);
 
         $this->updateScore($player_id, -2);
 
@@ -2905,7 +2941,6 @@ class Zookeepers extends Table
         $this->setGameStateValue("freeAction", 1);
 
         $this->resources->moveCard($resource["id"], "deck");
-
 
         $this->notifyAllPlayers(
             "returnResources",

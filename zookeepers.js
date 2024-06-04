@@ -2576,6 +2576,7 @@ define([
       );
       dojo.subscribe("zooHelp", this, "notif_zooHelp");
       dojo.subscribe("newSpecies", this, "notif_newSpecies");
+      dojo.subscribe("drawSingleSpecies", this, "notif_drawSingleSpecies");
       dojo.subscribe("newVisibleSpecies", this, "notif_newVisibleSpecies");
       dojo.subscribe("replaceObjective", this, "notif_replaceObjective");
       dojo.subscribe(
@@ -3146,6 +3147,17 @@ define([
         backgroundPosition,
         speciesName
       );
+    },
+
+    notif_drawSingleSpecies(notif) {
+      const player_id = notif.args.player_id;
+      const position = notif.args.shop_position;
+      const species_id = notif.args.species_id;
+
+      const deckElement = $(`zkp_species_deck`);
+      const visibleKey = `visibleShop_${position}`;
+
+      this[visibleKey].addToStockWithId(species_id, species_id, deckElement);
     },
 
     notif_replaceObjective(notif) {
