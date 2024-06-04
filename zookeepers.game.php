@@ -381,16 +381,17 @@ class Zookeepers extends Table
         return $filtered_items;
     }
 
-    function findCardByTypeArg($cards, $arg)
+    function findSpeciesByTypeArg(string $location, int $type_arg, int $location_arg = null): array | null
     {
-        $found_card = null;
-        foreach ($cards as $card) {
-            if ($card["type_arg"] == $arg) {
-                $found_card = $card;
-                break;
-            }
+        $sql = "SELECT card_id id, card_type type, card_type_arg type_arg, card_location location, card_location_arg location_arg 
+        FROM species WHERE card_location='$location' AND card_type_arg='$type_arg'";
+
+        if ($location_arg) {
+            $sql .= "AND card_location_arg='$location_arg'";
         }
-        return $found_card;
+
+        $card = $this->getObjectFromDB($sql);
+        return $card;
     }
 
     function getPilesTops()
@@ -985,9 +986,7 @@ class Zookeepers extends Table
         $backup_id = $this->getGameStateValue("selectedBackup");
         $species_id = $this->getGameStateValue("selectedSpecies");
 
-        $backup_species = $this->species->getCardsInLocation("shop_backup");
-
-        $species = $this->findCardByTypeArg($backup_species, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_backup", $species_id);
 
         if ($species === null) {
             return null;
@@ -1196,7 +1195,7 @@ class Zookeepers extends Table
         $can_new_species = $this->fastMode() ? $this->resources->countCardsInLocation("hand", $player_id) > 0 : $this->getEmptyColumnNbr() >= 2;
         $used_free_action = $this->getGameStateValue("freeAction") > 0;
         $can_conservation_fund = !$this->fastMode() && $this->resources->countCardsInLocation("hand", $player_id) > 1 && !$used_main_action && !$used_free_action;
-        $can_zoo_help = !$this->fastMode() && $this->canZooHelp();
+        $can_zoo_help = $this->canZooHelp();
 
         if ($used_main_action && !$can_conservation_fund && !$can_new_species && !$can_zoo_help) {
             if ($notif) {
@@ -2112,8 +2111,7 @@ class Zookeepers extends Table
         $species_card = null;
 
         foreach ($this->quarantines() as $quarantine) {
-            $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
-            $species_card = $this->findCardByTypeArg($cards_in_location, $species_id);
+            $species_card = $this->findSpeciesByTypeArg("quarantine:" . $quarantine, $species_id, $player_id);
 
             if ($species_card !==  null) {
                 break;
@@ -2507,8 +2505,7 @@ class Zookeepers extends Table
         $backup_id = $this->getGameStateValue("selectedBackup");
         $shop_position = $this->getGameStateValue("selectedPosition");
 
-        $species_in_location = $this->species->getCardsInLocation("shop_backup");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_backup", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2568,8 +2565,7 @@ class Zookeepers extends Table
         $species_id = $this->getGameStateValue("selectedSpecies");
         $player_id = $this->getActivePlayerId();
 
-        $species_in_location = $this->species->getCardsInLocation("shop_backup");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_backup", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2600,8 +2596,7 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
 
-        $species_in_location = $this->species->getCardsInLocation("shop_backup");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_backup", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2668,8 +2663,7 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2720,8 +2714,7 @@ class Zookeepers extends Table
 
         $player_id = $this->getActivePlayerId();
 
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2745,8 +2738,7 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
 
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
             throw new BgaSystemException("Species not found");
@@ -2876,8 +2868,7 @@ class Zookeepers extends Table
 
         $this->setGameStateValue("selectedSpecies", $species_id);
 
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2914,8 +2905,8 @@ class Zookeepers extends Table
         }
 
         $species_id = $this->getGameStateValue("selectedSpecies");
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -2968,8 +2959,7 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
 
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
             throw new BgaVisibleSystemException("Species not found");
@@ -3163,7 +3153,7 @@ class Zookeepers extends Table
     {
         $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
-        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         return array(
             "i18n" => array("species_name"),
@@ -3196,9 +3186,9 @@ class Zookeepers extends Table
     {
         $player_id = $this->getActivePlayerId();
         $species_id = $this->getGameStateValue("selectedSpecies");
-        $species = $this->findCardByTypeArg($this->species->getCardsInLocation("shop_visible"), $species_id);
-        return array(
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
+        return array(
             "i18n" => array("species_name"),
             "species_name" => $this->species_info[$species_id]["name"],
             "species_id" => $species_id,
@@ -3210,8 +3200,7 @@ class Zookeepers extends Table
     function argSelectZoo()
     {
         $species_id = $this->getGameStateValue("selectedSpecies");
-        $species_in_location = $this->species->getCardsInLocation("shop_visible");
-        $species = $this->findCardByTypeArg($species_in_location, $species_id);
+        $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         return array(
             "i18n" => array("species_name"),
