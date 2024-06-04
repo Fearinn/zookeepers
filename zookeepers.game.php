@@ -478,7 +478,9 @@ class Zookeepers extends Table
         foreach ($players as $player_id => $player) {
             for ($position = 1; $position <= $this->keeperHouses(); $position++) {
                 $location = "board:" . $position;
-                $sql = "SELECT pile, card_id, card_location, card_location_arg, card_type, card_type_arg FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
+                $sql = "SELECT pile, card_id id, card_location location, card_location_arg location_arg, card_type type, card_type_arg type_arg 
+                FROM keeper WHERE card_location_arg='$player_id' AND card_location='$location'";
+
                 $keepers[$player_id][$position] = $this->getCollectionFromDb($sql);
             }
         }
@@ -714,8 +716,8 @@ class Zookeepers extends Table
                 continue;
             }
 
-            $keeper_id = $keeper_card["card_type_arg"];
-            $keeper_location = $keeper_card["card_location"];
+            $keeper_id = $keeper_card["type_arg"];
+            $keeper_location = $keeper_card["location"];
 
             $keeper_info = $this->keepers_info[$keeper_id];
             $operator = $keeper_info["operator"];
@@ -1397,7 +1399,7 @@ class Zookeepers extends Table
         foreach ($this->getKeepersAtHouses()[$player_id] as $location) {
             foreach ($location as $keeper) {
                 if (is_array($keeper) && count($keeper) > 0) {
-                    $keeper_id = $keeper["card_type_arg"];
+                    $keeper_id = $keeper["type_arg"];
                     $sum += $this->keepers_info[$keeper_id]["level"];
                 }
             }
@@ -1596,9 +1598,9 @@ class Zookeepers extends Table
 
         foreach ($this->getKeepersAtHouses()[$player_id][$board_position] as $card) {
             $pile = $card["pile"];
-            $keeper_level = $keepers_info[$card["card_type_arg"]]["level"];
+            $keeper_level = $keepers_info[$card["type_arg"]]["level"];
             $keeper = $card;
-            $keeper_id = $card["card_type_arg"];
+            $keeper_id = $card["type_arg"];
         }
 
         if ($keeper === null) {
@@ -1622,7 +1624,7 @@ class Zookeepers extends Table
             $this->updateScore($player_id, -$score);
         }
 
-        $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
+        $this->keepers->insertCardOnExtremePosition($keeper["id"], "deck:" . $pile, false);
         $this->incStat(1, "keepers_dismissed", $player_id);
 
         $pile_counters = $this->getPileCounters();
@@ -1633,7 +1635,7 @@ class Zookeepers extends Table
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
-                "keeper_name" => $keeper["card_type"],
+                "keeper_name" => $keeper["type"],
                 "keeper_id" => $keeper_id,
                 "board_position" => $board_position,
                 "pile" => $pile,
@@ -1642,7 +1644,7 @@ class Zookeepers extends Table
             )
         );
 
-        $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
+        $this->discardAllKeptSpecies($board_position, $keeper["type"]);
 
         $this->setGameStateValue("mainAction", 6);
 
@@ -1662,7 +1664,7 @@ class Zookeepers extends Table
 
         foreach ($this->getKeepersAtHouses()[$player_id][$board_position] as $card) {
             $keeper = $card;
-            $keeper_id = $card["card_type_arg"];
+            $keeper_id = $card["type_arg"];
         }
 
         if ($keeper === null) {
@@ -1676,7 +1678,7 @@ class Zookeepers extends Table
             $this->updateScore($player_id, -$score);
         }
 
-        $this->keepers->insertCardOnExtremePosition($keeper["card_id"], "deck:" . $pile, false);
+        $this->keepers->insertCardOnExtremePosition($keeper["id"], "deck:" . $pile, false);
         $this->incStat(1, "keepers_dismissed", $player_id);
 
         $pile_counters = $this->getPileCounters();
@@ -1687,7 +1689,7 @@ class Zookeepers extends Table
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
-                "keeper_name" => $keeper["card_type"],
+                "keeper_name" => $keeper["type"],
                 "keeper_id" => $keeper_id,
                 "board_position" => $board_position,
                 "pile" => $pile,
@@ -1697,11 +1699,11 @@ class Zookeepers extends Table
             )
         );
 
-        $keeper_card_id = $keeper["card_id"];
+        $keeper_card_id = $keeper["id"];
 
         $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_card_id'");
 
-        $this->discardAllKeptSpecies($board_position, $keeper["card_type"]);
+        $this->discardAllKeptSpecies($board_position, $keeper["type"]);
 
         $this->setGameStateValue("mainAction", 6);
 
@@ -1777,7 +1779,7 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("The selected pile is out of cards"));
         }
 
-        $replaced_keeper_id = $replaced_keeper["card_type_arg"];
+        $replaced_keeper_id = $replaced_keeper["type_arg"];
 
         $completed_keeper = $this->getCompletedKeepers()[$player_id][$board_position];
 
@@ -1786,7 +1788,7 @@ class Zookeepers extends Table
             $this->updateScore($player_id, -$score);
         }
 
-        $replaced_card_id = $replaced_keeper["card_id"];
+        $replaced_card_id = $replaced_keeper["id"];
         $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$replaced_card_id");
         $this->keepers->insertCardOnExtremePosition($replaced_card_id, "deck:" . $pile, false);;
 
@@ -1811,7 +1813,7 @@ class Zookeepers extends Table
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
-                "replaced_keeper_name" => $replaced_keeper["card_type"],
+                "replaced_keeper_name" => $replaced_keeper["type"],
                 "hired_keeper_name" => $hired_keeper["type"],
                 "keeper_id" => $replaced_keeper_id,
                 "board_position" => $board_position,
@@ -1821,7 +1823,7 @@ class Zookeepers extends Table
             )
         );
 
-        $this->discardAllKeptSpecies($board_position, $replaced_keeper["card_type"]);
+        $this->discardAllKeptSpecies($board_position, $replaced_keeper["type"]);
 
         $this->setGameStateValue("mainAction", 7);
 

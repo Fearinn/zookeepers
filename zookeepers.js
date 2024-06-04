@@ -284,18 +284,18 @@ define([
 
           const addedKeeper = this.keepersAtHouses[player_id][position];
 
-          if (addedKeeper && addedKeeper.card_type_arg) {
+          if (addedKeeper && addedKeeper.type_arg) {
             const pile = addedKeeper.pile;
             if (pile > 0) {
               this[stockKey].addToStockWithId(
-                addedKeeper.card_type_arg,
-                addedKeeper.card_type_arg,
+                addedKeeper.type_arg,
+                addedKeeper.type_arg,
                 `zkp_keeper_pile:${pile}`
               );
             } else {
               this[stockKey].addToStockWithId(
-                addedKeeper.card_type_arg,
-                addedKeeper.card_type_arg
+                addedKeeper.type_arg,
+                addedKeeper.type_arg
               );
             }
           }
@@ -1381,7 +1381,7 @@ define([
         for (const position in ownedKeepers) {
           if (
             ownedKeepers[position] &&
-            ownedKeepers[position].card_type_arg == keeperId
+            ownedKeepers[position].type_arg == keeperId
           ) {
             result = { isOwner: true, position: position };
             break;
@@ -1567,7 +1567,7 @@ define([
             } else {
               keepersAtHouses[playerId][position] = keeperOnPosition[0];
             }
-          } else if (!keeperOnPosition.card_id) {
+          } else if (!keeperOnPosition.id) {
             for (const keeper in keeperOnPosition)
               keepersAtHouses[playerId][position] = keeperOnPosition[keeper];
           }
