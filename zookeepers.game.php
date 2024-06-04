@@ -490,10 +490,6 @@ class Zookeepers extends Table
     {
         $objectives = array();
 
-        if (!$this->hasSecretObjectives()) {
-            return;
-        }
-
         $players = $this->loadPlayersBasicInfos();
         foreach ($players as $player_id => $player) {
             $objectives_in_hand = $this->objectives->getCardsInLocation("hand", $player_id);
@@ -1975,7 +1971,7 @@ class Zookeepers extends Table
     function returnFromExchange($lastly_returned_nbr, $type)
     {
         $this->checkAction("returnFromExchange");
-        
+
         $player_id = $this->getActivePlayerId();
 
         $resources_in_hand = $this->resources->getCardsOfTypeInLocation($type, null, "hand", $player_id);
