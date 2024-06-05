@@ -45,6 +45,10 @@ define([
         5: 3,
       };
 
+      this.shopPositions = 6;
+      this.keeperPiles = 4;
+      this.keeperHouses = 4;
+
       this.filters = {
         ["ff0000"]:
           "invert(20%) sepia(59%) saturate(7414%) hue-rotate(355deg) brightness(98%) contrast(120%)" /* Red */,
@@ -253,7 +257,7 @@ define([
 
       // keepers
       for (const player_id in gamedatas.players) {
-        for (let position = 1; position <= 4; position++) {
+        for (let position = 1; position <= this.keeperHouses; position++) {
           const stockKey = `board_${player_id}:${position}`;
           this[stockKey] = new ebg.stock();
           this[stockKey].create(
@@ -394,7 +398,7 @@ define([
       }
 
       //species
-      for (let column = 1; column <= 4; column++) {
+      for (let column = 1; column <= this.shopPositions; column++) {
         const stockKey = `visibleShop_${column}`;
         const container = `zkp_visible_species_${column}`;
         this[stockKey] = new ebg.stock();
@@ -677,6 +681,53 @@ define([
             this[stockKey].addToStockWithId(0, 0, "zkp_objectives_deck");
           }
         }
+      }
+
+      //fast mode
+
+      if (this.fastMode) {
+        this.shopPositions = 6;
+        this.keeperPiles = 1;
+        this.keeperHouses = 2;
+
+        dojo.destroy($("zkp_backup_shop"));
+
+        for (let pile = 4; pile > this.keeperPiles; pile--) {
+          dojo.destroy($(`zkp_keeper_pile:${pile}`));
+        }
+
+        for (const player_id in gamedatas.players) {
+          for (let house = 4; house > this.keeperHouses; house--) {
+            dojo.destroy($(`zkp_keeper__${player_id}_${house}`));
+          }
+
+          dojo.query("[data-quarantine]").forEach((element) => {
+            const possibleQuarantines = [];
+            const quarantine = element.dataset.quarantine;
+
+            for (const quarantine_id in this.allQuarantines) {
+              possibleQuarantines.push(this.allQuarantines[quarantine_id]);
+            }
+
+            if (!possibleQuarantines.includes(quarantine)) {
+              dojo.destroy(element);
+            }
+          });
+
+          dojo.addClass($(`zkp_houses_${player_id}`), "zkp_fast_mode");
+          dojo.addClass($(`zkp_playmat:${player_id}`), "zkp_fast_mode");
+          dojo.addClass($(`zkp_quarantine_${player_id}:SAV`), "zkp_fast_mode");
+          dojo.addClass(
+            $(`zkp_playmat_counters_${player_id}`),
+            "zkp_fast_mode"
+          );
+        }
+
+        dojo.addClass($("zkp_visible_shop"), "zkp_fast_mode");
+        dojo.addClass($("zkp_keeper_piles"), "zkp_fast_mode");
+      } else {
+        for (let position = 6; position > this.shopPositions; position--)
+          dojo.destroy($(`zkp_visible_species:${position}`));
       }
 
       // Setup game notifications to handle (see "setupNotifications" method below)
@@ -1259,7 +1310,7 @@ define([
 
     setupExpandHouses: function () {
       for (const player_id in this.gamedatas.players) {
-        for (let position = 1; position <= 4; position++) {
+        for (let position = 1; position <= this.keeperHouses; position++) {
           const button = $(`zkp_expand_house_${player_id}:${position}`);
           const house = $(`zkp_keeper_${player_id}:${position}`);
           const className = "zkp_expanded";
@@ -1692,7 +1743,7 @@ define([
 
         const canCollect = this.speciesCounters[playerId].getValue() > 0;
         const canConservationFund =
-          this.freeAction < 1 && this.resourcesInHandNbr > 1;
+          !this.fastMode && this.freeAction < 1 && this.resourcesInHandNbr > 1;
 
         if (stockItemsNbr > 0) {
           if (this.mainAction < 1) {
@@ -2360,7 +2411,7 @@ define([
 
       let position = null;
 
-      for (let i = 1; i <= 4; i++) {
+      for (let i = 1; i <= this.keeperHouses; i++) {
         if (
           this.visibleSpecies[i] &&
           this.visibleSpecies[i].type_arg == speciesId
@@ -3112,22 +3163,20 @@ define([
       this.backupSpecies = notif.args.backup_species;
       this.visibleSpecies = notif.args.visible_species;
 
-      console.log(this.visibleSpecies);
-
       const deckElement = "zkp_species_deck";
-      for (let column = 1; column <= 4; column++) {
+      for (let column = 1; column <= this.shopPositions; column++) {
         const backupKey = `backupShop_${column}`;
         const visibleKey = `visibleShop_${column}`;
 
-        this[backupKey].removeAllTo(deckElement);
-        this[visibleKey].removeAllTo(deckElement);
-
         if (!this.fastMode) {
+          this[backupKey].removeAllTo(deckElement);
+
           for (let backup = 1; backup <= 2; backup++) {
             this[backupKey].addToStockWithId(0, backup, deckElement);
           }
         }
 
+        this[visibleKey].removeAllTo(deckElement);
         const speciesId = this.visibleSpecies[column]?.type_arg;
 
         if (speciesId) {

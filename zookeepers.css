@@ -201,6 +201,10 @@
   gap: 12px;
 }
 
+.zkp_keeper_piles.zkp_fast_mode {
+  grid-template-columns: 180px;
+}
+
 .zkp_bigger_species {
   display: block;
   background-image: url("img/bigger_species.png");
@@ -232,6 +236,10 @@
   display: grid;
   grid-template-columns: repeat(4, 180px);
   gap: 8px;
+}
+
+.zkp_visible_shop.zkp_fast_mode {
+  grid-template-columns: repeat(3, 180px);
 }
 
 .zkp_backup_species {
@@ -272,6 +280,10 @@
   width: 900px;
 }
 
+.zkp_playmat.zkp_fast_mode {
+  background-image: url("img/playmat_fm.jpg");
+}
+
 .zkp_houses {
   position: absolute;
   top: 259.5px;
@@ -283,8 +295,18 @@
   height: 540px;
 }
 
-.zkp_houses > * {
+.zkp_houses > div {
   height: 175px !important;
+}
+
+.zkp_houses.zkp_fast_mode {
+  top: 320px;
+  column-gap: 20px;
+}
+
+.zkp_houses.zkp_fast_mode > div:first-child {
+  position: relative;
+  top: 135px;
 }
 
 .zkp_playmat_counters {
@@ -293,6 +315,10 @@
   left: 459px;
   height: 48px;
   width: 170px;
+}
+
+.zkp_playmat_counters {
+  left: 500px;
 }
 
 .zkp_playmat_counter {
@@ -365,6 +391,9 @@
   position: absolute;
   top: 405px;
   left: 0;
+}
+.zkp_quarantine_SAV.zkp_fast_mode {
+  top: 395px;
 }
 .zkp_quarantine_PRA {
   position: absolute;

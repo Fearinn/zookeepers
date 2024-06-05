@@ -23,6 +23,8 @@
         <div id="zkp_visible_species_2" class="zkp_visible_species"></div>
         <div id="zkp_visible_species_3" class="zkp_visible_species"></div>
         <div id="zkp_visible_species_4" class="zkp_visible_species"></div>
+        <div id="zkp_visible_species_5" class="zkp_visible_species"></div>
+        <div id="zkp_visible_species_6" class="zkp_visible_species"></div>
       </div>
     </div>
     <div id="zkp_keeper_piles" class="zkp_keeper_piles">
@@ -104,7 +106,7 @@
             class="zkp_house zkp_keeper_{PLAYER_ID}"
           ></div>
         </div>
-        <div id="zkp_playmat_counters" class="zkp_playmat_counters">
+        <div id="zkp_playmat_counters_{PLAYER_ID}" class="zkp_playmat_counters">
           <div
             id="zkp_playmat_counter_{PLAYER_ID}:0"
             class="zkp_playmat_counter_0 zkp_playmat_counter"
@@ -149,30 +151,37 @@
         <div
           id="zkp_quarantine_{PLAYER_ID}:ALL"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_ALL"
+          data-quarantine="ALL"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:TEM"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TEM"
+          data-quarantine="TEM"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:SAV"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_SAV"
+          data-quarantine="SAV"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:PRA"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_PRA"
+          data-quarantine="PRA"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:DES"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_DES"
+          data-quarantine="DES"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:AQU"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_AQU"
+          data-quarantine="AQU"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:TRO"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TRO"
+          data-quarantine="TRO"
         ></div>
       </div>
     </div>
@@ -220,7 +229,7 @@
             class="zkp_house zkp_keeper_{PLAYER_ID}"
           ></div>
         </div>
-        <div id="zkp_playmat_counters" class="zkp_playmat_counters">
+        <div id="zkp_playmat_counters_{PLAYER_ID}" class="zkp_playmat_counters">
           <div
             id="zkp_playmat_counter_{PLAYER_ID}:0"
             class="zkp_playmat_counter_0 zkp_playmat_counter"
@@ -265,30 +274,37 @@
         <div
           id="zkp_quarantine_{PLAYER_ID}:ALL"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_ALL"
+          data-quarantine="ALL"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:TEM"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TEM"
+          data-quarantine="TEM"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:SAV"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_SAV"
+          data-quarantine="SAV"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:PRA"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_PRA"
+          data-quarantine="PRA"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:DES"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_DES"
+          data-quarantine="DES"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:AQU"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_AQU"
+          data-quarantine="AQU"
         ></div>
         <div
           id="zkp_quarantine_{PLAYER_ID}:TRO"
           class="zkp_quarantine zkp_quarantine_{PLAYER_ID} zkp_quarantine_TRO"
+          data-quarantine="TRO"
         ></div>
       </div>
     </div>
