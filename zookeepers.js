@@ -277,10 +277,19 @@ define([
             this.cardHeight
           );
 
-          this[stockKey].setSelectionMode(1);
-          dojo.connect(this[stockKey], "onChangeSelection", this, (target) => {
-            this.onSelectKeeper(this[stockKey]);
-          });
+          if (player_id == this.player_id) {
+            this[stockKey].setSelectionMode(1);
+            dojo.connect(
+              this[stockKey],
+              "onChangeSelection",
+              this,
+              (target) => {
+                this.onSelectKeeper(this[stockKey]);
+              }
+            );
+          } else {
+            this[stockKey].setSelectionMode(0);
+          }
 
           this[stockKey].extraClasses = "zkp_card";
           this[stockKey].image_items_per_row = 6;
@@ -502,14 +511,17 @@ define([
             this.cardHeight
           );
 
-          this[stockKey].setSelectionMode(1);
-          dojo.connect(this[stockKey], "onChangeSelection", () => {
-            this.onSelectQuarantined(this[stockKey]);
-          });
+          if (player_id == this.player_id) {
+            this[stockKey].setSelectionMode(1);
+            dojo.connect(this[stockKey], "onChangeSelection", () => {
+              this.onSelectQuarantined(this[stockKey]);
+            });
+          } else {
+            this[stockKey].setSelectionMode(0);
+          }
 
           this[stockKey].extraClasses = "zkp_card";
           this[stockKey].image_items_per_row = 10;
-          this[stockKey].setSelectionMode(1);
 
           for (const species_id in this.allSpecies) {
             this[stockKey].addItemType(
@@ -590,35 +602,37 @@ define([
       this.setupExpandHouses();
 
       for (const player_id in gamedatas.players) {
-        dojo
-          .query(`.zkp_keeper_${player_id}`)
-          .connect("onclick", this, (event) => {
-            this.onSelectAssignedKeeper(event);
-          });
+        if (player_id == this.player_id) {
+          dojo
+            .query(`.zkp_keeper_${player_id}`)
+            .connect("onclick", this, (event) => {
+              this.onSelectAssignedKeeper(event);
+            });
 
-        dojo
-          .query(`.zkp_keeper_${player_id}`)
-          .connect("onclick", this, (event) => {
-            this.onSelectQuarantinedKeeper(event);
-          });
+          dojo
+            .query(`.zkp_keeper_${player_id}`)
+            .connect("onclick", this, (event) => {
+              this.onSelectQuarantinedKeeper(event);
+            });
 
-        dojo
-          .query(`.zkp_quarantine_${player_id}`)
-          .connect("onclick", this, (event) => {
-            this.onSelectQuarantine(event);
-          });
+          dojo
+            .query(`.zkp_quarantine_${player_id}`)
+            .connect("onclick", this, (event) => {
+              this.onSelectQuarantine(event);
+            });
 
-        dojo
-          .query(`.zkp_quarantine_${player_id}`)
-          .connect("onclick", this, (event) => {
-            this.onSelectBackupQuarantine(event);
-          });
+          dojo
+            .query(`.zkp_quarantine_${player_id}`)
+            .connect("onclick", this, (event) => {
+              this.onSelectBackupQuarantine(event);
+            });
 
-        dojo
-          .query(`.zkp_quarantine_${player_id}`)
-          .connect("onclick", this, (event) => {
-            this.onSelectHelpQuarantine(event);
-          });
+          dojo
+            .query(`.zkp_quarantine_${player_id}`)
+            .connect("onclick", this, (event) => {
+              this.onSelectHelpQuarantine(event);
+            });
+        }
       }
 
       //secret objectives
@@ -628,8 +642,6 @@ define([
       }
 
       if (this.hasSecretObjectives) {
-        const currentPlayerId = this.getCurrentPlayerId();
-
         for (const player_id in gamedatas.players) {
           const stockKey = `objective_${player_id}`;
           this[stockKey] = new ebg.stock();
@@ -657,7 +669,7 @@ define([
             );
           }
 
-          if (player_id == currentPlayerId) {
+          if (player_id == this.player_id) {
             const objective_id = this.secretObjective.type_arg;
 
             this[stockKey].extraClasses = "zkp_card";
@@ -1304,6 +1316,7 @@ define([
 
     ///////////////////////////////////////////////////
     //// Utility methods
+
     unselectOtherStocks: function (stock) {
       if (stock.getSelectedItems().length === 0) {
         return;
