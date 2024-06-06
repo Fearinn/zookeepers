@@ -161,7 +161,7 @@ class action_zookeepers extends APP_GameAction
   {
     $this->setAjaxMode();
     $this->checkVersion();
-    $shop_position = $this->getArg("shop_position", AT_enum, true, null, range(1, 4));
+    $shop_position = $this->getArg("shop_position", AT_enum, true, null, range(1, 6));
     $this->game->saveSpecies($shop_position);
     $this->ajaxResponse();
   }

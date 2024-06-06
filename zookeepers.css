@@ -317,8 +317,9 @@
   width: 170px;
 }
 
-.zkp_playmat_counters {
-  left: 500px;
+.zkp_playmat_counters.zkp_fast_mode {
+  top: 190px;
+  left: 483px;
 }
 
 .zkp_playmat_counter {
@@ -326,7 +327,11 @@
   width: 30px;
 }
 
-.zkp_playmat_counter:nth-child(odd) {
+.zkp_playmat_counter:nth-child(odd):not(.zkp_fast_mode) {
+  top: 30px;
+}
+
+.zkp_playmat_counter:nth-child(even).zkp_fast_mode {
   top: 30px;
 }
 
@@ -458,10 +463,19 @@
   left: 420px;
 }
 
+.zkp_expand_house_1.zkp_fast_mode {
+  top: 440px;
+}
+
 .zkp_expand_house_2 {
   top: 255px;
   left: 622.5px;
 }
+
+.zkp_expand_house_2.zkp_fast_mode {
+  top: 310px;
+}
+
 .zkp_expand_house_3 {
   top: 525px;
   left: 420px;

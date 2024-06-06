@@ -698,7 +698,8 @@ define([
 
         for (const player_id in gamedatas.players) {
           for (let house = 4; house > this.keeperHouses; house--) {
-            dojo.destroy($(`zkp_keeper__${player_id}_${house}`));
+            dojo.destroy($(`zkp_keeper_${player_id}_${house}`));
+            dojo.destroy($(`zkp_expand_house_${player_id}:${house}`));
           }
 
           dojo.query("[data-quarantine]").forEach((element) => {
@@ -721,6 +722,8 @@ define([
             $(`zkp_playmat_counters_${player_id}`),
             "zkp_fast_mode"
           );
+          dojo.query(".zkp_playmat_counter").addClass("zkp_fast_mode");
+          dojo.query(".zkp_expand_house").addClass("zkp_fast_mode");
         }
 
         dojo.addClass($("zkp_visible_shop"), "zkp_fast_mode");
@@ -2409,28 +2412,20 @@ define([
     onSaveSpecies: function (speciesId) {
       const action = "saveSpecies";
 
-      let position = null;
+      let shopPosition = 0;
 
-      for (let i = 1; i <= this.keeperHouses; i++) {
+      for (let position = 1; position <= this.shopPositions; position++) {
         if (
-          this.visibleSpecies[i] &&
-          this.visibleSpecies[i].type_arg == speciesId
+          this.visibleSpecies[position] &&
+          this.visibleSpecies[position].type_arg == speciesId
         ) {
-          position = i;
+          shopPosition = position;
           break;
         }
       }
 
-      if (!position) {
-        this.showMessage(
-          _("This species is not available to be saved"),
-          "error"
-        );
-        return;
-      }
-
       if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { shop_position: parseInt(position) });
+        this.sendAjaxCall(action, { shop_position: parseInt(shopPosition) });
       }
     },
 
