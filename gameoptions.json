@@ -48,17 +48,17 @@
     }
   },
   "103": {
-    "name": "Zookeepers mode",
+    "name": "Variant",
     "alpha": true,
     "level": "major",
     "values": {
       "1": {
-        "name": "Fast mode",
+        "name": "fast mode",
         "description": "Perfect for beginners, that's the fastest and simplest Zookeepers experience",
         "default": true
       },
       "2": {
-        "name": "Normal mode",
+        "name": "normal mode",
         "description": "The complete Zookeepers experience, with more mechanics and possible strategies",
         "nobegginer": true
       }
