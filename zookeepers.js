@@ -698,7 +698,7 @@ define([
 
         for (const player_id in gamedatas.players) {
           for (let house = 4; house > this.keeperHouses; house--) {
-            dojo.destroy($(`zkp_keeper_${player_id}_${house}`));
+            dojo.destroy($(`zkp_keeper_${player_id}:${house}`));
             dojo.destroy($(`zkp_expand_house_${player_id}:${house}`));
           }
 
