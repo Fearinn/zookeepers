@@ -45,9 +45,11 @@ define([
         5: 3,
       };
 
-      this.shopPositions = 6;
+      //game mode constants
+      this.shopPositions = 4;
       this.keeperPiles = 4;
       this.keeperHouses = 4;
+      this.speciesGoal = 9;
 
       this.filters = {
         ["ff0000"]:
@@ -164,6 +166,14 @@ define([
       this.isBagEmpty = gamedatas.isBagEmpty;
       this.emptyColumnNbr = gamedatas.emptyColumnNbr;
       this.isLastTurn = gamedatas.isLastTurn;
+
+      //fast mode constants
+      if (this.fastMode) {
+        this.shopPositions = 6;
+        this.keeperPiles = 1;
+        this.keeperHouses = 2;
+        this.speciesGoal = 6;
+      }
 
       for (const player_id in this.gamedatas.players) {
         if (player_id != this.getCurrentPlayerId()) {
@@ -538,7 +548,7 @@ define([
           ""
         );
 
-        for (let count = 0; count <= 9; count++) {
+        for (let count = 0; count <= this.speciesGoal; count++) {
           const stockKey = `playmatCounter_${player_id}_${count}`;
           const element = $(`zkp_playmat_counter_${player_id}:${count}`);
 
@@ -686,10 +696,6 @@ define([
       //fast mode
 
       if (this.fastMode) {
-        this.shopPositions = 6;
-        this.keeperPiles = 1;
-        this.keeperHouses = 2;
-
         dojo.destroy($("zkp_backup_shop"));
 
         for (let pile = 4; pile > this.keeperPiles; pile--) {
@@ -728,9 +734,11 @@ define([
 
         dojo.addClass($("zkp_visible_shop"), "zkp_fast_mode");
         dojo.addClass($("zkp_keeper_piles"), "zkp_fast_mode");
+        dojo.addClass($("zkp_common_area"), "zkp_fast_mode");
       } else {
-        for (let position = 6; position > this.shopPositions; position--)
-          dojo.destroy($(`zkp_visible_species:${position}`));
+        for (let position = 6; position > this.shopPositions; position--) {
+          dojo.destroy($(`zkp_visible_species_${position}`));
+        }
       }
 
       // Setup game notifications to handle (see "setupNotifications" method below)
@@ -742,9 +750,6 @@ define([
     ///////////////////////////////////////////////////
     //// Game & client states
 
-    // onEnteringState: this method is called each time we are entering into a new game state.
-    //                  You can use this method to perform some user interface changes at this moment.
-    //
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
       const playerId = this.getActivePlayerId();
@@ -2687,7 +2692,6 @@ define([
       const className = "zkp_empty_pile";
 
       const houseElement = $(`zkp_keeper_${player_id}:${position}`);
-      console.log(houseElement, "element");
       dojo.removeClass(houseElement, "zkp_expanded");
 
       this[houseKey].removeFromStockById(keeper_id, pileElement);
