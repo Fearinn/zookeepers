@@ -694,9 +694,10 @@ define([
       }
 
       //fast mode
-
       if (this.fastMode) {
         dojo.destroy($("zkp_backup_shop"));
+
+        const restyledElements = [];
 
         for (let pile = 4; pile > this.keeperPiles; pile--) {
           dojo.destroy($(`zkp_keeper_pile:${pile}`));
@@ -721,20 +722,23 @@ define([
             }
           });
 
-          dojo.addClass($(`zkp_houses_${player_id}`), "zkp_fast_mode");
-          dojo.addClass($(`zkp_playmat:${player_id}`), "zkp_fast_mode");
-          dojo.addClass($(`zkp_quarantine_${player_id}:SAV`), "zkp_fast_mode");
-          dojo.addClass(
-            $(`zkp_playmat_counters_${player_id}`),
-            "zkp_fast_mode"
-          );
+          restyledElements.push(`zkp_houses_${player_id}`);
+          restyledElements.push(`zkp_playmat:${player_id}`);
+          restyledElements.push(`zkp_quarantine_${player_id}:SAV`);
+          restyledElements.push(`zkp_playmat_counters_${player_id}`);
+
           dojo.query(".zkp_playmat_counter").addClass("zkp_fast_mode");
           dojo.query(".zkp_expand_house").addClass("zkp_fast_mode");
         }
 
-        dojo.addClass($("zkp_visible_shop"), "zkp_fast_mode");
-        dojo.addClass($("zkp_keeper_piles"), "zkp_fast_mode");
-        dojo.addClass($("zkp_common_area"), "zkp_fast_mode");
+        restyledElements.push("zkp_species_shop");
+        restyledElements.push("zkp_visible_shop");
+        restyledElements.push("zkp_keeper_piles");
+        restyledElements.push("zkp_common_area");
+
+        restyledElements.forEach((elementId) => {
+          dojo.addClass($(elementId), "zkp_fast_mode");
+        });
       } else {
         for (let position = 6; position > this.shopPositions; position--) {
           dojo.destroy($(`zkp_visible_species_${position}`));

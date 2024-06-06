@@ -176,6 +176,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  min-height: 249px;
 }
 
 .zkp_bag_stock {
@@ -223,6 +224,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+@media screen and (max-width: 1200px) {
+  .zkp_species_shop.zkp_fast_mode {
+    align-items: center;
+    width: 100%;
+  }
 }
 
 .zkp_backup_shop {
