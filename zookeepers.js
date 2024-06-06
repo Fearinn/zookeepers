@@ -2414,23 +2414,11 @@ define([
       }
     },
 
-    onSaveSpecies: function (speciesId) {
+    onSaveSpecies: function (species_id) {
       const action = "saveSpecies";
 
-      let shopPosition = 0;
-
-      for (let position = 1; position <= this.shopPositions; position++) {
-        if (
-          this.visibleSpecies[position] &&
-          this.visibleSpecies[position].type_arg == speciesId
-        ) {
-          shopPosition = position;
-          break;
-        }
-      }
-
       if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { shop_position: parseInt(shopPosition) });
+        this.sendAjaxCall(action, { species_id });
       }
     },
 

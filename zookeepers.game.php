@@ -1622,6 +1622,10 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
+        if ($board_position > $this->keeperHouses()) {
+            throw new BgaVisibleSystemException("Invalid action argument");
+        }
+
         $player_id = $this->getActivePlayerId();
 
         if (!$this->canDismissKeeper($board_position, $player_id)) {
@@ -1764,6 +1768,10 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
+        if ($board_position > $this->keeperHouses()) {
+            throw new BgaVisibleSystemException("Invalid action argument");
+        }
+
         $player_id = $this->getActivePlayerId();
 
         if (!$this->canDismissKeeper($board_position, $player_id)) {
@@ -1803,6 +1811,10 @@ class Zookeepers extends Table
     {
         if (!$auto) {
             $this->checkAction("selectReplacedPile");
+        }
+
+        if ($pile > $this->keeperPiles()) {
+            throw new BgaVisibleSystemException("Invalid action argument");
         }
 
         $player_id = $this->getActivePlayerId();
@@ -2211,8 +2223,8 @@ class Zookeepers extends Table
     {
         $this->checkAction("selectQuarantinedKeeper");
 
-        if ($this->fastMode() && $board_position > 2) {
-            throw new BgaVisibleSystemException("There are only 2 houses in the fast mode");
+        if ($board_position > $this->keeperHouses()) {
+            throw new BgaVisibleSystemException("Invalid action argument");
         }
 
         $player_id = $this->getActivePlayerId();
@@ -2342,7 +2354,7 @@ class Zookeepers extends Table
         $this->gamestate->nextState("betweenActions");
     }
 
-    function saveSpecies($shop_position)
+    function saveSpecies($species_id)
     {
         $this->checkAction("saveSpecies");
 
@@ -2350,30 +2362,27 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You already used a main action this turn"));
         }
 
-        $can_save = count($this->getSavableSpecies()) > 0;
+        $can_save = !!$this->getSavableSpecies();
 
         if (!$can_save) {
-            throw new BgaUserException($this->_("You can't save any of the available species"));
+            throw new BgaVisibleSystemException("You can't save any of the available species");
         }
 
-        $species_id = null;
-        $species_card_id = null;
-        foreach ($this->species->getCardsInLocation("shop_visible", $shop_position) as $card) {
-            $species_id = $card["type_arg"];
-            $species_card_id = $card["id"];
-        }
+        $card = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
-        $savable_species_ids = array_keys($this->getSavableSpecies());
-
-        if ($species_id === null || $species_card_id === null) {
+        if ($card === null) {
             throw new BgaVisibleSystemException("This species is not available to be saved");
         }
 
-        if (!in_array($species_id, $savable_species_ids)) {
-            throw new BgaUserException($this->_("You don't have the required resources or keepers to save this species"));
+        $card_id = $card["id"];
+
+        $savable_species = $this->getSavableSpecies();
+
+        if (!array_key_exists($species_id, $savable_species)) {
+            throw new BgaVisibleSystemException("You don't have the required resources or keepers to save this species");
         }
 
-        $this->setGameStateValue("selectedSpecies", $species_card_id);
+        $this->setGameStateValue("selectedSpecies", $card_id);
         $this->gamestate->nextState("selectAssignedKeeper");
     }
 
@@ -2381,8 +2390,8 @@ class Zookeepers extends Table
     {
         $this->checkAction("selectAssignedKeeper");
 
-        if ($this->fastMode() && $board_position > 2) {
-            throw new BgaVisibleSystemException("There are only 2 houses in the fast mode");
+        if ($board_position > $this->keeperHouses()) {
+            throw new BgaVisibleSystemException("Invalid action argument");
         }
 
         $player_id = $this->getActivePlayerId();
@@ -2790,9 +2799,9 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("Species not found");
         }
 
-        $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
+        $quarantinable_species = $this->getQuarantinableSpecies()[$player_id];
 
-        if (!in_array($species_id, $quarantinable_species)) {
+        if (!array_key_exists($species_id, $quarantinable_species)) {
             throw new BgaUserException($this->_("You can't quarantine this species"));
         }
 
@@ -2811,7 +2820,7 @@ class Zookeepers extends Table
         $species = $this->findSpeciesByTypeArg("shop_visible", $species_id);
 
         if ($species === null) {
-            throw new BgaSystemException("Species not found");
+            throw new BgaVisibleSystemException("Species not found");
         }
 
         $shop_position = $species["location_arg"];
@@ -2999,8 +3008,8 @@ class Zookeepers extends Table
 
         $can_quarantine = false;
         foreach ($players as $player_id => $player) {
-            $quarantinable_species = array_keys($this->getQuarantinableSpecies()[$player_id]);
-            if (in_array($species_id, $quarantinable_species) && !$this->gamestate->isPlayerActive($player_id)) {
+            $quarantinable_species = $this->getQuarantinableSpecies()[$player_id];
+            if (array_key_exists($species_id, $quarantinable_species) && !$this->gamestate->isPlayerActive($player_id)) {
                 $can_quarantine = true;
                 break;
             }
