@@ -1578,9 +1578,13 @@ class Zookeepers extends Table
 
         $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id=$card_id");
 
+        $message = $this->fastMode() ?
+            clienttranslate('${player_name} hires ${keeper_name}') :
+            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}');
+
         $this->notifyAllPlayers(
             "hireKeeper",
-            clienttranslate('${player_name} hires ${keeper_name} from pile ${pile}'),
+            $message,
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
@@ -1663,9 +1667,13 @@ class Zookeepers extends Table
 
         $pile_counters = $this->getPileCounters();
 
+        $message = $this->fastMode() ?
+            clienttranslate('${player_name} dismiss ${keeper_name}') :
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}');
+
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is returned to the bottom of pile ${pile}'),
+            $message,
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
@@ -1717,9 +1725,13 @@ class Zookeepers extends Table
 
         $pile_counters = $this->getPileCounters();
 
+        $message = $this->fastMode() ?
+            clienttranslate('${player_name} dismiss ${keeper_name}') :
+            clienttranslate('${player_name} dismiss ${keeper_name}, who is sent the bottom of pile ${pile}');
+
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} dismiss ${keeper_name}, who is sent the bottom of pile ${pile}. ${left_in_pile} keeper(s) in the pile'),
+            $message,
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
@@ -1729,7 +1741,6 @@ class Zookeepers extends Table
                 "pile" => $pile,
                 "pile_counters" => $pile_counters,
                 "piles_tops" => $this->getPilesTops(),
-                "left_in_pile" => $pile_counters[$pile],
             )
         );
 
@@ -1849,9 +1860,13 @@ class Zookeepers extends Table
 
         $this->incStat(1, "keepers_dismissed", $player_id);
 
+        $message = $this->fastMode() ?
+            clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}') :
+            clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}, from pile ${pile}');
+
         $this->notifyAllPlayers(
             "dismissKeeper",
-            clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}, from pile ${pile}'),
+            $message,
             array(
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
@@ -3205,7 +3220,6 @@ class Zookeepers extends Table
         $keeper = array_shift($keepers_in_location);
 
         return array(
-
             "keeper_name" => $keeper["type"],
             "keeper_id" => $keeper["type_arg"],
             "position" => explode(":", $keeper["location"])[1]
