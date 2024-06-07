@@ -756,6 +756,9 @@ define([
 
     onEnteringState: function (stateName, args) {
       console.log("Entering state: " + stateName);
+
+      this.attachRegisteredTooltips();
+      
       const playerId = this.getActivePlayerId();
 
       if (this.isSetup) {
