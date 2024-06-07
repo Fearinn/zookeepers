@@ -292,6 +292,14 @@ class action_zookeepers extends APP_GameAction
     $this->ajaxResponse();
   }
 
+  public function cancelNewSpecies()
+  {
+    $this->setAjaxMode();
+    $this->checkVersion();
+    $this->game->cancelNewSpecies();
+    $this->ajaxResponse();
+  }
+
   public function zooHelp()
   {
     $this->setAjaxMode();

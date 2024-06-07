@@ -242,6 +242,7 @@ class Zookeepers extends Table
         $species_info = $this->species_info;
         $keepers_info = $this->keepers_info;
         $objectives_info = $this->objectives_info;
+        $resource_types = $this->resource_types;
         $players = $this->loadPlayersBasicInfos();
 
         $result["gameVersion"] = intval($this->gamestate->table_globals[300]);
@@ -252,6 +253,7 @@ class Zookeepers extends Table
         $result["hasSecretObjectives"] = $this->hasSecretObjectives();
 
         $result["players"] = $this->getCollectionFromDb($sql);
+        $result["resourceTypes"] = $resource_types;
         $result["resourceCounters"] = $this->getResourceCounters();
         $result["bagCounters"] = $this->getBagCounters();
         $result["isBagEmpty"] = $this->isBagEmpty();
@@ -838,7 +840,6 @@ class Zookeepers extends Table
                     $returned_cost[$type] = $type_cost;
                 }
             }
-
 
             $this->resources->moveCards($resources_returned, "deck");
         }
@@ -2917,11 +2918,25 @@ class Zookeepers extends Table
         $this->drawNewSpecies();
 
         if ($this->getGameStateValue("prevState") === 29) {
+            $this->setGameStateValue("prevState", 0);
+
             $this->gamestate->nextState("mngSecondSpecies");
             return;
         }
 
         $this->gamestate->nextState("betweenActions");
+    }
+
+    function cancelNewSpecies()
+    {
+        if ($this->getGameStateValue("prevState") === 29) {
+            $this->setGameStateValue("prevState", 0);
+            
+            $this->gamestate->nextState("mngSecondSpecies");
+            return;
+        }
+
+        $this->gamestate->nextState("cancel");
     }
 
     function zooHelp($species_id)

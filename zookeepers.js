@@ -26,8 +26,8 @@ define([
     constructor: function () {
       console.log("zookeepers constructor");
 
- //version
- this.gameVersion = 0;
+      //version
+      this.gameVersion = 0;
 
       //game mode constants
       this.shopPositions = 4;
@@ -92,6 +92,7 @@ define([
       this.isSetup = true;
       this.mainAction = 0;
       this.freeAction = 0;
+      this.resourceTypes = {};
       this.resourceCounters = {};
       this.bagCounters = {};
       this.allKeepers = {};
@@ -144,6 +145,8 @@ define([
       this.isRealTimeScoreTracking = gamedatas.isRealTimeScoreTracking;
       this.isBagHidden = gamedatas.isBagHidden;
       this.hasSecretObjectives = gamedatas.hasSecretObjectives;
+
+      this.resourceTypes = gamedatas.resourceTypes;
 
       this.allKeepers = gamedatas.allKeepers;
       this.keepersAtHouses = this.formatKeepersAtHouses(
@@ -758,7 +761,7 @@ define([
       console.log("Entering state: " + stateName);
 
       this.attachRegisteredTooltips();
-      
+
       const playerId = this.getActivePlayerId();
 
       if (this.isSetup) {
@@ -899,15 +902,15 @@ define([
               dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
 
               for (
-                let i = 1;
-                i <= activePlayerCounters[type].getValue() &&
-                i <= args.args.to_return;
-                i++
+                let option = 1;
+                option <= activePlayerCounters[type].getValue() &&
+                option <= args.args.to_return;
+                option++
               ) {
                 this.addActionButton(
-                  "exchange_resources_option_" + type + "_" + i,
-                  i.toString(),
-                  () => this.onReturnFromExchange(i, type)
+                  "exchange_resources_option_" + type + "_" + option,
+                  option.toString(),
+                  () => this.onReturnFromExchange(option, type)
                 );
               }
             }
@@ -926,13 +929,30 @@ define([
               this.addActionButton(
                 "zkp_image_btn_" + type,
                 `<div class="zkp_resource_icon zkp_${type}_icon"></div>`,
-                () => {
-                  this.onReturnFromNewSpecies(type);
-                }
+                () => {},
+                null,
+                null,
+                "gray"
               );
-              // dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
+              dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
             }
+
+            const label = this.resourceTypes[type].label;
+
+            this.addActionButton("zkp_type_btn_" + type, label, () => {
+              this.onReturnFromNewSpecies(type);
+            });
           }
+          this.addActionButton(
+            "zkp_cancel_btn",
+            _("Cancel"),
+            () => {
+              this.onCancelNewSpecies();
+            },
+            null,
+            null,
+            "red"
+          );
         }
       }
 
@@ -954,15 +974,15 @@ define([
               dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
 
               for (
-                let i = 1;
-                i <= activePlayerCounters[type].getValue() &&
-                i <= args.args.to_return;
-                i++
+                let option = 1;
+                option <= activePlayerCounters[type].getValue() &&
+                option <= args.args.to_return;
+                option++
               ) {
                 this.addActionButton(
-                  "exchange_resources_option_" + type + "_" + i,
-                  i.toString(),
-                  () => this.onReturnExcess(i, type)
+                  "exchange_resources_option_" + type + "_" + option,
+                  option.toString(),
+                  () => this.onReturnExcess(option, type)
                 );
               }
             }
@@ -1175,7 +1195,7 @@ define([
 
           this.addActionButton(
             "zkp_cancel_btn",
-            _("Cancel"),
+            _("Skip"),
             "onCancelMngSpecies",
             null,
             null,
@@ -1380,7 +1400,7 @@ define([
       this.addTooltipHtml(container, html);
     },
 
-    addCustomTooltip: function(container, html) {
+    addCustomTooltip: function (container, html) {
       this.addTooltipHtml(container, html, 1000);
     },
 
@@ -2585,6 +2605,12 @@ define([
       });
     },
 
+    onCancelNewSpecies: function () {
+      const action = "cancelNewSpecies";
+
+      this.sendAjaxCall(action);
+    },
+
     onZooHelp: function (speciesId) {
       const action = "zooHelp";
 
@@ -3335,7 +3361,7 @@ define([
       try {
         if (log && args && !args.processed) {
           args.processed = true;
-      
+
           if (args.species_id && args.species_name) {
             const html = this.getTooltipForSpecies(args.species_id);
             const uid = Date.now() + args.species_id;
