@@ -26,9 +26,21 @@ define([
     constructor: function () {
       console.log("zookeepers constructor");
 
-      // Here, you can init the global variables of your user interface
+ //version
+ this.gameVersion = 0;
+
+      //game mode constants
+      this.shopPositions = 4;
+      this.keeperPiles = 4;
+      this.keeperHouses = 4;
+      this.speciesGoal = 9;
+
+      //styles
       this.cardWidth = 180;
       this.cardHeight = 249;
+
+      this._registeredCustomTooltips = {};
+      this._attachedTooltips = {};
 
       this.topsPositions = {
         1: "",
@@ -44,12 +56,6 @@ define([
         4: 4,
         5: 3,
       };
-
-      //game mode constants
-      this.shopPositions = 4;
-      this.keeperPiles = 4;
-      this.keeperHouses = 4;
-      this.speciesGoal = 9;
 
       this.filters = {
         ["ff0000"]:
@@ -77,14 +83,13 @@ define([
           "invert(49%) sepia(10%) saturate(14%) hue-rotate(17deg) brightness(96%) contrast(84%)" /* Gray */,
       };
 
-      this.gameVersion = 0;
-
-      this.isSetup = true;
-
+      //gameoptions
+      this.fastMode = false;
       this.isRealTimeScoreTracking = false;
       this.isBagHidden = false;
       this.hasSecretObjectives = false;
 
+      this.isSetup = true;
       this.mainAction = 0;
       this.freeAction = 0;
       this.resourceCounters = {};
@@ -348,15 +353,9 @@ define([
                 `species_${species_id}`
               );
 
-              const speciesName = this.allSpecies[species_id].name;
-              const backgroundPosition = this.calcBackgroundPosition(
-                species_id - 1
-              );
-
               this.addSpeciesTooltipHtml(
                 `zkp_keeper_${player_id}:${position}_item_species_${species_id}`,
-                backgroundPosition,
-                speciesName
+                species_id
               );
             }
           }
@@ -454,15 +453,9 @@ define([
             "zkp_species_deck"
           );
 
-          const speciesName = this.allSpecies[species_id].name;
-          const backgroundPosition = this.calcBackgroundPosition(
-            species_id - 1
-          );
-
           this.addSpeciesTooltipHtml(
             `${container}_item_${species_id}`,
-            backgroundPosition,
-            speciesName
+            species_id
           );
         }
       }
@@ -538,14 +531,9 @@ define([
           for (const species_id in speciesInQuarantine) {
             this[stockKey].addToStockWithId(species_id, species_id);
 
-            const speciesName = this.allSpecies[species_id].name;
-            const backgroundPosition = this.calcBackgroundPosition(
-              species_id - 1
-            );
             this.addSpeciesTooltipHtml(
               `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-              backgroundPosition,
-              speciesName
+              species_id
             );
           }
         }
@@ -1367,16 +1355,60 @@ define([
       return `-${xAxis}% -${yAxis}%`;
     },
 
-    addSpeciesTooltipHtml: function (
-      container,
-      backgroundPosition,
-      speciesName
-    ) {
-      this.addTooltipHtml(
-        container,
-        `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center; text-transform: capitalize">${speciesName}</span>`
-      );
+    getTooltipForSpecies: function (species_id) {
+      const species = this.allSpecies[species_id];
+
+      if (!species) {
+        return;
+      }
+
+      const speciesName = species.name;
+
+      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
+
+      const html = `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
+        <span style="display: block; text-align: center; text-transform: capitalize">${speciesName}</span>`;
+
+      return html;
+    },
+
+    addSpeciesTooltipHtml: function (container, species_id) {
+      const html = this.getTooltipForSpecies(species_id);
+      this.addTooltipHtml(container, html);
+    },
+
+    addCustomTooltip: function(container, html) {
+      this.addTooltipHtml(container, html, 1000);
+    },
+
+    setLoader: function (image_progress, logs_progress) {
+      this.inherited(arguments); // required, this is "super()" call, do not remove
+      if (!this.isLoadingLogsComplete && logs_progress >= 100) {
+        this.isLoadingLogsComplete = true; // this is to prevent from calling this more then once
+        this.onLoadingLogsComplete();
+      }
+    },
+
+    onLoadingLogsComplete: function () {
+      console.log("Loading logs complete");
+
+      this.attachRegisteredTooltips();
+    },
+
+    registerCustomTooltip(html, id) {
+      this._registeredCustomTooltips[id] = html;
+      return id;
+    },
+
+    attachRegisteredTooltips() {
+      console.log("Attaching toolips");
+
+      for (const id in this._registeredCustomTooltips) {
+        this.addCustomTooltip(id, this._registeredCustomTooltips[id]);
+        this._attachedTooltips[id] = this._registeredCustomTooltips[id];
+      }
+
+      this._registeredCustomTooltips = {};
     },
 
     addPlayerTurnButtons: function () {
@@ -1712,13 +1744,9 @@ define([
       this[stockKey].addToStockWithId(itemId, itemId);
       this[stockKey].image_items_per_row = 1;
 
-      const speciesName = this.allSpecies[species_id].name;
-      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-
       this.addSpeciesTooltipHtml(
         `zkp_backup_column:${column}_item_${itemId}`,
-        backgroundPosition,
-        speciesName
+        species_id
       );
 
       dojo.removeClass(
@@ -2824,13 +2852,9 @@ define([
       );
       this[destinationKey].image_items_per_row = 6;
 
-      const speciesName = this.allSpecies[species_id].name;
-      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-
       this.addSpeciesTooltipHtml(
         `zkp_keeper_${player_id}:${board_position}_item_species_${species_id}`,
-        backgroundPosition,
-        speciesName
+        species_id
       );
 
       this.updateSpeciesCounters(notif.args.species_counters);
@@ -2920,13 +2944,9 @@ define([
 
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
-      const speciesName = this.allSpecies[species_id].name;
-      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-
       this.addSpeciesTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        backgroundPosition,
-        speciesName
+        species_id
       );
 
       this.quarantinedSpecies = notif.args.quarantined_species;
@@ -2960,13 +2980,9 @@ define([
 
       this.displayScoring(`zkp_${destinationKey}`, notif.args.player_color, -2);
 
-      const speciesName = this.allSpecies[species_id].name;
-      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-
       this.addSpeciesTooltipHtml(
         `zkp_quarantine_${player_id}:${quarantine}_item_${species_id}`,
-        backgroundPosition,
-        speciesName
+        species_id
       );
 
       this.quarantinedSpecies = notif.args.quarantined_species;
@@ -3066,7 +3082,7 @@ define([
 
     notif_revealSpecies: function (notif) {
       const column = notif.args.shop_position;
-      const species_id = notif.args.revealed_id;
+      const species_id = notif.args.species_id;
 
       const originKey = `backupShop_${column}`;
       const stockItems = this[originKey].getAllItems();
@@ -3081,13 +3097,9 @@ define([
         originElement
       );
 
-      const speciesName = this.allSpecies[species_id].name;
-      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
-
       this.addSpeciesTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        backgroundPosition,
-        speciesName
+        species_id
       );
 
       this[originKey].removeFromStockById(backupId);
@@ -3193,12 +3205,9 @@ define([
       const species_id = notif.args.species_id;
       const column = notif.args.shop_position;
 
-      const speciesName = this.allSpecies[species_id].name;
-      const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
       this.addSpeciesTooltipHtml(
         `zkp_visible_species_${column}_item_${species_id}`,
-        backgroundPosition,
-        speciesName
+        species_id
       );
     },
 
@@ -3315,6 +3324,27 @@ define([
         notif.args.player_color,
         notif.args.bonus
       );
+    },
+
+    // Add tooltips to logs
+    // @Override
+    format_string_recursive(log, args) {
+      try {
+        if (log && args && !args.processed) {
+          args.processed = true;
+      
+          if (args.species_id && args.species_name) {
+            const html = this.getTooltipForSpecies(args.species_id);
+            const uid = Date.now() + args.species_id;
+            args.species_name = `<span class="zkp_log_highlight" id="zkp_log-${uid}">${args.species_name}</span>`;
+            this.registerCustomTooltip(html, `zkp_log-${uid}`);
+          }
+        }
+      } catch (e) {
+        console.error(log, args, "Exception thrown", e.stack);
+      }
+
+      return this.inherited(arguments);
     },
   });
 });

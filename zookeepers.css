@@ -62,6 +62,10 @@
   background-color: yellow;
 }
 
+.zkp_log_highlight {
+  font-weight: bold;
+}
+
 .zkp_hide {
   visibility: hidden;
 }
