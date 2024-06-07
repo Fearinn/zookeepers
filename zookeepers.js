@@ -1179,6 +1179,7 @@ define([
 
       if (stateName === "mngSecondSpecies") {
         this.emptyColumnNbr = args.args.empty_column_nbr;
+        this.freeAction = args.args.freeAction;
 
         if (this.isCurrentPlayerActive()) {
           if (
@@ -2126,7 +2127,7 @@ define([
 
         this.addActionButton(
           "zkp_cancel_btn",
-          _("Cancel"),
+          _("Skip"),
           () => {
             stock.unselectAll();
             this.onCancelMngSpecies();

@@ -169,7 +169,13 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argSelectQuarantine",
         "possibleactions" => array("selectQuarantine", "cancelMngSpecies"),
-        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 2, "cancelQuarantine" => 29, "zombiePass" => 8)
+        "transitions" => array(
+            "mngSecondSpecies" => 29,
+            "betweenActions" => 7,
+            "cancel" => 2,
+            "cancelQuarantine" => 29, 
+            "zombiePass" => 8
+        )
     ),
 
     29 => array(
@@ -179,7 +185,14 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argMngSecondSpecies",
         "possibleactions" => array("discardSpecies", "quarantineSpecies", "lookAtBackup", "newSpecies", "cancelMngSpecies"),
-        "transitions" => array("selectQuarantine" => 28, "mngSecondSpecies" => 29, "mngBackup" => 30, "betweenActions" => 7, "cancel" => 2, "zombiePass" => 8)
+        "transitions" => array(
+            "selectQuarantine" => 28,
+            "mngSecondSpecies" => 29, "mngBackup" => 30,
+            "betweenActions" => 7,
+            "returnFromNewSpecies" => 37,
+            "cancel" => 2,
+            "zombiePass" => 8
+        )
     ),
 
     30 => array(
@@ -199,7 +212,11 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argSelectBackupQuarantine",
         "possibleactions" => array("selectBackupQuarantine", "cancelMngSpecies"),
-        "transitions" => array("mngSecondSpecies" => 29, "betweenActions" => 7, "cancel" => 30, "cancelQuarantine" => 30, "zombiePass" => 8)
+        "transitions" => array("mngSecondSpecies" => 29, 
+        "betweenActions" => 7, 
+        "cancel" => 30, 
+        "cancelQuarantine" => 30, 
+        "zombiePass" => 8)
     ),
 
     32 => array(
