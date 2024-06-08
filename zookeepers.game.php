@@ -940,7 +940,7 @@ class Zookeepers extends Table
         return $can_dismiss;
     }
 
-    function discardAllKeptSpecies($board_position, $keeper_name)
+    function discardAllKeptSpecies($board_position, $keeper_name, $keeper_id)
     {
         $player_id = $this->getActivePlayerId();
 
@@ -955,9 +955,11 @@ class Zookeepers extends Table
                 "discardAllKeptSpecies",
                 clienttranslate('All species kept by ${keeper_name} are moved to the bottom of the deck'),
                 array(
+                    "preserve" => array("keeper_id"),
                     "player_id" => $player_id,
                     "board_position" => $board_position,
                     "keeper_name" => $keeper_name,
+                    "keeper_id" => $keeper_id,
                     "discarded_species" => $discarded_species,
                     "saved_species" => $this->getSavedSpecies(),
                     "species_counters" => $this->getSpeciesCounters(),
@@ -1586,6 +1588,7 @@ class Zookeepers extends Table
             "hireKeeper",
             $message,
             array(
+                "preserve" => array("keeper_id"),
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
                 "keeper_name" => $keeper["type"],
@@ -1675,6 +1678,7 @@ class Zookeepers extends Table
             "dismissKeeper",
             $message,
             array(
+                "preserve" => array("keeper_id"),
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
                 "keeper_name" => $keeper["type"],
@@ -1686,7 +1690,7 @@ class Zookeepers extends Table
             )
         );
 
-        $this->discardAllKeptSpecies($board_position, $keeper["type"]);
+        $this->discardAllKeptSpecies($board_position, $keeper["type"], $keeper_id);
 
         $this->setGameStateValue("mainAction", 6);
 
@@ -1733,6 +1737,7 @@ class Zookeepers extends Table
             "dismissKeeper",
             $message,
             array(
+                "preserve" => array("keeper_id"),
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
                 "keeper_name" => $keeper["type"],
@@ -1748,7 +1753,7 @@ class Zookeepers extends Table
 
         $this->DbQuery("UPDATE keeper SET pile=$pile WHERE card_id='$keeper_card_id'");
 
-        $this->discardAllKeptSpecies($board_position, $keeper["type"]);
+        $this->discardAllKeptSpecies($board_position, $keeper["type"], $keeper_id);
 
         $this->setGameStateValue("mainAction", 6);
 
@@ -1861,18 +1866,20 @@ class Zookeepers extends Table
         $this->incStat(1, "keepers_dismissed", $player_id);
 
         $message = $this->fastMode() ?
-            clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}') :
-            clienttranslate('${player_name} replaces ${replaced_keeper_name} by ${hired_keeper_name}, from pile ${pile}');
+            clienttranslate('${player_name} replaces ${keeper_name} by ${hired_keeper_name}') :
+            clienttranslate('${player_name} replaces ${keeper_name} by ${hired_keeper_name}, from pile ${pile}');
 
         $this->notifyAllPlayers(
             "dismissKeeper",
             $message,
             array(
+                "preserve" => array("keeper_id", "hired_keeper_id"),
                 "player_id" => $this->getActivePlayerId(),
                 "player_name" => $this->getActivePlayerName(),
-                "replaced_keeper_name" => $replaced_keeper["type"],
-                "hired_keeper_name" => $hired_keeper["type"],
+                "keeper_name" => $replaced_keeper["type"],
                 "keeper_id" => $replaced_keeper_id,
+                "hired_keeper_name" => $hired_keeper["type"],
+                "hired_keeper_id" => $hired_keeper["type_arg"],
                 "board_position" => $board_position,
                 "pile" => $pile,
                 "pile_counters" => $this->getPileCounters(),
@@ -1880,7 +1887,7 @@ class Zookeepers extends Table
             )
         );
 
-        $this->discardAllKeptSpecies($board_position, $replaced_keeper["type"]);
+        $this->discardAllKeptSpecies($board_position, $replaced_keeper["type"], $replaced_keeper_id);
 
         $this->setGameStateValue("mainAction", 7);
 
@@ -2316,7 +2323,10 @@ class Zookeepers extends Table
             if ($keeper_id == $completed_id) {
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
 
-                $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
+                $this->notifyAllPlayers("completeKeeper", 
+                clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  
+                array(
+                    "preserve" => array("keeper_id"),
                     "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,
                     "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
@@ -2475,7 +2485,11 @@ class Zookeepers extends Table
             if ($keeper_id == $completed_id) {
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
 
-                $this->notifyAllPlayers("completeKeeper", clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  array(
+                $this->notifyAllPlayers(
+                    "completeKeeper", 
+                clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  
+                array(
+                    "preserve" => array("keeper_id"),
                     "player_name" => $this->getActivePlayerName(),
                     "player_id" => $player_id,
                     "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
@@ -3206,7 +3220,8 @@ class Zookeepers extends Table
         $keeper = array_shift($keepers_in_location);
 
         return array(
-            "keeper_name" => $keeper["type"], "keeper_id" => $keeper["type_arg"],
+            "keeper_name" => $keeper["type"], 
+            "keeper_id" => $keeper["type_arg"],
             "position" => explode(":", $keeper["location"])[1]
         );
     }
@@ -3494,6 +3509,7 @@ class Zookeepers extends Table
                                 "regularPoints",
                                 clienttranslate('${player_name} scores ${points} with ${keeper_name} and their kept species'),
                                 array(
+                                    "preserve" => array("keeper_id"),
                                     "player_name" => $player["player_name"],
                                     "player_id" => $player_id,
                                     "player_color" => $player["player_color"],

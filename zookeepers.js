@@ -1396,6 +1396,20 @@ define([
       return html;
     },
 
+    getTooltipForKeeper: function (keeper_id) {
+      const keeper = this.allKeepers[keeper_id];
+
+      if (!keeper) {
+        return;
+      }
+
+      const backgroundPosition = this.calcBackgroundPosition(keeper_id - 1, 6);
+
+      const html = `<div class="zkp_bigger_keeper zkp_card" style="background-position: ${backgroundPosition}"></div>`;
+
+      return html;
+    },
+
     addSpeciesTooltipHtml: function (container, species_id) {
       const html = this.getTooltipForSpecies(species_id);
       this.addTooltipHtml(container, html);
@@ -3366,8 +3380,24 @@ define([
           if (args.species_id && args.species_name) {
             const html = this.getTooltipForSpecies(args.species_id);
             const uid = Date.now() + args.species_id;
-            args.species_name = `<span class="zkp_log_highlight" id="zkp_log-${uid}">${args.species_name}</span>`;
-            this.registerCustomTooltip(html, `zkp_log-${uid}`);
+            args.species_name = `<span class="zkp_log_highlight" id="zkp_species_log:${uid}">${args.species_name}</span>`;
+            this.registerCustomTooltip(html, `zkp_species_log:${uid}`);
+          }
+
+          if (args.keeper_id) {
+            if (args.keeper_name) {
+              const html = this.getTooltipForKeeper(args.keeper_id);
+              const uid = Date.now() + args.keeper_id;
+              args.keeper_name = `<span class="zkp_log_highlight" id="zkp_keeper_log:${uid}">${args.keeper_name}</span>`;
+              this.registerCustomTooltip(html, `zkp_keeper_log:${uid}`);
+            }
+
+            if (args.hired_keeper_name && args.hired_keeper_id) {
+              const html = this.getTooltipForKeeper(args.hired_keeper_id);
+              const uid = Date.now() + args.hired_keeper_id;
+              args.hired_keeper_name = `<span class="zkp_log_highlight" id="zkp_keeper_log:${uid}">${args.hired_keeper_name}</span>`;
+              this.registerCustomTooltip(html, `zkp_keeper_log:${uid}`);
+            }
           }
         }
       } catch (e) {

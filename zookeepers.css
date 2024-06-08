@@ -321,6 +321,13 @@
   top: 135px;
 }
 
+.zkp_bigger_keeper {
+  background-image: url("img/bigger_keepers.png");
+  border-radius: 24px;
+  height: 332px;
+  width: 240px;
+}
+
 .zkp_playmat_counters {
   position: absolute;
   top: 184px;
