@@ -1386,7 +1386,7 @@ define([
         return;
       }
 
-      const speciesName = species.name;
+      const speciesName = _(species.name);
 
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
