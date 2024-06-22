@@ -1532,7 +1532,7 @@ define([
       args.gameVersion = this.gameVersion;
       args.lock = true;
 
-      if (this.checkAction(action)) {
+      if (this.checkAction(action, true)) {
         this.ajaxcall(
           "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
           args,
@@ -2369,46 +2369,39 @@ define([
     onPass: function () {
       const action = "pass";
 
-      if (this.checkAction(action, true)) {
-        if (this.mainAction < 1) {
-          this.confirmationDialog(
-            _(
-              "You haven't used any main action yet. Are you sure you want to pass?"
-            ),
-            () => {
-              this.sendAjaxCall(action);
-            }
-          );
-          return;
-        }
-
-        this.sendAjaxCall(action);
+      if (this.mainAction < 1) {
+        this.confirmationDialog(
+          _(
+            "You haven't used any main action yet. Are you sure you want to pass?"
+          ),
+          () => {
+            this.sendAjaxCall(action);
+          }
+        );
+        return;
       }
+
+      this.sendAjaxCall(action);
     },
 
     onCollectResources: function () {
       const action = "collectResources";
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+
+      this.sendAjaxCall(action);
     },
 
     onHireKeeper: function (pile) {
       const action = "hireKeeper";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { pile: parseInt(pile) });
-      }
+      this.sendAjaxCall(action, { pile: parseInt(pile) });
     },
 
     onDismissKeeper: function (keeperId) {
       const action = "dismissKeeper";
 
-      if (this.checkAction(action, true)) {
-        const { isOwner, position } = this.checkKeeperOwner(keeperId);
-        if (isOwner) {
-          this.sendAjaxCall(action, { board_position: parseInt(position) });
-        }
+      const { isOwner, position } = this.checkKeeperOwner(keeperId);
+      if (isOwner) {
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
@@ -2417,19 +2410,15 @@ define([
 
       const pile = event.target.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { pile: parseInt(pile) });
-      }
+      this.sendAjaxCall(action, { pile: parseInt(pile) });
     },
 
     onReplaceKeeper(keeperId) {
       const action = "replaceKeeper";
 
-      if (this.checkAction(action, true)) {
-        const { isOwner, position } = this.checkKeeperOwner(keeperId);
-        if (isOwner) {
-          this.sendAjaxCall(action, { board_position: parseInt(position) });
-        }
+      const { isOwner, position } = this.checkKeeperOwner(keeperId);
+      if (isOwner) {
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
@@ -2438,31 +2427,25 @@ define([
 
       const pile = event.target.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { pile: parseInt(pile) });
-      }
+      this.sendAjaxCall(action, { pile: parseInt(pile) });
     },
 
     onCancelMngKeepers: function () {
       const action = "cancelMngKeepers";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+      this.sendAjaxCall(action);
     },
 
     onExchangeResources: function () {
       const action = "exchangeResources";
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+
+      this.sendAjaxCall(action);
     },
 
     onCollectFromExchange: function (choosen_nbr) {
       const action = "collectFromExchange";
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { choosen_nbr: parseInt(choosen_nbr) });
-      }
+
+      this.sendAjaxCall(action, { choosen_nbr: parseInt(choosen_nbr) });
     },
 
     onCancelExchange: function () {
@@ -2470,58 +2453,46 @@ define([
 
       this.freeAction = 0;
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+      this.sendAjaxCall(action);
     },
 
     onReturnFromExchange: function (choosen_nbr, resource_type) {
       const action = "returnFromExchange";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, {
-          nbr: parseInt(choosen_nbr),
-          type: resource_type,
-        });
-      }
+      this.sendAjaxCall(action, {
+        nbr: parseInt(choosen_nbr),
+        type: resource_type,
+      });
     },
 
     onReturnExcess: function (choosen_nbr, resource_type) {
       const action = "returnExcess";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, {
-          nbr: parseInt(choosen_nbr),
-          type: resource_type,
-        });
-      }
+      this.sendAjaxCall(action, {
+        nbr: parseInt(choosen_nbr),
+        type: resource_type,
+      });
     },
 
     onSaveSpecies: function (species_id) {
       const action = "saveSpecies";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { species_id });
-      }
+      this.sendAjaxCall(action, { species_id });
     },
 
     onSelectAssignedKeeper: function (event) {
       const action = "selectAssignedKeeper";
 
-      if (this.checkAction(action, true)) {
-        const { isOwner, position } = this.checkKeeperOwner(null, event);
-        if (isOwner) {
-          this.sendAjaxCall(action, { board_position: parseInt(position) });
-        }
+      const { isOwner, position } = this.checkKeeperOwner(null, event);
+      if (isOwner) {
+        this.sendAjaxCall(action, { board_position: parseInt(position) });
       }
     },
 
     onSaveQuarantined: function (speciesId) {
       const action = "saveQuarantined";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
-      }
+      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
     },
 
     onSelectQuarantinedKeeper: function (event) {
@@ -2529,25 +2500,19 @@ define([
 
       const position = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
-      }
+      this.sendAjaxCall(action, { board_position: parseInt(position) });
     },
 
     onDiscardSpecies: function (speciesId) {
       const action = "discardSpecies";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
-      }
+      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
     },
 
     onQuarantineSpecies: function (speciesId) {
       const action = "quarantineSpecies";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
-      }
+      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
     },
 
     onSelectQuarantine: function (event) {
@@ -2555,35 +2520,28 @@ define([
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { quarantine: quarantine });
-      }
+      this.sendAjaxCall(action, { quarantine: quarantine });
     },
 
     onLookAtBackup: function (column, backupId) {
       const action = "lookAtBackup";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, {
-          shop_position: parseInt(column),
-          backup_id: parseInt(backupId),
-        });
-      }
+      this.sendAjaxCall(action, {
+        shop_position: parseInt(column),
+        backup_id: parseInt(backupId),
+      });
     },
 
     onDiscardBackup: function () {
       const action = "discardBackup";
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+
+      this.sendAjaxCall(action);
     },
 
     onQuarantineBackup: function () {
       const action = "quarantineBackup";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+      this.sendAjaxCall(action);
     },
 
     onSelectBackupQuarantine: function (event) {
@@ -2591,25 +2549,19 @@ define([
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { quarantine: quarantine });
-      }
+      this.sendAjaxCall(action, { quarantine: quarantine });
     },
 
     onCancelMngSpecies: function () {
       const action = "cancelMngSpecies";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+      this.sendAjaxCall(action);
     },
 
     onNewSpecies: function () {
       const action = "newSpecies";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+      this.sendAjaxCall(action);
     },
 
     onReturnFromNewSpecies: function (resource_type) {
@@ -2629,9 +2581,7 @@ define([
     onZooHelp: function (speciesId) {
       const action = "zooHelp";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
-      }
+      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
     },
 
     onSelectZoo: function (event) {
@@ -2639,9 +2589,7 @@ define([
 
       const playerId = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { player_id: parseInt(playerId) });
-      }
+      this.sendAjaxCall(action, { player_id: parseInt(playerId) });
     },
 
     onSelectHelpQuarantine: function (event) {
@@ -2649,17 +2597,13 @@ define([
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action, { quarantine: quarantine });
-      }
+      this.sendAjaxCall(action, { quarantine: quarantine });
     },
 
     onReplaceObjective: function () {
       const action = "replaceObjective";
 
-      if (this.checkAction(action, true)) {
-        this.sendAjaxCall(action);
-      }
+      this.sendAjaxCall(action);
     },
 
     ///////////////////////////////////////////////////
