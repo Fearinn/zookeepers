@@ -1823,7 +1823,7 @@ define([
         }
 
         if (this.isBagEmpty) {
-          this.showMessage(_("The bag is empty", "error"));
+          this.showMessage(_("The bag is empty"), "error");
           stock.unselectAll();
           return;
         }
