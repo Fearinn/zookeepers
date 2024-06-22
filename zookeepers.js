@@ -1451,44 +1451,56 @@ define([
 
     addPlayerTurnButtons: function () {
       if (this.mainAction > 0) {
-        this.gamedatas.gamestate.description =
-          "${actplayer} has already used a main action, but can still do any available free actions";
-        this.gamedatas.gamestate.descriptionmyturn =
-          "${you} have already used a main action, but can still do any available free actions";
+        this.gamedatas.gamestate.description = _(
+          "${actplayer} has already used a main action, but can still do any available free actions"
+        );
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} have already used a main action, but can still do any available free actions"
+        );
 
         if (this.isLastTurn) {
-          this.gamedatas.gamestate.description =
-            "It's ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do any available free actions";
-          this.gamedatas.gamestate.descriptionmyturn =
-            "It's your last turn! ${you} have already used a main action, but can still do any available free actions";
+          this.gamedatas.gamestate.description = _(
+            "It's ${actplayer}'s last turn! ${actplayer} has already used a main action, but can still do any available free actions"
+          );
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "It's your last turn! ${you} have already used a main action, but can still do any available free actions"
+          );
         }
       }
 
       if (this.mainAction == 2 && this.canZooHelp) {
-        this.gamedatas.gamestate.description =
-          "${actplayer} saved a species and can now use the bonus action (ask a zoo for help) or any available free actions";
-        this.gamedatas.gamestate.descriptionmyturn =
-          "${you} saved a species and can now use the bonus action (ask a zoo for help) or any available free actions";
+        this.gamedatas.gamestate.description = _(
+          "${actplayer} saved a species and can now use the bonus action (ask a zoo for help) or any available free actions"
+        );
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} saved a species and can now use the bonus action (ask a zoo for help) or any available free actions"
+        );
 
         if (this.isLastTurn) {
-          this.gamedatas.gamestate.description =
-            "It's ${actplayer}'s last turn! ${actplayer} saved a species and can now use the bonus action (ask a zoo for help with a species) or any available free actions";
-          this.gamedatas.gamestate.descriptionmyturn =
-            "It's your last turn! ${you} saved a species and can now use the bonus action (ask a zoo for help with a species) or any available free actions";
+          this.gamedatas.gamestate.description = _(
+            "It's ${actplayer}'s last turn! ${actplayer} saved a species and can now use the bonus action (ask a zoo for help with a species) or any available free actions"
+          );
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "It's your last turn! ${you} saved a species and can now use the bonus action (ask a zoo for help with a species) or any available free actions"
+          );
         }
       }
 
       if (this.mainAction == 0) {
-        this.gamedatas.gamestate.description =
-          "${actplayer} can select a card and/or do any available actions, limited to one of the main ones";
-        this.gamedatas.gamestate.descriptionmyturn =
-          "${you} can select a card and/or do any available actions, limited to one of the main ones";
+        this.gamedatas.gamestate.description = _(
+          "${actplayer} can select a card and/or do any available actions, limited to one of the main ones"
+        );
+        this.gamedatas.gamestate.descriptionmyturn = _(
+          "${you} can select a card and/or do any available actions, limited to one of the main ones"
+        );
 
         if (this.isLastTurn) {
-          this.gamedatas.gamestate.description =
-            "It's ${actplayer}'s last turn! ${actplayer} can select a card and/or do any available actions, limited to one of the main ones";
-          this.gamedatas.gamestate.descriptionmyturn =
-            "It's your last turn! ${you} can select a card and/or do any available actions, limited to one of the main ones";
+          this.gamedatas.gamestate.description = _(
+            "It's ${actplayer}'s last turn! ${actplayer} can select a card and/or do any available actions, limited to one of the main ones"
+          );
+          this.gamedatas.gamestate.descriptionmyturn = _(
+            "It's your last turn! ${you} can select a card and/or do any available actions, limited to one of the main ones"
+          );
         }
       }
 
