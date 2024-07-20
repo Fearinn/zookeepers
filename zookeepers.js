@@ -1540,19 +1540,10 @@ define([
       }
     },
 
-    sendAjaxCall: function (action, args = {}) {
+    performAction: function (action, args = {}) {
       args.gameVersion = this.gameVersion;
-      args.lock = true;
 
-      if (this.checkAction(action, true)) {
-        this.ajaxcall(
-          "/" + this.game_name + "/" + this.game_name + "/" + action + ".html",
-          args,
-          this,
-          (result) => {},
-          (isError) => {}
-        );
-      }
+      this.bgaPerformAction(action, args);
     },
 
     checkKeeperOwner: function (keeperId, event = null) {
@@ -2387,25 +2378,25 @@ define([
             "You haven't used any main action yet. Are you sure you want to pass?"
           ),
           () => {
-            this.sendAjaxCall(action);
+            this.performAction(action);
           }
         );
         return;
       }
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onCollectResources: function () {
       const action = "collectResources";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onHireKeeper: function (pile) {
       const action = "hireKeeper";
 
-      this.sendAjaxCall(action, { pile: parseInt(pile) });
+      this.performAction(action, { pile: parseInt(pile) });
     },
 
     onDismissKeeper: function (keeperId) {
@@ -2413,7 +2404,7 @@ define([
 
       const { isOwner, position } = this.checkKeeperOwner(keeperId);
       if (isOwner) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        this.performAction(action, { board_position: parseInt(position) });
       }
     },
 
@@ -2422,7 +2413,7 @@ define([
 
       const pile = event.target.id.split(":")[1];
 
-      this.sendAjaxCall(action, { pile: parseInt(pile) });
+      this.performAction(action, { pile: parseInt(pile) });
     },
 
     onReplaceKeeper(keeperId) {
@@ -2430,7 +2421,7 @@ define([
 
       const { isOwner, position } = this.checkKeeperOwner(keeperId);
       if (isOwner) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        this.performAction(action, { board_position: parseInt(position) });
       }
     },
 
@@ -2439,25 +2430,25 @@ define([
 
       const pile = event.target.id.split(":")[1];
 
-      this.sendAjaxCall(action, { pile: parseInt(pile) });
+      this.performAction(action, { pile: parseInt(pile) });
     },
 
     onCancelMngKeepers: function () {
       const action = "cancelMngKeepers";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onExchangeResources: function () {
       const action = "exchangeResources";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onCollectFromExchange: function (choosen_nbr) {
       const action = "collectFromExchange";
 
-      this.sendAjaxCall(action, { choosen_nbr: parseInt(choosen_nbr) });
+      this.performAction(action, { choosen_nbr: parseInt(choosen_nbr) });
     },
 
     onCancelExchange: function () {
@@ -2465,13 +2456,13 @@ define([
 
       this.freeAction = 0;
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onReturnFromExchange: function (choosen_nbr, resource_type) {
       const action = "returnFromExchange";
 
-      this.sendAjaxCall(action, {
+      this.performAction(action, {
         nbr: parseInt(choosen_nbr),
         type: resource_type,
       });
@@ -2480,7 +2471,7 @@ define([
     onReturnExcess: function (choosen_nbr, resource_type) {
       const action = "returnExcess";
 
-      this.sendAjaxCall(action, {
+      this.performAction(action, {
         nbr: parseInt(choosen_nbr),
         type: resource_type,
       });
@@ -2489,7 +2480,7 @@ define([
     onSaveSpecies: function (species_id) {
       const action = "saveSpecies";
 
-      this.sendAjaxCall(action, { species_id });
+      this.performAction(action, { species_id });
     },
 
     onSelectAssignedKeeper: function (event) {
@@ -2497,14 +2488,14 @@ define([
 
       const { isOwner, position } = this.checkKeeperOwner(null, event);
       if (isOwner) {
-        this.sendAjaxCall(action, { board_position: parseInt(position) });
+        this.performAction(action, { board_position: parseInt(position) });
       }
     },
 
     onSaveQuarantined: function (speciesId) {
       const action = "saveQuarantined";
 
-      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      this.performAction(action, { species_id: parseInt(speciesId) });
     },
 
     onSelectQuarantinedKeeper: function (event) {
@@ -2512,19 +2503,19 @@ define([
 
       const position = event.currentTarget.id.split(":")[1];
 
-      this.sendAjaxCall(action, { board_position: parseInt(position) });
+      this.performAction(action, { board_position: parseInt(position) });
     },
 
     onDiscardSpecies: function (speciesId) {
       const action = "discardSpecies";
 
-      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      this.performAction(action, { species_id: parseInt(speciesId) });
     },
 
     onQuarantineSpecies: function (speciesId) {
       const action = "quarantineSpecies";
 
-      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      this.performAction(action, { species_id: parseInt(speciesId) });
     },
 
     onSelectQuarantine: function (event) {
@@ -2532,13 +2523,13 @@ define([
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
-      this.sendAjaxCall(action, { quarantine: quarantine });
+      this.performAction(action, { quarantine: quarantine });
     },
 
     onLookAtBackup: function (column, backupId) {
       const action = "lookAtBackup";
 
-      this.sendAjaxCall(action, {
+      this.performAction(action, {
         shop_position: parseInt(column),
         backup_id: parseInt(backupId),
       });
@@ -2547,13 +2538,13 @@ define([
     onDiscardBackup: function () {
       const action = "discardBackup";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onQuarantineBackup: function () {
       const action = "quarantineBackup";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onSelectBackupQuarantine: function (event) {
@@ -2561,25 +2552,25 @@ define([
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
-      this.sendAjaxCall(action, { quarantine: quarantine });
+      this.performAction(action, { quarantine: quarantine });
     },
 
     onCancelMngSpecies: function () {
       const action = "cancelMngSpecies";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onNewSpecies: function () {
       const action = "newSpecies";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onReturnFromNewSpecies: function (resource_type) {
       const action = "returnFromNewSpecies";
 
-      this.sendAjaxCall(action, {
+      this.performAction(action, {
         type: resource_type,
       });
     },
@@ -2587,13 +2578,13 @@ define([
     onCancelNewSpecies: function () {
       const action = "cancelNewSpecies";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     onZooHelp: function (speciesId) {
       const action = "zooHelp";
 
-      this.sendAjaxCall(action, { species_id: parseInt(speciesId) });
+      this.performAction(action, { species_id: parseInt(speciesId) });
     },
 
     onSelectZoo: function (event) {
@@ -2601,7 +2592,7 @@ define([
 
       const playerId = event.currentTarget.id.split(":")[1];
 
-      this.sendAjaxCall(action, { player_id: parseInt(playerId) });
+      this.performAction(action, { player_id: parseInt(playerId) });
     },
 
     onSelectHelpQuarantine: function (event) {
@@ -2609,13 +2600,13 @@ define([
 
       const quarantine = event.currentTarget.id.split(":")[1];
 
-      this.sendAjaxCall(action, { quarantine: quarantine });
+      this.performAction(action, { quarantine: quarantine });
     },
 
     onReplaceObjective: function () {
       const action = "replaceObjective";
 
-      this.sendAjaxCall(action);
+      this.performAction(action);
     },
 
     ///////////////////////////////////////////////////
