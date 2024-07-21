@@ -59,9 +59,6 @@ class Zookeepers extends Table
 
         $this->objectives = $this->getNew("module.common.deck");
         $this->objectives->init("objective");
-
-        // experimental flag to prevent deadlocks
-        $this->bSelectGlobalsForUpdate = true;
     }
 
     protected function getGameName()
@@ -2323,19 +2320,21 @@ class Zookeepers extends Table
             if ($keeper_id == $completed_id) {
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
 
-                $this->notifyAllPlayers("completeKeeper", 
-                clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  
-                array(
-                    "preserve" => array("keeper_id"),
-                    "player_name" => $this->getActivePlayerName(),
-                    "player_id" => $player_id,
-                    "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
-                    "keeper_id" => $keeper_id,
-                    "keeper_name" => $keeper["type"],
-                    "keeper_level" => $keeper_level,
-                    "board_position" => $board_position,
-                    "completed_keepers" => $this->getCompletedKeepers(),
-                ));
+                $this->notifyAllPlayers(
+                    "completeKeeper",
+                    clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),
+                    array(
+                        "preserve" => array("keeper_id"),
+                        "player_name" => $this->getActivePlayerName(),
+                        "player_id" => $player_id,
+                        "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
+                        "keeper_id" => $keeper_id,
+                        "keeper_name" => $keeper["type"],
+                        "keeper_level" => $keeper_level,
+                        "board_position" => $board_position,
+                        "completed_keepers" => $this->getCompletedKeepers(),
+                    )
+                );
 
                 $this->updateScore($player_id, $keeper_level);
             }
@@ -2486,19 +2485,20 @@ class Zookeepers extends Table
                 $keeper_level = $this->keepers_info[$keeper_id]["level"];
 
                 $this->notifyAllPlayers(
-                    "completeKeeper", 
-                clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),  
-                array(
-                    "preserve" => array("keeper_id"),
-                    "player_name" => $this->getActivePlayerName(),
-                    "player_id" => $player_id,
-                    "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
-                    "keeper_id" => $keeper_id,
-                    "keeper_name" => $keeper["type"],
-                    "keeper_level" => $keeper_level,
-                    "board_position" => $board_position,
-                    "completed_keepers" => $this->getCompletedKeepers(),
-                ));
+                    "completeKeeper",
+                    clienttranslate('${player_name} completes ${keeper_name} and scores ${keeper_level} point(s)'),
+                    array(
+                        "preserve" => array("keeper_id"),
+                        "player_name" => $this->getActivePlayerName(),
+                        "player_id" => $player_id,
+                        "player_color" => $this->loadPlayersBasicInfos()[$player_id]["player_color"],
+                        "keeper_id" => $keeper_id,
+                        "keeper_name" => $keeper["type"],
+                        "keeper_level" => $keeper_level,
+                        "board_position" => $board_position,
+                        "completed_keepers" => $this->getCompletedKeepers(),
+                    )
+                );
 
                 $this->updateScore($player_id, $keeper_level);
             }
@@ -3220,7 +3220,7 @@ class Zookeepers extends Table
         $keeper = array_shift($keepers_in_location);
 
         return array(
-            "keeper_name" => $keeper["type"], 
+            "keeper_name" => $keeper["type"],
             "keeper_id" => $keeper["type_arg"],
             "position" => explode(":", $keeper["location"])[1]
         );
