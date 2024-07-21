@@ -9,6 +9,54 @@
 -- See http://en.boardgamearena.com/#!doc/Studio for more information.
 -------
 -->
+<audio
+  id="audiosrc_zookeepers_carnivore"
+  src="{GAMETHEMEURL}img/zookeepers_carnivore.mp3"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_o_zookeepers_carnivore"
+  src="{GAMETHEMEURL}img/zookeepers_carnivore.ogg"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_zookeepers_herbivore"
+  src="{GAMETHEMEURL}img/zookeepers_herbivore.mp3"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_o_zookeepers_herbivore"
+  src="{GAMETHEMEURL}img/zookeepers_herbivore.ogg"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_zookeepers_bird"
+  src="{GAMETHEMEURL}img/zookeepers_bird.mp3"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_o_zookeepers_bird"
+  src="{GAMETHEMEURL}img/zookeepers_bird.ogg"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_zookeepers_reptile"
+  src="{GAMETHEMEURL}img/zookeepers_reptile.mp3"
+  preload="none"
+  autobuffer
+></audio>
+<audio
+  id="audiosrc_o_zookeepers_reptile"
+  src="{GAMETHEMEURL}img/zookeepers_reptile.ogg"
+  preload="none"
+  autobuffer
+></audio>
 <div id="zkp_gameplay_area" class="zkp_gameplay_area">
   <div id="zkp_common_area" class="zkp_common_area">
     <div id="zkp_species_shop" class="zkp_species_shop">

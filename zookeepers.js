@@ -1379,6 +1379,19 @@ define([
       return `-${xAxis}% -${yAxis}%`;
     },
 
+    playSpeciesSound: function (species_id) {
+      const species = this.allSpecies[species_id];
+
+      if (species.class === "mammal") {
+        playSound(`zookeepers_${species.diet}`);
+        this.disableNextMoveSound();
+        return;
+      }
+
+      playSound(`zookeepers_${species.class}`);
+      this.disableNextMoveSound();
+    },
+
     getTooltipForSpecies: function (species_id) {
       const species = this.allSpecies[species_id];
 
@@ -2825,6 +2838,8 @@ define([
       const shop_position = notif.args.shop_position;
       const species_id = notif.args.species_id;
 
+      this.playSpeciesSound(species_id);
+
       const originKey = `visibleShop_${shop_position}`;
       const destinationKey = `board_${player_id}:${board_position}`;
       const originElement = `zkp_visible_species_${shop_position}_item_${species_id}`;
@@ -2864,6 +2879,8 @@ define([
       const board_position = notif.args.board_position;
       const quarantine = notif.args.quarantine;
       const species_id = notif.args.species_id;
+
+      this.playSpeciesSound(species_id);
 
       const originKey = `quarantine_${player_id}:${quarantine}`;
       const destinationKey = `board_${player_id}:${board_position}`;
