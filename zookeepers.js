@@ -1556,7 +1556,9 @@ define([
     performAction: function (action, args = {}) {
       args.gameVersion = this.gameVersion;
 
-      this.bgaPerformAction(action, args);
+      if (this.checkAction(action, true)) {
+        this.bgaPerformAction(action, args);
+      }
     },
 
     checkKeeperOwner: function (keeperId, event = null) {
