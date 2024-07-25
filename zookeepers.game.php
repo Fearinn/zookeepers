@@ -376,7 +376,7 @@ class Zookeepers extends Table
         return $filtered_items;
     }
 
-    function findSpeciesByTypeArg(string $location, int $type_arg, int $location_arg = null): array | null
+    function findSpeciesByTypeArg(string $location, int $type_arg, int $location_arg = null)
     {
         $sql = "SELECT card_id id, card_type type, card_type_arg type_arg, card_location location, card_location_arg location_arg 
         FROM species WHERE card_location='$location' AND card_type_arg='$type_arg'";
