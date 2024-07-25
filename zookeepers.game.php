@@ -1188,7 +1188,7 @@ class Zookeepers extends Table
             $empty_column_nbr = $this->getEmptyColumnNbr();
 
             if ($empty_column_nbr < 2) {
-                throw new BgaVisibleSystemException("You can't draw new species until there are 2 or more empty species columns");
+                throw new BgaUserException("You can't draw new species until there are 2 or more empty species columns");
             }
 
             $backup_species = $this->species->getCardsInLocation("shop_backup");
