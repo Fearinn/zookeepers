@@ -49,13 +49,13 @@
   },
   "103": {
     "name": "Variant",
-    "alpha": true,
     "level": "major",
     "values": {
       "1": {
         "name": "fast mode",
         "description": "Perfect for beginners, that's the fastest and simplest Zookeepers experience",
-        "default": true
+        "default": true,
+        "alpha": true
       },
       "2": {
         "name": "normal mode",
