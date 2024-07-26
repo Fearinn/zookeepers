@@ -1121,7 +1121,7 @@ class Zookeepers extends Table
 
     function getEmptyColumnNbr()
     {
-        if (!$this->fastMode()) {
+        if ($this->fastMode()) {
             return 0;
         }
 
@@ -1187,8 +1187,8 @@ class Zookeepers extends Table
         } else {
             $empty_column_nbr = $this->getEmptyColumnNbr();
 
-            if ($empty_column_nbr < 2) {
-                throw new BgaUserException("You can't draw new species until there are 2 or more empty species columns");
+            if (!$auto && $empty_column_nbr < 2) {
+                throw new BgaVisibleSystemException("You can't draw new species until there are 2 or more empty species columns");
             }
 
             $backup_species = $this->species->getCardsInLocation("shop_backup");
