@@ -586,13 +586,14 @@ class Zookeepers extends Table
     {
         $savable_with_fund = array();
 
-        if ($this->fastMode()) {
-            return array();
-        }
-
         $players = $this->loadPlayersBasicInfos();
 
         foreach ($players as $player_id => $player) {
+            if ($this->fastMode()) {
+                $savable_with_fund[$player_id] = array();
+                continue;
+            }
+    
             $savable_with_fund[$player_id] = array();
             foreach ($this->quarantines() as $quarantine) {
                 $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
@@ -3617,6 +3618,45 @@ class Zookeepers extends Table
 
         throw new feException("Zombie mode not supported at this game state: " . $stateName);
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////:
+    ////////// Debugging
+    //////////
+
+    public function loadBugReportSQL(int $reportId, array $studioPlayers): void
+    {
+        $prodPlayers = $this->getObjectListFromDb("SELECT `player_id` FROM `player`", true);
+        $prodCount = count($prodPlayers);
+        $studioCount = count($studioPlayers);
+        if ($prodCount != $studioCount) {
+            throw new BgaVisibleSystemException("Incorrect player count (bug report has $prodCount players, studio table has $studioCount players)");
+        }
+
+        // SQL specific to your game
+        // For example, reset the current state if it's already game over
+        $sql = [
+            "UPDATE `global` SET `global_value` = 10 WHERE `global_id` = 1 AND `global_value` = 99"
+        ];
+        foreach ($prodPlayers as $index => $prodId) {
+            $studioId = $studioPlayers[$index];
+            // SQL common to all games
+            $sql[] = "UPDATE `player` SET `player_id` = $studioId WHERE `player_id` = $prodId";
+            $sql[] = "UPDATE `global` SET `global_value` = $studioId WHERE `global_value` = $prodId";
+            $sql[] = "UPDATE `stats` SET `stats_player_id` = $studioId WHERE `stats_player_id` = $prodId";
+
+            // SQL specific to your game
+            $sql[] = "UPDATE `keeper` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
+            $sql[] = "UPDATE `species` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
+            $sql[] = "UPDATE `resource` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
+            $sql[] = "UPDATE `objective` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
+            // $sql[] = "UPDATE `my_table` SET `my_column` = REPLACE(`my_column`, $prodId, $studioId)";
+        }
+        foreach ($sql as $q) {
+            $this->DbQuery($q);
+        }
+        $this->reloadPlayersBasicInfos();
+    }
+
 
     ///////////////////////////////////////////////////////////////////////////////////:
     ////////// DB upgrade
