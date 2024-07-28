@@ -2894,8 +2894,6 @@ class Zookeepers extends Table
             throw new BgaVisibleSystemException("You can draw new specie only once during your turn");
         }
 
-        $this->setGameStateValue("freeAction", 1);
-
         if ($this->fastMode()) {
             if ($this->gamestate->state()["name"] === "mngSecondSpecies") {
                 $this->setGameStateValue("prevState", 29);

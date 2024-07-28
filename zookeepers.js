@@ -935,14 +935,15 @@ define([
                 "gray"
               );
               dojo.addClass("zkp_image_btn_" + type, "bgaimagebutton");
+
+              const label = this.resourceTypes[type].label;
+
+              this.addActionButton("zkp_type_btn_" + type, label, () => {
+                this.onReturnFromNewSpecies(type);
+              });
             }
-
-            const label = this.resourceTypes[type].label;
-
-            this.addActionButton("zkp_type_btn_" + type, label, () => {
-              this.onReturnFromNewSpecies(type);
-            });
           }
+
           this.addActionButton(
             "zkp_cancel_btn",
             _("Cancel"),
