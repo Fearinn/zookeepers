@@ -593,7 +593,7 @@ class Zookeepers extends Table
                 $savable_with_fund[$player_id] = array();
                 continue;
             }
-    
+
             $savable_with_fund[$player_id] = array();
             foreach ($this->quarantines() as $quarantine) {
                 $cards_in_location = $this->species->getCardsInLocation("quarantine:" . $quarantine, $player_id);
@@ -1555,16 +1555,10 @@ class Zookeepers extends Table
         }
 
         if ($keepers_hired_nbr >= $this->keeperHouses()) {
-            throw new BgaVisibleSystemException("You don't have an open house for this keeper");
+            throw new BgaUserException($this->_("You don't have any open house for this keeper"));
         }
 
-        $board_position = 0;
-        for ($position = 1; $position <= $this->keeperHouses(); $position++) {
-            if ($this->keepers->countCardsInLocation("board:" . $position, $player_id) < 1) {
-                $board_position = $position;
-                break;
-            }
-        }
+        $board_position = $keepers_hired_nbr + 1;
 
         $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
