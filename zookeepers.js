@@ -1181,12 +1181,13 @@ define([
         this.emptyColumnNbr = args.args.empty_column_nbr;
         this.freeAction = args.args.freeAction;
 
+        const canNewSpecies =
+          this.freeAction != 1 &&
+          ((this.fastMode && this.resourcesInHandNbr > 0) ||
+            (!this.fastMode && this.emptyColumnNbr >= 2));
+
         if (this.isCurrentPlayerActive()) {
-          if (
-            this.freeAction != 1 &&
-            ((this.fastMode && this.resourcesInHandNbr > 0) ||
-              this.emptyColumnNbr >= 2)
-          ) {
+          if (canNewSpecies) {
             this.addActionButton(
               "zkp_new_species_btn",
               _("New Species"),
@@ -1530,11 +1531,12 @@ define([
       }
 
       if (this.isCurrentPlayerActive()) {
-        if (
+        const canNewSpecies =
           this.freeAction != 1 &&
           ((this.fastMode && this.resourcesInHandNbr > 0) ||
-            this.emptyColumnNbr >= 2)
-        ) {
+            (!this.fastMode && this.emptyColumnNbr >= 2));
+
+        if (canNewSpecies) {
           this.addActionButton(
             "zkp_new_species_btn",
             _("New Species"),
@@ -2145,11 +2147,12 @@ define([
 
         this.removeActionButtons();
 
-        if (
+        const canNewSpecies =
           this.freeAction != 1 &&
           ((this.fastMode && this.resourcesInHandNbr > 0) ||
-            this.emptyColumnNbr >= 2)
-        ) {
+            (!this.fastMode && this.emptyColumnNbr >= 2));
+
+        if (canNewSpecies) {
           this.addActionButton(
             "zkp_new_species_btn",
             _("New Species"),
@@ -2239,11 +2242,12 @@ define([
 
         this.removeActionButtons();
 
-        if (
+        const canNewSpecies =
           this.freeAction != 1 &&
           ((this.fastMode && this.resourcesInHandNbr > 0) ||
-            this.emptyColumnNbr >= 2)
-        ) {
+            (!this.fastMode && this.emptyColumnNbr >= 2));
+
+        if (canNewSpecies) {
           this.addActionButton(
             "zkp_new_species_btn",
             _("New Species"),
