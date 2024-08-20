@@ -146,6 +146,36 @@ define([
       this.isBagHidden = gamedatas.isBagHidden;
       this.hasSecretObjectives = gamedatas.hasSecretObjectives;
 
+      this.dontPreloadImage("bigger_keepers.png");
+      this.dontPreloadImage("bigger_species.png");
+      this.dontPreloadImage("bigger_objectives.png");
+      this.dontPreloadImage("objectives.png");
+      this.dontPreloadImage("playmat_fm.jpg");
+      this.dontPreloadImage("playmat.png");
+
+      const loadedImages = [];
+
+      if (this.getGameUserPreference(200) == 0) {
+        loadedImages.push("bigger_keepers.png");
+        loadedImages.push("bigger_species.png");
+      }
+
+      if (this.fastMode) {
+        loadedImages.push("playmat_fm.jpg");
+      } else {
+        loadedImages.push("playmat.png");
+      }
+
+      if (this.hasSecretObjectives) {
+        loadedImages.push("objectives.png");
+
+        if (this.getGameUserPreference(200) == 0) {
+          loadedImages.push("bigger_objectives.png");
+        }
+      }
+
+      this.ensureSpecificGameImageLoading(loadedImages);
+
       this.resourceTypes = gamedatas.resourceTypes;
 
       this.allKeepers = gamedatas.allKeepers;
