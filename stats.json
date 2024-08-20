@@ -45,23 +45,23 @@
       "name": "keepers dismissed/replaced",
       "type": "int"
     },
-    "points_objectives": {
-      "id": 19,
-      "name": "points from objectives",
-      "type": "int"
-    },
     "resources_consumed": {
       "id": 20,
       "name": "resources consumed",
       "type": "int"
     },
+    "points_objectives": {
+      "id": 23,
+      "name": "points from objectives",
+      "type": "int"
+    },
     "zoo_help_asked": {
-      "id": 21,
+      "id": 24,
       "name": "zoo help asked",
       "type": "int"
     },
     "zoo_help_given": {
-      "id": 22,
+      "id": 25,
       "name": "zoo help given",
       "type": "int"
     }

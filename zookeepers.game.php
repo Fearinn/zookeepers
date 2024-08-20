@@ -217,11 +217,17 @@ class Zookeepers extends Table
         $this->initStat("player", "discarded_saved_species", 0);
         $this->initStat("player", "keepers_completed", 0);
         $this->initStat("player", "points_keepers_completed", 0);
-        $this->initStat("player", "points_objectives", 0);
         $this->initStat("player", "keepers_dismissed", 0);
         $this->initStat("player", "resources_consumed", 0);
-        $this->initStat("player", "zoo_help_asked", 0);
-        $this->initStat("player", "zoo_help_given", 0);
+
+        if ($this->hasSecretObjectives()) {
+            $this->initStat("player", "points_objectives", 0);
+        }
+
+        if (!$this->fastMode()) {
+            $this->initStat("player", "zoo_help_asked", 0);
+            $this->initStat("player", "zoo_help_given", 0);
+        }
 
         // Activate first player (which is in general a good idea :) )
         $this->activeNextPlayer();
