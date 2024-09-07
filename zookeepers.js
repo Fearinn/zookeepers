@@ -21,6 +21,7 @@ define([
   "ebg/core/gamegui",
   "ebg/counter",
   "ebg/stock",
+  g_gamethemeurl + "modules/bga-zoom.js",
 ], function (dojo, declare) {
   return declare("bgagame.zookeepers", ebg.core.gamegui, {
     constructor: function () {
@@ -173,8 +174,15 @@ define([
           loadedImages.push("bigger_objectives.png");
         }
       }
-
       this.ensureSpecificGameImageLoading(loadedImages);
+
+      this.zoomManager = new ZoomManager({
+        element: document.getElementById("zkp_gameplay_area"),
+        localStorageZoomKey: "zookeepers-zoom",
+        zoomControls: {
+          color: "black",
+        },
+      });
 
       this.resourceTypes = gamedatas.resourceTypes;
 
