@@ -54,12 +54,12 @@
       "1": {
         "name": "fast mode",
         "description": "Perfect for beginners, that's the fastest and simplest Zookeepers experience",
-        "default": true,
         "alpha": true
       },
       "2": {
         "name": "normal mode",
         "description": "The complete Zookeepers experience, with more mechanics and possible strategies",
+        "default": true,
         "nobegginer": true
       }
     }
