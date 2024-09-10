@@ -53,8 +53,7 @@
     "values": {
       "1": {
         "name": "fast mode",
-        "description": "Perfect for beginners, that's the fastest and simplest Zookeepers experience",
-        "alpha": true
+        "description": "Perfect for beginners, that's the fastest and simplest Zookeepers experience"
       },
       "2": {
         "name": "normal mode",
