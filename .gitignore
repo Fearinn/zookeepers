@@ -1,3 +1,4 @@
 *.png
 *.jpg
 .vscode
+_ide_helper.php
