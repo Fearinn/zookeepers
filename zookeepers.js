@@ -3328,9 +3328,12 @@ define([
       this.showMessage(
         this.format_string_recursive(
           _(
-            "${player_name} reaches 9 saved species. Each of the other players must play their last turn before the game ends"
+            "${player_name} reaches ${species_goal} saved species. Each of the other players must play their last turn before the game ends"
           ),
-          { player_name: notif.args.player_name }
+          {
+            player_name: notif.args.player_name,
+            species_goal: notif.args.species_goal,
+          }
         ),
         "warning"
       );

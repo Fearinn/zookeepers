@@ -235,7 +235,7 @@ class Zookeepers extends Table
         /************ End of the game initialization *****/
     }
 
-    protected function getAllDatas()
+    protected function getAllDatas(): array
     {
         $result = array();
 
@@ -3598,7 +3598,7 @@ class Zookeepers extends Table
         you must _never_ use getCurrentPlayerId() or getCurrentPlayerName(), otherwise it will fail with a "Not logged" error message. 
     */
 
-    function zombieTurn($state, $active_player)
+    function zombieTurn($state, $active_player): void
     {
         $stateName = $state['name'];
 
@@ -3616,45 +3616,6 @@ class Zookeepers extends Table
 
         throw new feException("Zombie mode not supported at this game state: " . $stateName);
     }
-
-    ///////////////////////////////////////////////////////////////////////////////////:
-    ////////// Debugging
-    //////////
-
-    public function loadBugReportSQL(int $reportId, array $studioPlayers): void
-    {
-        $prodPlayers = $this->getObjectListFromDb("SELECT `player_id` FROM `player`", true);
-        $prodCount = count($prodPlayers);
-        $studioCount = count($studioPlayers);
-        if ($prodCount != $studioCount) {
-            throw new BgaVisibleSystemException("Incorrect player count (bug report has $prodCount players, studio table has $studioCount players)");
-        }
-
-        // SQL specific to your game
-        // For example, reset the current state if it's already game over
-        $sql = [
-            "UPDATE `global` SET `global_value` = 10 WHERE `global_id` = 1 AND `global_value` = 99"
-        ];
-        foreach ($prodPlayers as $index => $prodId) {
-            $studioId = $studioPlayers[$index];
-            // SQL common to all games
-            $sql[] = "UPDATE `player` SET `player_id` = $studioId WHERE `player_id` = $prodId";
-            $sql[] = "UPDATE `global` SET `global_value` = $studioId WHERE `global_value` = $prodId";
-            $sql[] = "UPDATE `stats` SET `stats_player_id` = $studioId WHERE `stats_player_id` = $prodId";
-
-            // SQL specific to your game
-            $sql[] = "UPDATE `keeper` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
-            $sql[] = "UPDATE `species` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
-            $sql[] = "UPDATE `resource` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
-            $sql[] = "UPDATE `objective` SET `card_location_arg` = $studioId WHERE `card_location_arg` = $prodId";
-            // $sql[] = "UPDATE `my_table` SET `my_column` = REPLACE(`my_column`, $prodId, $studioId)";
-        }
-        foreach ($sql as $q) {
-            $this->DbQuery($q);
-        }
-        $this->reloadPlayersBasicInfos();
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////:
     ////////// DB upgrade
@@ -3697,5 +3658,17 @@ class Zookeepers extends Table
         //
 
 
+    }
+
+    public function debug_lastTurn()
+    {
+        $this->notifyAllPlayers(
+            "lastTurn",
+            clienttranslate('${player_name} reaches ${species_goal} saved species. Each of the other players must play their last turn before the game ends'),
+            array(
+                "player_name" => $this->getActivePlayerName(),
+                "species_goal" => $this->speciesGoal()
+            )
+        );
     }
 }
