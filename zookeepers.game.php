@@ -1555,7 +1555,6 @@ class Zookeepers extends Table
         $player_id = $this->getActivePlayerId();
 
         $keepers_hired_nbr = 0;
-
         for ($position = 1; $position <= $this->keeperHouses(); $position++) {
             $keepers_hired_nbr += $this->keepers->countCardsInLocation("board:" . $position, $player_id);
         }
@@ -1564,7 +1563,12 @@ class Zookeepers extends Table
             throw new BgaUserException($this->_("You don't have any open house for this keeper"));
         }
 
-        $board_position = $keepers_hired_nbr + 1;
+        for ($board_position = 1; $board_position <= $this->keeperHouses(); $board_position++) {
+            $keepersInHouseNbr = $this->keepers->countCardsInLocation("board:{$board_position}", $player_id);
+            if ($keepersInHouseNbr == 0) {
+                break;
+            }
+        }
 
         $keeper = $this->keepers->pickCardForLocation("deck:" . $pile, "board:" . $board_position, $player_id);
 
