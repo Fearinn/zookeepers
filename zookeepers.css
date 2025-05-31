@@ -202,6 +202,10 @@
   min-height: 249px;
 }
 
+.zkp_bag_title {
+  font-size: 24px;
+}
+
 .zkp_bag_stock {
   height: 150px;
   width: 150px;
@@ -313,6 +317,13 @@
 
 .zkp_playmat.zkp_fast_mode {
   background-image: url("img/playmat_fm.jpg");
+}
+
+.zkp_zoo_title {
+  font-size: 24px;
+  font-weight: bold;
+  border-radius: 8px;
+  width: fit-content;
 }
 
 .zkp_houses {

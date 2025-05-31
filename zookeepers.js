@@ -222,12 +222,156 @@ define([
       }
 
       for (const player_id in this.gamedatas.players) {
-        if (player_id != this.getCurrentPlayerId()) {
-          const player_name = this.gamedatas.players[player_id].name;
-          $(`zkp_zoo_title:${player_id}`).textContent =
-            this.format_string_recursive(_("${player_name}'s zoo"), {
-              player_name: player_name,
-            });
+        document.getElementById("zkp_playmats").insertAdjacentHTML(
+          "beforeend",
+          `<div
+      id="zkp_playmat_container:${player_id}"
+      class="zkp_playmat_container:${player_id} zkp_playmat_container whiteblock"
+    >
+      <h3 id="zkp_zoo_title:${player_id}" class="zkp_zoo_title whiteblock">
+        {PLAYER_NAME}
+      </h3>
+      <div id="zkp_playmat:${player_id}" class="zkp_playmat">
+        <button
+          id="zkp_expand_house_${player_id}:1"
+          class="zkp_expand_house zkp_expand_house_1"
+        ></button>
+        <button
+          id="zkp_expand_house_${player_id}:2"
+          class="zkp_expand_house zkp_expand_house_2"
+        ></button>
+        <button
+          id="zkp_expand_house_${player_id}:3"
+          class="zkp_expand_house zkp_expand_house_3"
+        ></button>
+        <button
+          id="zkp_expand_house_${player_id}:4"
+          class="zkp_expand_house zkp_expand_house_4"
+        ></button>
+        <div id="zkp_houses_${player_id}" class="zkp_houses">
+          <div
+            id="zkp_keeper_${player_id}:1"
+            class="zkp_house zkp_keeper_${player_id}"
+          ></div>
+          <div
+            id="zkp_keeper_${player_id}:2"
+            class="zkp_house zkp_keeper_${player_id}"
+          ></div>
+          <div
+            id="zkp_keeper_${player_id}:3"
+            class="zkp_house zkp_keeper_${player_id}"
+          ></div>
+          <div
+            id="zkp_keeper_${player_id}:4"
+            class="zkp_house zkp_keeper_${player_id}"
+          ></div>
+        </div>
+        <div id="zkp_playmat_counters_${player_id}" class="zkp_playmat_counters">
+          <div
+            id="zkp_playmat_counter_${player_id}:0"
+            class="zkp_playmat_counter_0 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:1"
+            class="zkp_playmat_counter_1 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:2"
+            class="zkp_playmat_counter_2 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:3"
+            class="zkp_playmat_counter_3 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:4"
+            class="zkp_playmat_counter_4 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:5"
+            class="zkp_playmat_counter_5 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:6"
+            class="zkp_playmat_counter_6 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:7"
+            class="zkp_playmat_counter_7 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:8"
+            class="zkp_playmat_counter_8 zkp_playmat_counter"
+          ></div>
+          <div
+            id="zkp_playmat_counter_${player_id}:9"
+            class="zkp_playmat_counter_9 zkp_playmat_counter"
+          ></div>
+        </div>
+        <div
+          id="zkp_quarantine_${player_id}:ALL"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_ALL"
+          data-quarantine="ALL"
+        ></div>
+        <div
+          id="zkp_quarantine_${player_id}:TEM"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_TEM"
+          data-quarantine="TEM"
+        ></div>
+        <div
+          id="zkp_quarantine_${player_id}:SAV"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_SAV"
+          data-quarantine="SAV"
+        ></div>
+        <div
+          id="zkp_quarantine_${player_id}:PRA"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_PRA"
+          data-quarantine="PRA"
+        ></div>
+        <div
+          id="zkp_quarantine_${player_id}:DES"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_DES"
+          data-quarantine="DES"
+        ></div>
+        <div
+          id="zkp_quarantine_${player_id}:AQU"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_AQU"
+          data-quarantine="AQU"
+        ></div>
+        <div
+          id="zkp_quarantine_${player_id}:TRO"
+          class="zkp_quarantine zkp_quarantine_${player_id} zkp_quarantine_TRO"
+          data-quarantine="TRO"
+        ></div>
+      </div>
+    </div>`
+        );
+
+        const titleElement = document.getElementById(
+          `zkp_zoo_title:${player_id}`
+        );
+        const playerColor = `#${this.gamedatas.players[player_id].color}`;
+        titleElement.style.color = playerColor;
+
+        const playmatContainerElement = document.getElementById(
+          `zkp_playmat_container:${player_id}`
+        );
+        playmatContainerElement.style.backgroundColor = `${playerColor}44`;
+
+        const player_name = this.gamedatas.players[player_id].name;
+        if (player_id == this.player_id) {
+          titleElement.textContent = this.format_string_recursive(
+            _("Your zoo (${player_name})"),
+            { player_name }
+          );
+          playmatContainerElement.style.order = -1;
+        } else {
+          titleElement.textContent = this.format_string_recursive(
+            _("${player_name}'s zoo"),
+            {
+              player_name,
+            }
+          );
         }
       }
 
@@ -269,6 +413,7 @@ define([
         this.addTooltip(`zkp_kit_icon_${player_id}`, _("medical kit"), "");
       }
 
+      document.getElementById("zkp_bag_title").textContent = _("Resources");
       const bagKey = "bag";
       this[bagKey] = new ebg.stock();
       this[bagKey].create(this, $("zkp_bag_stock"), 150, 150);
