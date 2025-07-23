@@ -2292,7 +2292,7 @@ class Zookeepers extends Table
             clienttranslate('${player_name} saves the ${species_name} from his ${quarantine_label} quarantine and assigns it to ${keeper_name}. ${species_points} point(s) scored'),
             array(
                 "i18n" => array("species_name"),
-                "preserve" => array("species_id"),
+                "preserve" => array("species_id", "keeper_id"),
                 "species_name" => $this->species_info[$species_id]["name"],
                 "species_id" => $species_id,
                 "player_name" => $this->getActivePlayerName(),
@@ -2301,6 +2301,7 @@ class Zookeepers extends Table
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
                 "keeper_name" => $keeper["type"],
+                "keeper_id" => $keeper["type_arg"],
                 "board_position" => $board_position,
                 "saved_species" => $this->getSavedSpecies(),
                 "quarantine" => $quarantine,
@@ -2452,7 +2453,7 @@ class Zookeepers extends Table
             clienttranslate('${player_name} saves the ${species_name} and assigns it to ${keeper_name}. ${species_points} point(s) scored'),
             array(
                 "i18n" => array("species_name"),
-                "preserve" => array("species_id"),
+                "preserve" => array("species_id", "keeper_id"),
                 "species_name" => $this->species_info[$species_id]["name"],
                 "species_id" => $species_id,
                 "player_name" => $this->getActivePlayerName(),
@@ -2461,6 +2462,7 @@ class Zookeepers extends Table
                 "species_points" => $points,
                 "shop_position" => $species["location_arg"],
                 "keeper_name" => $keeper["type"],
+                "keeper_id" => $keeper["type_arg"],
                 "board_position" => $board_position,
                 "visible_species" => $this->getVisibleSpecies(),
                 "savable_species" => $this->getSavableSpecies(),
