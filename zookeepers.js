@@ -3540,7 +3540,7 @@ define([
           if (args.species_id && args.species_name) {
             const html = this.getTooltipForSpecies(args.species_id, true);
             const uid = Date.now() + args.species_id;
-            args.species_name = `<span class="zkp_log_highlight" id="zkp_species_log:${uid}">${args.species_name}</span>`;
+            args.species_name = `<span class="zkp_log_highlight" id="zkp_species_log:${uid}">${_(args.species_name)}</span>`;
             this.registerCustomTooltip(html, `zkp_species_log:${uid}`);
           }
 
