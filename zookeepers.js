@@ -1809,7 +1809,7 @@ define([
       }
 
       if (!isOwner) {
-        this.showMessage(_("This quarantine is not yours"), "error");
+        // this.showMessage(_("This quarantine is not yours"), "error");
       }
 
       return isOwner;
@@ -2023,14 +2023,14 @@ define([
 
         if (stockItemsNbr > 0) {
           if (!this.isCurrentPlayerActive()) {
-            this.showMessage(_("It's not your turn"), "error");
+            // this.showMessage(_("It's not your turn"), "error");
             stock.unselectAll();
             return;
           }
         }
 
         if (this.isBagEmpty) {
-          this.showMessage(_("The bag is empty"), "error");
+          // this.showMessage(_("The bag is empty"), "error");
           stock.unselectAll();
           return;
         }
@@ -2128,12 +2128,12 @@ define([
               return;
             }
 
-            this.showMessage(_("You can't collect resources now"), "error");
+            // this.showMessage(_("You can't collect resources now"), "error");
             stock.unselectAll();
             return;
           }
 
-          this.showMessage(_("You can't collect resources now"), "error");
+          // this.showMessage(_("You can't collect resources now"), "error");
           stock.unselectAll();
           return;
         }
@@ -2148,13 +2148,13 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not your turn"), "error");
+          // this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
 
         if (this.mainAction > 0 || !this.openHouse) {
-          this.showMessage(_("You can't hire a keeper now"), "error");
+          // this.showMessage(_("You can't hire a keeper now"), "error");
           stock.unselectAll();
           return;
         }
@@ -2206,7 +2206,7 @@ define([
         }
 
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not your turn"), "error");
+          // this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
@@ -2218,19 +2218,19 @@ define([
           Object.keys(this.savedSpecies[playerId][position]).length ==
             this.speciesCounters[playerId].getValue()
         ) {
-          this.showMessage(
-            "You'd be unable to continue this match if you dismissed or replaced this keeper",
-            "error"
-          );
+          // this.showMessage(
+          //   "You'd be unable to continue this match if you dismissed or replaced this keeper",
+          //   "error"
+          // );
           stock.unselectAll();
           return;
         }
 
         if (this.mainAction > 0) {
-          this.showMessage(
-            "You can't do anything with this keeper now",
-            "error"
-          );
+          // this.showMessage(
+          //   "You can't do anything with this keeper now",
+          //   "error"
+          // );
           stock.unselectAll();
           return;
         }
@@ -2283,16 +2283,16 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not your turn"), "error");
+          // this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
 
         if (this.mainAction > 0 && this.mainAction != 2) {
-          this.showMessage(
-            _("You can't do anything with this species now"),
-            "error"
-          );
+          // this.showMessage(
+          //   _("You can't do anything with this species now"),
+          //   "error"
+          // );
           stock.unselectAll();
           return;
         }
@@ -2438,16 +2438,16 @@ define([
 
       if (stockItemsNbr > 0) {
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not your turn"), "error");
+          // this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
 
         if (this.mainAction > 0) {
-          this.showMessage(
-            _("You can't do anything with this species now"),
-            "error"
-          );
+          // this.showMessage(
+          //   _("You can't do anything with this species now"),
+          //   "error"
+          // );
           stock.unselectAll();
           return;
         }
@@ -2554,7 +2554,7 @@ define([
         }
 
         if (!this.isCurrentPlayerActive()) {
-          this.showMessage(_("It's not your turn"), "error");
+          // this.showMessage(_("It's not your turn"), "error");
           stock.unselectAll();
           return;
         }
@@ -2564,10 +2564,10 @@ define([
           !savableQuarantined ||
           !savableQuarantined[itemId]
         ) {
-          this.showMessage(
-            _("You can't do anything with this species now"),
-            "error"
-          );
+          // this.showMessage(
+          //   _("You can't do anything with this species now"),
+          //   "error"
+          // );
           stock.unselectAll();
           return;
         }
@@ -2627,16 +2627,16 @@ define([
       if (this.gamedatas.gamestate.name === "playerTurn") {
         if (stockItemsNbr > 0) {
           if (!this.isCurrentPlayerActive()) {
-            this.showMessage(_("It's not your turn"), "error");
+            // this.showMessage(_("It's not your turn"), "error");
             stock.unselectAll();
             return;
           }
 
           if (this.mainAction > 0) {
-            this.showMessage(
-              _("You can't replace this objective now"),
-              "error"
-            );
+            // this.showMessage(
+            //   _("You can't replace this objective now"),
+            //   "error"
+            // );
             stock.unselectAll();
             return;
           }
