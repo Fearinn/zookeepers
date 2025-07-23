@@ -933,6 +933,7 @@ define([
 
       // Setup game notifications to handle (see "setupNotifications" method below)
       this.setupNotifications();
+      this.initObserver();
 
       console.log("Ending game setup");
     },
@@ -3677,6 +3678,34 @@ define([
       }
 
       return this.inherited(arguments);
+    },
+
+    initObserver: function () {
+      const observer = new MutationObserver((mutationList) => {
+        console.log(mutationList);
+        mutationList.forEach((mutation) => {
+          const target = mutation.target;
+
+          console.log(mutation, target);
+
+          if (!target.classList.contains("zkp_card")) {
+            return;
+          }
+
+          console.log(target.style, target.style.borderWidth);
+
+          if (target.style.borderWidth === "1px") {
+            target.style.borderWidth = "3px";
+          }
+        });
+      });
+
+      observer.observe(document.getElementById("zkp_gameplay_area"), {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["style"],
+      });
     },
   });
 });
