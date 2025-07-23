@@ -1577,7 +1577,7 @@ define([
       this.disableNextMoveSound();
     },
 
-    getTooltipForSpecies: function (species_id) {
+    getTooltipForSpecies: function (species_id, isLog = false) {
       const species = this.allSpecies[species_id];
 
       if (!species) {
@@ -1588,8 +1588,11 @@ define([
 
       const backgroundPosition = this.calcBackgroundPosition(species_id - 1);
 
-      const html = `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>
-        <span style="display: block; text-align: center; text-transform: capitalize">${speciesName}</span>`;
+      const html = `${
+        isLog
+          ? `<div class="zkp_bigger_species zkp_card" style="background-position: ${backgroundPosition}"></div>`
+          : ""
+      }<span style="display: block; text-align: center; text-transform: capitalize">${speciesName}</span>`;
 
       return html;
     },
@@ -3535,7 +3538,7 @@ define([
           args.processed = true;
 
           if (args.species_id && args.species_name) {
-            const html = this.getTooltipForSpecies(args.species_id);
+            const html = this.getTooltipForSpecies(args.species_id, true);
             const uid = Date.now() + args.species_id;
             args.species_name = `<span class="zkp_log_highlight" id="zkp_species_log:${uid}">${args.species_name}</span>`;
             this.registerCustomTooltip(html, `zkp_species_log:${uid}`);
