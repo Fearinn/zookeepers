@@ -2051,6 +2051,16 @@ define([
               );
               this.updatePageTitle();
 
+              this.statusBar.addActionButton(
+                _("Cancel"),
+                () => {
+                  stock.unselectAll();
+                },
+                {
+                  color: "alert",
+                }
+              );
+
               this.addActionButton(
                 "zkp_collect_resources_btn",
                 _("Collect"),
@@ -2068,6 +2078,16 @@ define([
               );
               this.updatePageTitle();
 
+              this.statusBar.addActionButton(
+                _("Cancel"),
+                () => {
+                  stock.unselectAll();
+                },
+                {
+                  color: "alert",
+                }
+              );
+
               this.addActionButton("zkp_collect_fund_btn", _("Fund"), () => {
                 stock.unselectAll();
                 this.onExchangeResources();
@@ -2080,6 +2100,16 @@ define([
                 "${you} can collect resources or use the conservation fund"
               );
               this.updatePageTitle();
+
+              this.statusBar.addActionButton(
+                _("Cancel"),
+                () => {
+                  stock.unselectAll();
+                },
+                {
+                  color: "alert",
+                }
+              );
 
               this.addActionButton(
                 "zkp_collect_resources_btn",
@@ -2138,6 +2168,16 @@ define([
             "${you} can hire a keeper from this pile"
           );
           this.updatePageTitle();
+
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
 
           this.addActionButton("zkp_hire_keeper_btn", _("Hire"), () => {
             stock.unselectAll();
@@ -2207,6 +2247,16 @@ define([
           );
           this.updatePageTitle();
 
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
+
           this.addActionButton("zkp_replace_keeper_btn", _("Replace"), () => {
             stock.unselectAll();
             this.onReplaceKeeper(itemId);
@@ -2260,6 +2310,16 @@ define([
             );
             this.updatePageTitle();
 
+            this.statusBar.addActionButton(
+              _("Cancel"),
+              () => {
+                stock.unselectAll();
+              },
+              {
+                color: "alert",
+              }
+            );
+
             this.addActionButton("zkp_zoo_help_btn", _("Zoo Help"), () => {
               stock.unselectAll();
               this.onZooHelp(itemId);
@@ -2271,6 +2331,16 @@ define([
             "${you} can select an action with this species"
           );
           this.updatePageTitle();
+
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
 
           if (this.savableWithFund && this.savableWithFund[itemId]) {
             this.addActionButton(
@@ -2397,6 +2467,16 @@ define([
           );
           this.updatePageTitle();
 
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
+
           this.addActionButton(
             "zkp_manage_backup_species_btn",
             _("Look at and discard/quarantine"),
@@ -2506,6 +2586,16 @@ define([
           );
           this.updatePageTitle();
 
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
+
           if (this.savableQuarantinedWithFund[playerId][itemId]) {
             this.addActionButton(
               "zkp_save_species_btn",
@@ -2557,6 +2647,26 @@ define([
             "${you} can replace this objective"
           );
           this.updatePageTitle();
+
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
+
+          this.statusBar.addActionButton(
+            _("Cancel"),
+            () => {
+              stock.unselectAll();
+            },
+            {
+              color: "alert",
+            }
+          );
 
           this.addActionButton(
             "zkp_replace_objective_btn",
@@ -3540,7 +3650,9 @@ define([
           if (args.species_id && args.species_name) {
             const html = this.getTooltipForSpecies(args.species_id, true);
             const uid = Date.now() + args.species_id;
-            args.species_name = `<span class="zkp_log_highlight" id="zkp_species_log:${uid}">${_(args.species_name)}</span>`;
+            args.species_name = `<span class="zkp_log_highlight" id="zkp_species_log:${uid}">${_(
+              args.species_name
+            )}</span>`;
             this.registerCustomTooltip(html, `zkp_species_log:${uid}`);
           }
 
